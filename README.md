@@ -8,15 +8,15 @@ CancerPPIr is intended for exploratory network prioritization. It does not estab
 
 CancerPPIr performs the following steps:
 
-1. reads a gene-level table containing gene symbols, log-fold changes, and p-values;
-2. normalizes gene symbols using HGNChelper;
-3. maps genes to STRING v12 protein identifiers for *Homo sapiens*;
-4. reconstructs a STRING-derived PPI subnetwork using a user-defined confidence threshold;
-5. calculates node-level network metrics, including degree, betweenness, closeness, stress centrality, and local clustering;
-6. ranks proteins using a composite candidate score based on topology, absolute logFC, and statistical evidence;
-7. detects Louvain communities;
-8. annotates major modules using locally cached STRING enrichment terms and curated marker-gene overlap;
-9. exports analytical and technical reports, STRING network links, and an annotated GraphML network.
+1. Reads a bulk RNA-seq-derived differential expression table.
+2. Normalizes and validates gene symbols.
+3. Maps genes to STRING protein identifiers.
+4. Reconstructs a patient-specific STRING-derived PPI subnetwork.
+5. Computes node-level topology metrics.
+6. Detects Louvain modules.
+7. Performs local STRING-based enrichment for the network, modules and top candidates.
+8. Annotates major modules using local STRING enrichment and curated marker-gene overlap.
+9. Exports analytical and technical reports, a GraphML network and STRING network links.
 
 ## Input
 
@@ -61,7 +61,7 @@ BiocManager::install("STRINGdb")
 ## Quick start
 
 ```bash
-Rscript cancerppir.R input/Genes_R.csv results string_cache 400 30 TRUE
+Rscript cancerppir.R examples/input/Genes_R.csv results string_cache 400 30 TRUE
 ```
 
 Arguments:
@@ -81,7 +81,11 @@ The output directory is created from the input filename. For example:
 input/Genes_R.csv -> results/Genes_R/
 ```
 
-The first run may download STRING v12 files into the cache directory. Subsequent runs reuse the cached files.
+## STRING cache
+
+CancerPPIr uses locally cached STRING v12 files for offline annotation.
+
+The first run may download several hundred megabytes of STRING v12 data into the local cache directory. Subsequent runs reuse the cached files. The cache directory is not distributed with the repository.
 
 ## Output
 
