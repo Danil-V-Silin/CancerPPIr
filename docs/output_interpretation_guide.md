@@ -143,12 +143,12 @@ Raw enrichment sheets are kept for audit. They include broad and redundant datab
 
 When reporting a candidate protein, include the following information:
 
-1. its rank or `candidate_score`;
-2. the main topology metric supporting prioritization;
-3. the expression-level evidence supplied in the input table;
-4. the Louvain module and final module label;
-5. the label confidence and warning status;
-6. the most relevant interpretable enrichment terms or marker support.
+1. Its rank or `candidate_score`;
+2. The main topology metric supporting prioritization;
+3. The expression-level evidence supplied in the input table;
+4. The Louvain module and final module label;
+5. The label confidence and warning status;
+6. The most relevant interpretable enrichment terms or marker support.
 
 A concise reporting sentence should link the candidate to its evidence:
 
@@ -163,13 +163,13 @@ Avoid unsupported wording such as:
 When reporting a module, include:
 
 1. Louvain module identifier;
-2. module size;
-3. final functional label;
-4. label source;
-5. label confidence;
-6. warning status;
-7. representative genes or candidates;
-8. top interpretable enrichment terms.
+2. Module size;
+3. Final functional label;
+4. Label source;
+5. Label confidence;
+6. Warning status;
+7. Representative genes or candidates;
+8. Top interpretable enrichment terms.
 
 A conservative formulation is:
 
