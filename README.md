@@ -44,11 +44,17 @@ pvalue,logFC,gene
 CancerPPIr requires R and the following packages:
 
 ```r
-install.packages(c("HGNChelper", "igraph", "openxlsx", "dplyr", "tibble", "curl", "sna"))
+install.packages(c(
+  "BiocManager",
+  "HGNChelper",
+  "igraph",
+  "openxlsx",
+  "dplyr",
+  "tibble",
+  "curl",
+  "sna"
+))
 
-if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
-}
 BiocManager::install("STRINGdb")
 ```
 
