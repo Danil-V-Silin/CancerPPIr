@@ -78,7 +78,7 @@ Arguments:
 The output directory is created from the input filename. For example:
 
 ```text
-input/Genes_R.csv -> results/Genes_R/
+examples/input/Genes_R.csv -> results/Genes_R/
 ```
 
 ## STRING cache
@@ -122,6 +122,15 @@ Major Louvain modules are annotated using two evidence layers:
 - local STRING v12 enrichment terms for *Homo sapiens*.
 
 Broad enrichment terms are not used as primary biological evidence in the analytical report. Raw enrichment results are retained in the technical workbook.
+
+## Documentation
+
+Additional documentation is available in the `docs/` directory:
+
+- `docs/output_interpretation_guide.md`
+- `docs/annotation_rules.md`
+- `docs/glossary.md`
+- `docs/limitations.md`
 
 ## Interpretation
 
