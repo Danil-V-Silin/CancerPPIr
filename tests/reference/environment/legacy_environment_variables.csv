@@ -1,0 +1,7 @@
+"variable","value"
+"R_LIBS_USER","<USER_HOME>\AppData\Local/R/win-library/4.5"
+"R_LIBS_SITE","<R_HOME>/site-library"
+"R_DEFAULT_INTERNET_TIMEOUT",
+"CURL_CA_BUNDLE","<R_HOME>/etc/curl-ca-bundle.crt"
+"SSL_CERT_FILE",
+"GIT_SSL_CAINFO",

@@ -1,0 +1,30 @@
+# Automatically detect text files
+* text=auto
+
+# Source code and project configuration
+*.R text eol=lf
+*.Rmd text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.sh text eol=lf
+
+# Reference metadata
+*.csv text eol=lf
+*.txt text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.xlsx binary
+*.xls binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gz binary
+*.rds binary
+*.RData binary

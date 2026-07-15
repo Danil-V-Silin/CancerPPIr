@@ -1,0 +1,4 @@
+"sample_id","file_name","relative_path","selection_reason","size_bytes","line_count","md5"
+"R01","Genes_R.csv","../input/Genes_R.csv","Dense and highly connected reference network",11269,400,"477c694dfb7baf6cfbb4883dc13abb76"
+"K01","Genes_K.csv","../input/Genes_K.csv","Fragmented reference network",18319,401,"825336dcae0536e7f6e9661cd2603b06"
+"P01","Genes_P01.csv","../input/Genes_P01.csv","Proliferative reference network",17334,400,"be3d763b3543c215046a98a79970d30b"
