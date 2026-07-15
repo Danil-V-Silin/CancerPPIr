@@ -1,4 +1,4 @@
-"package","installed","version","library_path","built","repository"
+"package","installed","version","library_path","built_under_R","repository"
 "HGNChelper",TRUE,"0.8.15","<USER_HOME>/AppData/Local/R/win-library/4.5/HGNChelper","R 4.5.0; ; 2025-06-16 00:47:42 UTC; windows","CRAN"
 "STRINGdb",TRUE,"2.20.0","<USER_HOME>/AppData/Local/R/win-library/4.5/STRINGdb","R 4.5.0; ; 2025-04-16 15:39:37 UTC; windows","Bioconductor 3.21"
 "igraph",TRUE,"2.2.3","<USER_HOME>/AppData/Local/R/win-library/4.5/igraph","R 4.5.3; x86_64-w64-mingw32; 2026-04-11 23:57:15 UTC; windows","CRAN"
