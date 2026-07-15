@@ -37,15 +37,23 @@ dir.create(
 # -------------------------------------------------------------------------
 
 reference_inputs <- c(
-  R01 = "../input/Genes_R.csv",
+  A01 = "../input/Genes_A.csv",
   K01 = "../input/Genes_K.csv",
-  P01 = "../input/Genes_P01.csv"
+  L01 = "../input/Genes_L.csv",
+  M01 = "../input/Genes_M.csv",
+  P01 = "../input/Genes_P01.csv",
+  P02 = "../input/Genes_P02.csv",
+  R01 = "../input/Genes_R.csv"
 )
 
 selection_reason <- c(
-  R01 = "Dense and highly connected reference network",
-  K01 = "Fragmented reference network",
-  P01 = "Proliferative reference network"
+  A01 = "Full clinical baseline: colorectal cancer case A01",
+  K01 = "Full clinical baseline: colorectal cancer case K01",
+  L01 = "Full clinical baseline: colorectal cancer case L01",
+  M01 = "Full clinical baseline: lung cancer case M01",
+  P01 = "Full clinical baseline: small-cell lung cancer case P01",
+  P02 = "Full clinical baseline: metastatic ovarian cancer case P02",
+  R01 = "Full clinical baseline: collecting duct carcinoma case R01"
 )
 
 missing_inputs <- reference_inputs[
