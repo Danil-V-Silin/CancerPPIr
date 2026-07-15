@@ -1,0 +1,7 @@
+legacy_script=legacy/cancerppir_legacy.R
+git_commit=73cac5d950553900145e6d24be8d097827076f22
+score_threshold=400
+top_n=30
+run_enrichment=TRUE
+string_cache=../string_cache
+force=0

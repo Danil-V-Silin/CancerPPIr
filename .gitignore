@@ -23,3 +23,7 @@ string_cache/
 *.tmp
 *.temp
 ~$*
+
+# Patient-specific detailed baseline sheet exports
+tests/reference/*/analytical_report__*.csv
+tests/reference/*/technical_report__*.csv

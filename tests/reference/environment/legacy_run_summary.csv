@@ -1,0 +1,8 @@
+"case_id","log_exists","mapped_genes","input_genes","mapped_percent","reported_nodes","reported_edges","reported_components"
+"A01",TRUE,169,400,42.2,169,630,37
+"K01",TRUE,250,400,62.5,248,397,91
+"L01",TRUE,201,399,50.4,200,800,42
+"M01",TRUE,339,400,84.8,338,1630,77
+"P01",TRUE,314,399,78.7,311,1765,68
+"P02",TRUE,286,399,71.7,285,1005,71
+"R01",TRUE,359,399,90,358,4507,42

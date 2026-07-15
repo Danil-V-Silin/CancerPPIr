@@ -1,0 +1,29 @@
+"case_id","artifact","primary_exists","repeat_exists","primary_size_bytes","repeat_size_bytes","primary_raw_md5","repeat_raw_md5","raw_identical","primary_normalized_md5","repeat_normalized_md5","normalized_identical","primary_graph_read_ok","repeat_graph_read_ok","primary_graph_read_error","repeat_graph_read_error","primary_xml_nodes","repeat_xml_nodes","primary_xml_edges","repeat_xml_edges","graph_node_edge_counts_identical"
+"A01","analytical_report",TRUE,TRUE,116588,116515,"c59ad143aa2fe948cebdb7b8a28a2215","5c9ffc4465a9233d83a1c2d9c752d724",FALSE,,,FALSE,,,,,,,,,TRUE
+"A01","technical_report",TRUE,TRUE,623640,619223,"ec3464f6a6035e1f54e536a57ab9e3aa","1180bdf5e43dd156794559c7aafb1957",FALSE,,,FALSE,,,,,,,,,TRUE
+"A01","cytoscape_graph",TRUE,TRUE,805763,790319,"b9562e480e4b60a7f42cf71ea81a7f59","ef7223bcee5605c5b38e84374b0fab46",FALSE,,,FALSE,TRUE,TRUE,,,169,169,630,630,TRUE
+"A01","string_links",TRUE,TRUE,8123,8123,"0013ae2f69ec0235856052d3910cb196","0013ae2f69ec0235856052d3910cb196",TRUE,"2b2f59c0dfbdb57247fbe3594b0026e2","2b2f59c0dfbdb57247fbe3594b0026e2",TRUE,,,,,,,,,TRUE
+"K01","analytical_report",TRUE,TRUE,147350,147149,"15c148a8c098bb0394d371b467cd549d","ab3d79032a1ca2fe9ffdeb1e5a2395b7",FALSE,,,FALSE,,,,,,,,,TRUE
+"K01","technical_report",TRUE,TRUE,845714,854464,"baf1bfe41f35d052942301b810466ac8","8787afc1aee5f145e37c8f66957b25e6",FALSE,,,FALSE,,,,,,,,,TRUE
+"K01","cytoscape_graph",TRUE,TRUE,988517,995160,"5577c9b398a241d9812177c80fbd6e19","1c771d0fdd0fe236d583a92cd47f3968",FALSE,,,FALSE,FALSE,FALSE,"At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow","At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow",248,248,397,397,TRUE
+"K01","string_links",TRUE,TRUE,11849,11849,"a68a8679e70c5fc34667eb0106c3bff6","a68a8679e70c5fc34667eb0106c3bff6",TRUE,"e4ee135b58ee0b08263cfa49e723c77d","e4ee135b58ee0b08263cfa49e723c77d",TRUE,,,,,,,,,TRUE
+"L01","analytical_report",TRUE,TRUE,130411,129723,"d46a5da1d4c0f885966c7976a36dd2cc","92bac54f41237637036680dd1630382f",FALSE,,,FALSE,,,,,,,,,TRUE
+"L01","technical_report",TRUE,TRUE,667050,666298,"acf3430561d8f53d505ac4103de38079","b42587e37dacbcf26a3b55af60938d26",FALSE,,,FALSE,,,,,,,,,TRUE
+"L01","cytoscape_graph",TRUE,TRUE,924084,908896,"909a5caaa444f0825e170faf5c37e37b","fb6aaac93c8dae991116aaa4fad43c6a",FALSE,,,FALSE,TRUE,TRUE,,,200,200,800,800,TRUE
+"L01","string_links",TRUE,TRUE,9549,9549,"a230f9a66ef3fdbce792be2f4aa22914","a230f9a66ef3fdbce792be2f4aa22914",TRUE,"836ac3588fa76f1e9ef97c93709240cb","836ac3588fa76f1e9ef97c93709240cb",TRUE,,,,,,,,,TRUE
+"M01","analytical_report",TRUE,TRUE,177736,179922,"283280881c972131e3bf30b1845de2d2","f1b69b615f083bacabf1e83c6119ba3d",FALSE,,,FALSE,,,,,,,,,TRUE
+"M01","technical_report",TRUE,TRUE,1345533,1336430,"89d68d74853d34a3195b2cdfb8a779fc","9b8dc0c8c5a31c4a126ad95b3bf51338",FALSE,,,FALSE,,,,,,,,,TRUE
+"M01","cytoscape_graph",TRUE,TRUE,1544237,1556318,"e8f8c09a306be82d539dfc463ebdf20e","b2fabe71c6e89351337f69b01af21624",FALSE,,,FALSE,FALSE,FALSE,"At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow","At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow",338,338,1630,1630,TRUE
+"M01","string_links",TRUE,TRUE,14149,14149,"82e1c4443a9fdd169621d9b8c0cb4083","82e1c4443a9fdd169621d9b8c0cb4083",TRUE,"35e10d1822f17378a2b1917f4c3d54d1","35e10d1822f17378a2b1917f4c3d54d1",TRUE,,,,,,,,,TRUE
+"P01","analytical_report",TRUE,TRUE,167790,167927,"e5f0fa75d286e28b1207451f90144114","b311d9bf6bc68898e46181a107a3c663",FALSE,,,FALSE,,,,,,,,,TRUE
+"P01","technical_report",TRUE,TRUE,1294547,1294537,"f1186ee5cd0922aed0fe2e195c233940","ea0c204b4afb317d8e0a755f9292caa5",FALSE,,,FALSE,,,,,,,,,TRUE
+"P01","cytoscape_graph",TRUE,TRUE,1481846,1478774,"6221d4606e329164d9d872c3af844287","d44ef07280c090217843176b8d9cef36",FALSE,,,FALSE,FALSE,FALSE,"At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow","At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow",311,311,1765,1765,TRUE
+"P01","string_links",TRUE,TRUE,14149,14149,"0ef481011b7b5fb1e9897e03ea3d1be0","0ef481011b7b5fb1e9897e03ea3d1be0",TRUE,"ef489a181131051dc6b3b0891e813b9f","ef489a181131051dc6b3b0891e813b9f",TRUE,,,,,,,,,TRUE
+"P02","analytical_report",TRUE,TRUE,158498,159033,"f868efa66de01f693774119e526b4150","674dcb9639a49a633586ed375171432d",FALSE,,,FALSE,,,,,,,,,TRUE
+"P02","technical_report",TRUE,TRUE,1167736,1186116,"bc4a61ae193751109cf82acbde23ae63","71a7900a80c0ac924c8fabc6307861b2",FALSE,,,FALSE,,,,,,,,,TRUE
+"P02","cytoscape_graph",TRUE,TRUE,1284847,1287014,"13b7bf4aa03c6bf59d520c7add16cac2","bc3d2ec21579b1d58db2900d0e0d3b55",FALSE,,,FALSE,TRUE,TRUE,,,285,285,1005,1005,TRUE
+"P02","string_links",TRUE,TRUE,13459,13459,"e415e75257d4838552e102387894b57f","e415e75257d4838552e102387894b57f",TRUE,"25a2b77a80503e8353a58cdc4087efc2","25a2b77a80503e8353a58cdc4087efc2",TRUE,,,,,,,,,TRUE
+"R01","analytical_report",TRUE,TRUE,174368,174484,"20d540edc96f23350cbaf2dba6b162fb","83d6a75bf9ff972daa81e92bdcd051c4",FALSE,,,FALSE,,,,,,,,,TRUE
+"R01","technical_report",TRUE,TRUE,1686515,1683545,"e83e2dfbc64a7a054d1a3dccb6c885e2","b3e341bbbf4eb420e183f765f54d2c33",FALSE,,,FALSE,,,,,,,,,TRUE
+"R01","cytoscape_graph",TRUE,TRUE,2163697,2162048,"2d6da13a9d4235132092f61d4e17da8f","5915c3bb1f7036ebde987fa549c249e1",FALSE,,,FALSE,TRUE,TRUE,,,358,358,4507,4507,TRUE
+"R01","string_links",TRUE,TRUE,14149,14149,"1796c8d59a634817a6e54893d3cd925f","1796c8d59a634817a6e54893d3cd925f",TRUE,"48ef9f33c972e54070aec4c68ba5a32d","48ef9f33c972e54070aec4c68ba5a32d",TRUE,,,,,,,,,TRUE
