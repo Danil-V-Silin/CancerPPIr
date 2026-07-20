@@ -192,61 +192,7 @@ if (nzchar(ca_bundle)) {
 
 
 
-classify_symbol_pattern <- function(sym) {
-  s <- toupper(trimws(sym))
 
-  if (!nzchar(s) || is.na(s)) {
-    return("empty_symbol")
-  }
-
-  if (grepl("^(IGH|IGK|IGL)", s)) {
-    return("immunoglobulin_locus")
-  }
-
-  if (grepl("^(TRA|TRB|TRG|TRD)", s)) {
-    return("t_cell_receptor_locus")
-  }
-
-  if (grepl("^HLA-", s)) {
-    return("HLA_gene")
-  }
-
-  if (grepl("^(LINC|MIR|MIRLET|SNORD|SNORA|SCARNA|RNU|RNA|LOC|AC[0-9]|AL[0-9])", s)) {
-    return("non_coding_or_predicted_locus")
-  }
-
-  if (grepl("(^|[-.])AS[0-9]*$", s) || grepl("ANTISENSE", s)) {
-    return("antisense_locus")
-  }
-
-  if (grepl("P[0-9]+$", s) && !grepl("^HLA-", s)) {
-    return("pseudogene_like_symbol")
-  }
-
-  "standard_gene_symbol"
-}
-
-status_from_mapping <- function(mapped_initially, mapped_after_alias, symbol_class) {
-  if (isTRUE(mapped_initially)) {
-    return("mapped_to_STRING")
-  }
-
-  if (isTRUE(mapped_after_alias)) {
-    return("mapped_after_unambiguous_STRING_alias")
-  }
-
-  switch(
-    symbol_class,
-    immunoglobulin_locus = "not_mapped_immunoglobulin_locus",
-    t_cell_receptor_locus = "not_mapped_T_cell_receptor_locus",
-    non_coding_or_predicted_locus = "not_mapped_non_coding_or_predicted_locus",
-    antisense_locus = "not_mapped_antisense_locus",
-    pseudogene_like_symbol = "not_mapped_pseudogene_like_symbol",
-    HLA_gene = "not_mapped_HLA_gene",
-    empty_symbol = "not_mapped_empty_symbol",
-    "not_mapped_no_unique_STRING_protein_identifier"
-  )
-}
 
 marker_sets <- list(
   antigen_presentation = c("HLA-DRA", "HLA-DRB1", "HLA-DRB5", "HLA-DPA1", "HLA-DPB1", "HLA-DQA1", "HLA-DQB1", "HLA-DQB2", "HLA-DOA", "CD74", "B2M"),
@@ -594,67 +540,9 @@ run_local_string_enrichment <- function(
   out
 }
 
-pick_string_id_col <- function(x) {
-  nm <- names(x)
-  hit <- nm[grepl("STRING_id|string.*id|protein.*id|external.*id", nm, ignore.case = TRUE)]
 
-  if (length(hit)) {
-    return(hit[[1]])
-  }
 
-  for (col in nm) {
-    v <- x[[col]]
-    if (is.character(v) && any(grepl("^9606\\.|ENSP", head(v[!is.na(v)], 200)))) {
-      return(col)
-    }
-  }
 
-  stop("Could not identify a STRING identifier column.", call. = FALSE)
-}
-
-pick_alias_col <- function(x, id_col) {
-  nm <- setdiff(names(x), id_col)
-  hit <- nm[grepl("alias|synonym", nm, ignore.case = TRUE)]
-
-  if (length(hit)) {
-    return(hit[[1]])
-  }
-
-  char_cols <- nm[vapply(x[nm], is.character, logical(1))]
-  if (length(char_cols)) {
-    return(char_cols[[1]])
-  }
-
-  stop("Could not identify an alias column.", call. = FALSE)
-}
-
-pick_preferred_name_col <- function(x) {
-  nm <- names(x)
-  hit <- nm[grepl("preferred_name|^gene$|symbol", nm, ignore.case = TRUE)]
-
-  if (length(hit)) {
-    return(hit[[1]])
-  }
-
-  stop("Could not identify a preferred gene/protein name column.", call. = FALSE)
-}
-
-make_string_links <- function(string_ids, score_threshold) {
-  ids <- head(unique(string_ids), 300L)
-  id_param <- paste(ids, collapse = "%0d")
-
-  query <- paste0(
-    "?identifiers=", id_param,
-    "&species=9606",
-    "&required_score=", score_threshold,
-    "&network_flavor=evidence"
-  )
-
-  c(
-    current = paste0("https://string-db.org/cgi/network", query),
-    pinned_v12 = paste0("https://version-12-0.stringdb.org/cgi/network", query)
-  )
-}
 
 write_excel <- function(path, sheets) {
   wb <- createWorkbook()
@@ -670,60 +558,6 @@ write_excel <- function(path, sheets) {
   saveWorkbook(wb, path, overwrite = TRUE)
 }
 
-map_to_string <- function(db, data, gene_col = "gene", removeUnmappedRows = FALSE) {
-  df <- as.data.frame(data, stringsAsFactors = FALSE)
-  df[[gene_col]] <- trimws(as.character(df[[gene_col]]))
-
-  out <- tryCatch(
-    as_tibble(db$map(df, gene_col, removeUnmappedRows = removeUnmappedRows)),
-    error = function(e) {
-      msg("STRINGdb mapping failed; using local alias fallback: ", conditionMessage(e))
-
-      aliases <- db$get_aliases()
-      proteins <- db$get_proteins()
-
-      id_alias_col <- pick_string_id_col(aliases)
-      alias_col <- pick_alias_col(aliases, id_alias_col)
-      id_protein_col <- pick_string_id_col(proteins)
-      name_col <- pick_preferred_name_col(proteins)
-
-      alias_map <- aliases %>%
-        transmute(
-          gene_key = toupper(trimws(as.character(.data[[alias_col]]))),
-          STRING_id = as.character(.data[[id_alias_col]])
-        ) %>%
-        filter(nzchar(gene_key), grepl("^9606\\.", STRING_id)) %>%
-        distinct()
-
-      protein_map <- proteins %>%
-        transmute(
-          gene_key = toupper(trimws(as.character(.data[[name_col]]))),
-          STRING_id = as.character(.data[[id_protein_col]])
-        ) %>%
-        filter(nzchar(gene_key), grepl("^9606\\.", STRING_id)) %>%
-        distinct()
-
-      map_tbl <- bind_rows(protein_map, alias_map) %>%
-        group_by(gene_key) %>%
-        filter(n_distinct(STRING_id) == 1L) %>%
-        slice(1) %>%
-        ungroup()
-
-      out <- as_tibble(df) %>%
-        mutate(gene_key = toupper(trimws(.data[[gene_col]]))) %>%
-        left_join(map_tbl, by = "gene_key") %>%
-        select(-gene_key)
-
-      if (isTRUE(removeUnmappedRows)) {
-        out <- out %>% filter(!is.na(STRING_id))
-      }
-
-      out
-    }
-  )
-
-  out
-}
 
 msg("Reading input table.")
 input_tbl <- read_gene_table(input_file)
