@@ -1,0 +1,8 @@
+"case_id","renv_run_completed","all_expected_files_exist","string_links_identical","graph_node_edge_counts_identical","workbook_sheet_names_identical","all_sheet_columns_identical","strict_sheets_compared","strict_sheets_identical","log_summary_identical","strict_regression_core_match"
+"A01",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
+"K01",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
+"L01",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
+"M01",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
+"P01",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
+"P02",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
+"R01",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,11,11,TRUE,TRUE
