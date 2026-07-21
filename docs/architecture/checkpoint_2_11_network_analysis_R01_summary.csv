@@ -1,0 +1,2 @@
+"checkpoint","case_id","baseline_completed","candidate_completed","candidate_error_free","all_expected_files_exist","string_links_identical","baseline_graph_nodes","candidate_graph_nodes","baseline_graph_edges","candidate_graph_edges","graph_node_edge_counts_identical","workbook_sheet_names_identical","all_sheet_columns_identical","strict_sheets_compared","strict_sheets_identical","log_summary_identical","strict_regression_core_match"
+"checkpoint_2_11_network_analysis_R01","R01",TRUE,TRUE,TRUE,TRUE,TRUE,358,358,4507,4507,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
