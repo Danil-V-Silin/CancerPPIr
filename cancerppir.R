@@ -194,29 +194,7 @@ if (nzchar(ca_bundle)) {
 
 
 
-marker_sets <- list(
-  antigen_presentation = c("HLA-DRA", "HLA-DRB1", "HLA-DRB5", "HLA-DPA1", "HLA-DPB1", "HLA-DQA1", "HLA-DQB1", "HLA-DQB2", "HLA-DOA", "CD74", "B2M"),
-  T_cell_cytotoxic = c("CD3D", "CD3E", "CD3G", "CD2", "CD4", "CD8A", "CD8B", "GZMA", "GZMB", "GZMH", "GZMK", "PRF1", "NKG7", "IFNG", "TBX21", "CTLA4", "ICOS", "CD28"),
-  myeloid_macrophage = c("TYROBP", "CD163", "TREM2", "MRC1", "FCGR1A", "FCGR2A", "FCGR3A", "FCGR3B", "LILRB1", "LILRB2", "LILRB4", "SPI1", "IRF8", "AIF1", "FOLR2", "MARCO", "MS4A4A", "MS4A6A", "MS4A7"),
-  chemokine_cytokine = c("TNF", "CCL2", "CCL3", "CCL4", "CCL5", "CCL18", "CCL19", "CCL21", "CCR1", "CCR5", "CXCL1", "CXCL9", "CXCL10", "CXCL11", "CXCL12", "CXCL13", "CXCL14", "CXCR4"),
-  complement_C1q = c("C1QA", "C1QB", "C1QC", "C1R", "C1S", "C2", "C3", "C4A", "C4B", "SERPING1"),
-  extracellular_matrix_stromal = c("COL1A1", "COL1A2", "COL3A1", "COL5A1", "COL5A2", "COL5A3", "COL6A1", "COL6A2", "COL6A3", "POSTN", "MMP2", "MMP9", "TIMP3", "LAMA4", "VWF", "PECAM1", "CD34", "PDGFRA", "SPARCL1", "VCAM1", "MGP"),
-  cell_cycle_mitotic = c("CDK1", "TOP2A", "CDC20", "CCNB1", "AURKB", "BIRC5", "MKI67", "UBE2C", "KIF11", "KIF2C", "KIFC1", "PLK1", "FOXM1", "MCM2", "MCM7", "TYMS"),
-  lipid_metabolic = c("FABP4", "LEP", "ADIPOQ", "LPL", "LIPE", "PLIN1", "DGAT2", "CIDEA", "CIDEC", "PCK1", "MLXIPL", "AQP7"),
-  interferon_response = c("IDO1", "GBP4", "GBP5", "CXCL9", "CXCL10", "CXCL11", "EPSTI1", "IFITM2", "MX2", "ZBP1", "TRIM22", "CASP1", "CASP4")
-)
 
-module_clean_labels <- c(
-  antigen_presentation = "MHC_class_II_antigen_presentation_module",
-  T_cell_cytotoxic = "T_cell_cytotoxic_module",
-  myeloid_macrophage = "myeloid_macrophage_module",
-  chemokine_cytokine = "chemokine_cytokine_signaling_module",
-  complement_C1q = "C1q_complement_macrophage_module",
-  extracellular_matrix_stromal = "stromal_ECM_remodeling_module",
-  cell_cycle_mitotic = "cell_cycle_mitotic_module",
-  lipid_metabolic = "lipid_metabolic_module",
-  interferon_response = "interferon_response_module"
-)
 
 
 
@@ -782,11 +760,11 @@ if (isTRUE(run_enrichment)) {
   if (isTRUE(run_online_enrichment)) {
     msg("Online enrichment validation mode enabled. Local STRING remains the primary fallback annotation layer.")
 
-    enrichment_string_online_all <- run_string_enrichment_online(
+    enrichment_string_online_all <- run_string_enrichment_online(string_db, 
       mapped_final$STRING_id,
       query_name = "all_network_genes_STRING_online"
     )
-    enrichment_string_online_top <- run_string_enrichment_online(
+    enrichment_string_online_top <- run_string_enrichment_online(string_db, 
       top_candidates$STRING_id,
       query_name = "top_candidates_STRING_online"
     )
@@ -799,7 +777,7 @@ if (isTRUE(run_enrichment)) {
           return(tibble())
         }
         qn <- paste0("module_", unique(m$community_louvain), "_STRING_online")
-        st <- run_string_enrichment_online(m$STRING_id, query_name = qn)
+        st <- run_string_enrichment_online(string_db, m$STRING_id, query_name = qn)
         if (!nrow(st)) {
           return(tibble())
         }
@@ -976,72 +954,11 @@ msg("Writing consolidated output files.")
 
 # ---- Enrichment term filtering and evidence scoring --------------------------
 
-preferred_enrichment_categories <- c(
-  "Biological Process (Gene Ontology)",
-  "Reactome Pathways",
-  "WikiPathways",
-  "KEGG Pathways",
-  "Local Network Cluster (STRING)",
-  "Annotated Keywords (UniProt)",
-  "Molecular Function (Gene Ontology)",
-  "Cellular Component (Gene Ontology)"
-)
 
 # Categories below are useful for technical audit, but should not drive the main
 # biological direction label in the human-readable report.
-secondary_enrichment_categories <- c(
-  "Human Phenotype (Monarch)",
-  "Tissue expression (TISSUES)",
-  "Disease-gene associations (DISEASES)",
-  "Subcellular localization (COMPARTMENTS)",
-  "Protein Domains and Features (InterPro)",
-  "Protein Domains (SMART)",
-  "Protein Domains (Pfam)"
-)
 
-specific_biology_pattern <- paste(
-  c(
-    "immune", "immun", "leukocyte", "lymphocyte", "myeloid", "macrophage",
-    "monocyte", "neutrophil", "t cell", "b cell", "natural killer", "cytotoxic",
-    "antigen", "mhc", "major histocompatibility", "hla", "peptide presentation",
-    "chemokine", "cytokine", "interferon", "interleukin", "tnf", "chemotaxis",
-    "migration", "complement", "c1q", "fc receptor", "phagocyt",
-    "extracellular matrix", "ecm", "collagen", "matrix organization", "stromal",
-    "focal adhesion", "angiogenesis", "endothelial", "vascular",
-    "cell cycle", "mitotic", "mitosis", "chromosome segregation", "dna replication",
-    "lipid", "fatty acid", "cholesterol", "oxidative phosphorylation", "respiratory chain",
-    "apoptosis", "inflammasome", "antiviral"
-  ),
-  collapse = "|"
-)
 
-generic_exact_terms <- c(
-  "signaling",
-  "signal transduction",
-  "cell communication",
-  "cellular response to stimulus",
-  "response to stimulus",
-  "response to stress",
-  "biological regulation",
-  "regulation of biological process",
-  "regulation of molecular function",
-  "regulation of cellular process",
-  "cellular process",
-  "metabolic process",
-  "organic substance metabolic process",
-  "primary metabolic process",
-  "cellular metabolic process",
-  "localization",
-  "binding",
-  "protein binding",
-  "catalytic activity",
-  "molecular function",
-  "cellular anatomical entity",
-  "intracellular anatomical structure",
-  "cellular component",
-  "anatomical structure development",
-  "developmental process"
-)
 
 
 
@@ -1061,117 +978,6 @@ generic_exact_terms <- c(
 # label that is used when the evidence is real but not specific enough for the
 # more precise biological label.
 
-label_rulebook <- list(
-  list(
-    label_id = "MHC_class_II_antigen_presentation_module",
-    fallback_label = "immune_antigen_presentation_associated_module",
-    marker_patterns = c("antigen_presentation"),
-    core_term_patterns = c(
-      "antigen processing", "antigen presentation", "mhc", "major histocompatibility",
-      "hla", "peptide antigen", "peptide presentation", "class ii"
-    ),
-    required_specific_patterns = c("antigen", "mhc", "major histocompatibility", "hla", "peptide"),
-    theme = "antigen presentation / MHC biology"
-  ),
-  list(
-    label_id = "chemokine_cytokine_signaling_module",
-    fallback_label = "inflammatory_immune_signaling_module",
-    marker_patterns = c("chemokine_cytokine", "interferon_response"),
-    core_term_patterns = c(
-      "chemokine", "cytokine", "interleukin", "tnf", "chemotaxis",
-      "leukocyte migration", "response to chemokine", "response to cytokine",
-      "cellular response to chemokine", "cellular response to cytokine"
-    ),
-    required_specific_patterns = c("chemokine", "cytokine", "interleukin", "tnf", "chemotaxis"),
-    theme = "chemokine/cytokine inflammatory signaling"
-  ),
-  list(
-    label_id = "C1q_complement_macrophage_module",
-    fallback_label = "phagocytic_immune_cell_signaling_module",
-    marker_patterns = c("complement_C1q", "myeloid_macrophage"),
-    core_term_patterns = c(
-      "complement activation", "classical complement", "c1q", "macrophage activation",
-      "macrophage", "fc receptor", "phagocytosis", "phagocytic"
-    ),
-    # Phagocytosis alone is not sufficient for the specific C1q/complement label.
-    # A module must contain complement/C1q/macrophage/Fc-receptor evidence, or strong
-    # curated marker support, otherwise the fallback phagocytic label is used.
-    required_specific_patterns = c("complement", "c1q", "classical complement", "macrophage", "fc receptor"),
-    theme = "C1q/complement/macrophage or Fc-receptor biology"
-  ),
-  list(
-    label_id = "myeloid_phagocytic_immune_signaling_module",
-    fallback_label = "myeloid_innate_immune_signaling_module",
-    marker_patterns = c("myeloid_macrophage"),
-    core_term_patterns = c(
-      "myeloid", "innate immune", "neutrophil degranulation", "immune receptor",
-      "phagocytic cup", "phagocytosis", "phagocytic", "cdc42", "actin dynamics",
-      "actin cytoskeleton", "cytoskeleton organization"
-    ),
-    required_specific_patterns = c("myeloid", "innate immune", "neutrophil", "phagocyt", "cdc42", "actin"),
-    theme = "myeloid/phagocytic immune signaling; phagocytic actin/cytoskeleton remodeling"
-  ),
-  list(
-    label_id = "T_cell_adaptive_immune_module",
-    fallback_label = "adaptive_immune_cell_module",
-    marker_patterns = c("T_cell_cytotoxic"),
-    core_term_patterns = c(
-      "t cell", "adaptive immune", "lymphocyte activation", "cytotoxic",
-      "natural killer", "granzyme", "perforin", "lymphocyte mediated"
-    ),
-    required_specific_patterns = c("t cell", "adaptive immune", "lymphocyte", "cytotoxic", "natural killer", "granzyme", "perforin"),
-    theme = "T-cell/adaptive cytotoxic immunity"
-  ),
-  list(
-    label_id = "myeloid_leukocyte_signaling_module",
-    fallback_label = "leukocyte_immune_signaling_module",
-    marker_patterns = c("myeloid_macrophage"),
-    core_term_patterns = c(
-      "myeloid", "leukocyte activation", "immune receptor", "leukocyte mediated",
-      "hematopoietic", "innate immune", "immune effector"
-    ),
-    required_specific_patterns = c("myeloid", "leukocyte", "immune receptor", "hematopoietic", "innate immune"),
-    theme = "myeloid/leukocyte immune signaling"
-  ),
-  list(
-    label_id = "stromal_ECM_remodeling_module",
-    fallback_label = "stromal_matrix_associated_module",
-    marker_patterns = c("extracellular_matrix_stromal"),
-    core_term_patterns = c(
-      "extracellular matrix", "ecm", "collagen", "matrix organization",
-      "stromal", "focal adhesion", "cell-substrate adhesion", "cell adhesion"
-    ),
-    required_specific_patterns = c("extracellular matrix", "ecm", "collagen", "matrix", "stromal", "adhesion"),
-    theme = "stromal/extracellular-matrix remodeling"
-  ),
-  list(
-    label_id = "interferon_response_module",
-    fallback_label = "antiviral_inflammatory_response_module",
-    marker_patterns = c("interferon_response"),
-    core_term_patterns = c("interferon", "antiviral", "response to virus", "viral process", "type i interferon"),
-    required_specific_patterns = c("interferon", "antiviral", "virus", "viral"),
-    theme = "interferon/antiviral response"
-  ),
-  list(
-    label_id = "cell_cycle_mitotic_module",
-    fallback_label = "proliferation_associated_module",
-    marker_patterns = c("cell_cycle_mitotic"),
-    core_term_patterns = c(
-      "cell cycle", "mitotic", "mitosis", "chromosome segregation",
-      "dna replication", "spindle", "cyclin"
-    ),
-    required_specific_patterns = c("cell cycle", "mitotic", "mitosis", "chromosome", "dna replication", "spindle"),
-    theme = "cell-cycle/mitotic proliferation"
-  ),
-  list(
-    label_id = "lipid_metabolic_module",
-    fallback_label = "metabolic_lipid_associated_module",
-    marker_patterns = c("lipid_metabolic"),
-    core_term_patterns = c("lipid", "fatty acid", "cholesterol", "lipoprotein", "triglyceride"),
-    required_specific_patterns = c("lipid", "fatty acid", "cholesterol", "lipoprotein", "triglyceride"),
-    theme = "lipid/fatty-acid metabolism"
-  )
-)
 
 
 

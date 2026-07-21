@@ -269,7 +269,7 @@ run_local_string_enrichment <- function(
 ##############################################################################
 # run_string_enrichment_online - extracted from cancerppir.R lines 1036-1057
 ##############################################################################
-run_string_enrichment_online <- function(ids, query_name = "STRING_online_query") {
+run_string_enrichment_online <- function(string_db, ids, query_name = "STRING_online_query") {
   ids <- unique(na.omit(as.character(ids)))
   ids <- ids[nzchar(ids)]
   if (length(ids) < 3L) {
@@ -554,4 +554,78 @@ online_concordance_status <- function(specific_label_candidate, online_text) {
   }
   "online_terms_available_not_rule_concordant"
 }
+
+
+##############################################################################
+# Stable enrichment configuration moved from cancerppir.R
+##############################################################################
+
+# Configuration object: preferred_enrichment_categories
+preferred_enrichment_categories <- c(
+  "Biological Process (Gene Ontology)",
+  "Reactome Pathways",
+  "WikiPathways",
+  "KEGG Pathways",
+  "Local Network Cluster (STRING)",
+  "Annotated Keywords (UniProt)",
+  "Molecular Function (Gene Ontology)",
+  "Cellular Component (Gene Ontology)"
+)
+
+# Configuration object: secondary_enrichment_categories
+secondary_enrichment_categories <- c(
+  "Human Phenotype (Monarch)",
+  "Tissue expression (TISSUES)",
+  "Disease-gene associations (DISEASES)",
+  "Subcellular localization (COMPARTMENTS)",
+  "Protein Domains and Features (InterPro)",
+  "Protein Domains (SMART)",
+  "Protein Domains (Pfam)"
+)
+
+# Configuration object: specific_biology_pattern
+specific_biology_pattern <- paste(
+  c(
+    "immune", "immun", "leukocyte", "lymphocyte", "myeloid", "macrophage",
+    "monocyte", "neutrophil", "t cell", "b cell", "natural killer", "cytotoxic",
+    "antigen", "mhc", "major histocompatibility", "hla", "peptide presentation",
+    "chemokine", "cytokine", "interferon", "interleukin", "tnf", "chemotaxis",
+    "migration", "complement", "c1q", "fc receptor", "phagocyt",
+    "extracellular matrix", "ecm", "collagen", "matrix organization", "stromal",
+    "focal adhesion", "angiogenesis", "endothelial", "vascular",
+    "cell cycle", "mitotic", "mitosis", "chromosome segregation", "dna replication",
+    "lipid", "fatty acid", "cholesterol", "oxidative phosphorylation", "respiratory chain",
+    "apoptosis", "inflammasome", "antiviral"
+  ),
+  collapse = "|"
+)
+
+# Configuration object: generic_exact_terms
+generic_exact_terms <- c(
+  "signaling",
+  "signal transduction",
+  "cell communication",
+  "cellular response to stimulus",
+  "response to stimulus",
+  "response to stress",
+  "biological regulation",
+  "regulation of biological process",
+  "regulation of molecular function",
+  "regulation of cellular process",
+  "cellular process",
+  "metabolic process",
+  "organic substance metabolic process",
+  "primary metabolic process",
+  "cellular metabolic process",
+  "localization",
+  "binding",
+  "protein binding",
+  "catalytic activity",
+  "molecular function",
+  "cellular anatomical entity",
+  "intracellular anatomical structure",
+  "cellular component",
+  "anatomical structure development",
+  "developmental process"
+)
 
