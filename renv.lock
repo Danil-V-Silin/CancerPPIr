@@ -842,6 +842,34 @@
       "Maintainer": "Martyn Plummer <martyn.plummer@gmail.com>",
       "Repository": "CRAN"
     },
+    "codetools": {
+      "Package": "codetools",
+      "Version": "0.2-20",
+      "Source": "Repository",
+      "Priority": "recommended",
+      "Depends": [
+        "R (>= 2.1)"
+      ],
+      "Imports": [
+        null
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        null
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "GPL",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Type": "source"
+    },
     "cpp11": {
       "Package": "cpp11",
       "Version": "0.5.3",
