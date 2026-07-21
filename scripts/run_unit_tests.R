@@ -49,7 +49,7 @@ loaded_files <- load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-stopifnot(length(loaded_files) == 8L)
+stopifnot(length(loaded_files) == 9L)
 
 Sys.setenv(
   CANCERPPIR_PROJECT_ROOT = project_root
@@ -63,4 +63,4 @@ testthat::test_dir(
   stop_on_warning = FALSE
 )
 
-cat("\nPHASE 3.1 UNIT TESTS PASSED\n")
+cat("\nCANCERPPIR TEST SUITE PASSED\n")
