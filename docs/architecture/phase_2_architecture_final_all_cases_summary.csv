@@ -1,0 +1,8 @@
+"checkpoint","case_id","baseline_completed","candidate_completed","candidate_error_free","all_expected_files_exist","string_links_identical","baseline_graph_nodes","candidate_graph_nodes","baseline_graph_edges","candidate_graph_edges","graph_node_edge_counts_identical","workbook_sheet_names_identical","all_sheet_columns_identical","strict_sheets_compared","strict_sheets_identical","log_summary_identical","strict_regression_core_match"
+"phase_2_architecture_final","A01",TRUE,TRUE,TRUE,TRUE,TRUE,169,169,630,630,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
+"phase_2_architecture_final","K01",TRUE,TRUE,TRUE,TRUE,TRUE,248,248,397,397,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
+"phase_2_architecture_final","L01",TRUE,TRUE,TRUE,TRUE,TRUE,200,200,800,800,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
+"phase_2_architecture_final","M01",TRUE,TRUE,TRUE,TRUE,TRUE,338,338,1630,1630,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
+"phase_2_architecture_final","P01",TRUE,TRUE,TRUE,TRUE,TRUE,311,311,1765,1765,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
+"phase_2_architecture_final","P02",TRUE,TRUE,TRUE,TRUE,TRUE,285,285,1005,1005,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
+"phase_2_architecture_final","R01",TRUE,TRUE,TRUE,TRUE,TRUE,358,358,4507,4507,TRUE,TRUE,TRUE,12,12,TRUE,TRUE
