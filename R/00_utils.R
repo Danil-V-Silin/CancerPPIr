@@ -83,8 +83,8 @@ clean_names <- function(x) {
   x <- enc2utf8(as.character(x))
   x <- gsub("\ufeff", "", x, fixed = TRUE)
   x <- gsub("^\xef\xbb\xbf", "", x)
-  x <- trimws(x)
-  tolower(gsub("[^a-z0-9]+", "", x))
+  x <- tolower(trimws(x))
+  gsub("[^a-z0-9]+", "", x)
 }
 
 ##############################################################################
