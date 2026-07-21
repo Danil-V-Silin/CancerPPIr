@@ -1,0 +1,15 @@
+CancerPPIr checkpoint 2.12 pipeline extraction
+================================================
+
+cancerppir.R MD5 before: 7dfeb68113d096b5faa4e6236cf7fff8
+cancerppir.R MD5 after: d1c6a6f7e6bf3427734d7034c77b3b43
+R/07_pipeline.R MD5 before: 409cba8928827ef7a30e5b0ba593ca90
+R/07_pipeline.R MD5 after: 4bb6de2d98e33dd476006f5e136b2805
+Runtime dependency block moved: lines 71-86
+Pipeline block moved: lines 131-1347
+run_cancerppir() arguments: input_file, results_root, cache_dir, score_threshold, top_n, run_enrichment
+run_cancerppir() available through loader: TRUE
+Loaded module files: 8
+CLI top-level expressions after extraction: 15
+Pipeline module top-level expressions: 1
+Legacy MD5 unchanged: 0c5644140abbae2f17e30109432cc198
