@@ -1,0 +1,53 @@
+CancerPPIr current orchestration inventory
+==========================================
+
+Source file: cancerppir.R
+Source MD5: 7d9fc1a4e7e84cee3cea717f6c99e334
+Physical lines: 1793
+Top-level expressions: 165
+Top-level function definitions: 0
+
+Workflow markers
+----------------
+module_loader: line 3; expression NOT FOUND
+cli_arguments: line 91; expression 11
+read_input: line 239; expression 41
+build_string_subnetwork: line 426; expression 69
+calculate_network_metrics: line 448; expression 75
+functional_enrichment: line 727; expression 119
+write_outputs: line 949; expression 126
+workflow_done: line 1789; expression 161
+
+Expressions by phase
+--------------------
+bootstrap_and_module_loading: 10 expressions; lines 4-86
+cli_configuration_and_setup: 30 expressions; lines 91-219
+input_normalization_and_string_mapping: 28 expressions; lines 239-424
+string_subnetwork_construction: 6 expressions; lines 426-446
+network_metrics_modules_and_candidates: 45 expressions; lines 448-914
+enrichment_and_module_annotation: 6 expressions; lines 917-948
+reporting_export_and_completion: 40 expressions; lines 949-1793
+
+Expressions spanning at least 20 lines: 22
+Expression 2: lines 10-30 (21 lines); phase=bootstrap_and_module_loading; head=<-; target=.cancerppir_project_root
+Expression 48: lines 266-287 (22 lines); phase=input_normalization_and_string_mapping; head=<-; target=string_db
+Expression 57: lines 306-381 (76 lines); phase=input_normalization_and_string_mapping; head=if
+Expression 94: lines 510-539 (30 lines); phase=network_metrics_modules_and_candidates; head=<-; target=node_metrics
+Expression 102: lines 571-603 (33 lines); phase=network_metrics_modules_and_candidates; head=<-; target=module_summary
+Expression 104: lines 609-642 (34 lines); phase=network_metrics_modules_and_candidates; head=<-; target=graph_summary
+Expression 105: lines 644-665 (22 lines); phase=network_metrics_modules_and_candidates; head=<-; target=mapping_summary
+Expression 106: lines 667-706 (40 lines); phase=network_metrics_modules_and_candidates; head=<-; target=gene_status
+Expression 119: lines 726-914 (189 lines); phase=network_metrics_modules_and_candidates; head=if
+Expression 130: lines 1018-1044 (27 lines); phase=reporting_export_and_completion; head=<-; target=generic_exact_terms
+Expression 131: lines 1064-1174 (111 lines); phase=reporting_export_and_completion; head=<-; target=label_rulebook
+Expression 136: lines 1206-1250 (45 lines); phase=reporting_export_and_completion; head=<-; target=module_summary_readable
+Expression 140: lines 1262-1310 (49 lines); phase=reporting_export_and_completion; head=<-; target=online_validation_summary
+Expression 141: lines 1313-1341 (29 lines); phase=reporting_export_and_completion; head=<-; target=node_metrics_readable
+Expression 142: lines 1343-1422 (80 lines); phase=reporting_export_and_completion; head=<-; target=candidate_evidence_matrix
+Expression 144: lines 1437-1468 (32 lines); phase=reporting_export_and_completion; head=<-; target=priority_directions
+Expression 145: lines 1470-1514 (45 lines); phase=reporting_export_and_completion; head=<-; target=final_priorities
+Expression 146: lines 1518-1539 (22 lines); phase=reporting_export_and_completion; head=<-; target=report_readme
+Expression 147: lines 1541-1574 (34 lines); phase=reporting_export_and_completion; head=<-; target=annotation_evidence_rules
+Expression 148: lines 1576-1619 (44 lines); phase=reporting_export_and_completion; head=<-; target=executive_summary
+Expression 149: lines 1621-1640 (20 lines); phase=reporting_export_and_completion; head=<-; target=network_overview
+Expression 150: lines 1642-1685 (44 lines); phase=reporting_export_and_completion; head=<-; target=glossary
