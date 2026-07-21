@@ -2,7 +2,7 @@
 #
 # This module is intentionally isolated from the current production labeling
 # functions. It provides a transparent, hierarchical evidence model that will
-# be integrated into the pipeline only after its unit tests and A01 biological
+# be integrated into the pipeline only after its unit tests and seven-case biological
 # review pass.
 #
 # The engine does not estimate cell fractions and must not be described as
@@ -66,11 +66,19 @@ phase4_is_generic_term <- function(term) {
     "^cell communication$",
     "^biological process$",
     "^cellular process$",
+    "^cellular metabolic process$",
     "^immune system process$",
     "^immune response$",
     "^metabolic process$",
     "^regulation of biological process$",
-    "^response to stimulus$"
+    "^response to stimulus$",
+    "^gene expression$",
+    "^transport of small molecules$",
+    "^mixed, incl\\.",
+    "^mostly uncharacterized",
+    "uncharacterized",
+    "the function of this family is unknown",
+    "family consists of several"
   )
 
   any(vapply(
@@ -325,11 +333,14 @@ phase4_default_evidence_rules <- function() {
       compartment = "immune",
       positive_markers = c(
         "CD3D", "CD3E", "CD3G", "TRAC",
-        "CD2", "CD247", "IL7R", "LCK"
+        "CD2", "CD247", "IL7R", "LCK",
+        "GIMAP1", "GIMAP4", "GIMAP6", "GIMAP7",
+        "GIMAP8", "SASH3", "RASAL3"
       ),
       supportive_markers = c(
         "CD4", "CD8A", "CD8B", "CTLA4",
-        "ICOS", "MAL", "TRBC1", "TRBC2"
+        "ICOS", "MAL", "TRBC1", "TRBC2",
+        "SNX20"
       ),
       exclusion_markers = c(
         "TYROBP", "FCER1G", "LILRB1", "LILRB2",
@@ -349,6 +360,9 @@ phase4_default_evidence_rules <- function() {
       ),
       min_positive = 2L,
       min_score = 0.45,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
       priority = 8L
     ),
     list(
@@ -394,10 +408,11 @@ phase4_default_evidence_rules <- function() {
       positive_markers = c(
         "FCGR3B", "CSF3R", "FPR1", "FPR2",
         "S100A8", "S100A9", "CAMP", "MPO",
-        "ELANE", "PGLYRP1"
+        "ELANE", "PGLYRP1", "CEBPE"
       ),
       supportive_markers = c(
-        "CXCR2", "MNDA", "SELL", "CEACAM8"
+        "CXCR2", "MNDA", "SELL", "CEACAM8",
+        "CTSG"
       ),
       exclusion_markers = c(
         "MZB1", "JCHAIN", "TNFRSF17",
@@ -414,6 +429,9 @@ phase4_default_evidence_rules <- function() {
       ),
       min_positive = 2L,
       min_score = 0.45,
+      marker_only_min_positive = 2L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
       priority = 8L
     ),
     list(
@@ -423,11 +441,13 @@ phase4_default_evidence_rules <- function() {
       compartment = "vascular/stromal",
       positive_markers = c(
         "PECAM1", "VWF", "KDR", "EMCN",
-        "ENG", "ESAM", "RAMP2", "PLVAP"
+        "ENG", "ESAM", "RAMP2", "PLVAP",
+        "CLDN5", "ACKR1", "APLNR", "CLEC14A",
+        "SOX18", "RAMP3", "FLT1", "CA4"
       ),
       supportive_markers = c(
         "CD34", "SPARCL1", "KLF2", "KLF4",
-        "EGFL7", "CA4", "FLT1"
+        "EGFL7", "CCDC85B", "HS3ST2"
       ),
       exclusion_markers = c(
         "COL1A1", "COL1A2", "COL3A1",
@@ -446,6 +466,9 @@ phase4_default_evidence_rules <- function() {
       ),
       min_positive = 2L,
       min_score = 0.45,
+      marker_only_min_positive = 4L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.34,
       priority = 8L
     ),
     list(
@@ -456,11 +479,14 @@ phase4_default_evidence_rules <- function() {
       positive_markers = c(
         "COL1A1", "COL1A2", "COL3A1", "DCN",
         "LUM", "COL5A1", "COL5A2", "PDGFRA",
-        "PDGFRB", "FAP", "POSTN"
+        "PDGFRB", "FAP", "POSTN", "DPT",
+        "OGN", "SFRP4", "PI16", "CLEC3B",
+        "BGN", "PRELP", "COL22A1", "MGP"
       ),
       supportive_markers = c(
         "SPARC", "MMP2", "TIMP3", "VCAN",
-        "THY1", "ASPN", "C7"
+        "THY1", "ASPN", "C7", "OMD",
+        "ISLR", "CCN5", "TNFAIP6"
       ),
       exclusion_markers = c(
         "PECAM1", "VWF", "KDR",
@@ -480,7 +506,115 @@ phase4_default_evidence_rules <- function() {
       ),
       min_positive = 2L,
       min_score = 0.45,
+      marker_only_min_positive = 4L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.34,
       priority = 8L
+    ),
+    list(
+      rule_id = "mast_cell_associated",
+      axis = "lineage",
+      display_label = "mast-cell-associated",
+      compartment = "immune",
+      positive_markers = c(
+        "TPSAB1", "TPSB2", "TPSD1", "CPA3",
+        "KIT", "MS4A2", "HPGDS", "GATA2"
+      ),
+      supportive_markers = c(
+        "CTSG", "FCER1A", "HDC", "SRGN",
+        "LTC4S"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "mast cell",
+        "mast-cell",
+        "tryptase",
+        "histamine",
+        "mast cell degranulation"
+      ),
+      required_term_patterns = c(
+        "mast cell",
+        "mast-cell",
+        "tryptase",
+        "histamine"
+      ),
+      min_positive = 2L,
+      min_score = 0.42,
+      marker_only_min_positive = 3L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 8L
+    ),
+    list(
+      rule_id = "perivascular_smooth_muscle_associated",
+      axis = "lineage",
+      display_label = "perivascular/smooth-muscle-associated",
+      compartment = "vascular/stromal",
+      positive_markers = c(
+        "MYH11", "ACTA2", "TAGLN", "RGS5",
+        "CSPG4", "MCAM", "KCNMB1", "MYLK",
+        "DES", "CALD1", "NOTCH3"
+      ),
+      supportive_markers = c(
+        "PDGFRB", "COL4A1", "COL4A2", "RBP1",
+        "COX4I2", "ABCC9"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "smooth muscle",
+        "pericyte",
+        "perivascular",
+        "vascular smooth muscle",
+        "contractile"
+      ),
+      required_term_patterns = c(
+        "smooth muscle",
+        "pericyte",
+        "perivascular",
+        "contractile"
+      ),
+      min_positive = 2L,
+      min_score = 0.42,
+      marker_only_min_positive = 2L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.34,
+      priority = 7L
+    ),
+    list(
+      rule_id = "keratinizing_squamous_epithelial_associated",
+      axis = "lineage",
+      display_label = "keratinizing/squamous-epithelial-associated",
+      compartment = "epithelial",
+      positive_markers = c(
+        "KRT1", "KRT10", "KRT14", "KRT15",
+        "KRT71", "KRT73", "KRT77", "KRT79",
+        "PKP1", "DMKN", "DSG1", "DSC1",
+        "IVL", "LOR", "FLG"
+      ),
+      supportive_markers = c(
+        "ABCB5", "KRT5", "KRT6A", "KRT6B",
+        "KRT16", "KRT17"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "keratinization",
+        "cornification",
+        "epidermal",
+        "squamous epithelial",
+        "keratinocyte"
+      ),
+      required_term_patterns = c(
+        "keratinization",
+        "cornification",
+        "epidermal",
+        "squamous"
+      ),
+      min_positive = 3L,
+      min_score = 0.40,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 6L
     ),
     list(
       rule_id = "adipocyte_associated",
@@ -717,17 +851,52 @@ phase4_default_evidence_rules <- function() {
       priority = 8L
     ),
     list(
+      rule_id = "mast_cell_degranulation",
+      axis = "state",
+      display_label = "mast-cell-degranulation-associated",
+      compartment = "immune",
+      positive_markers = c(
+        "TPSAB1", "TPSB2", "TPSD1", "CPA3",
+        "HDC", "HPGDS"
+      ),
+      supportive_markers = c(
+        "CTSG", "MS4A2", "KIT", "FCER1A"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "mast cell degranulation",
+        "mast-cell degranulation",
+        "histamine secretion",
+        "tryptase"
+      ),
+      required_term_patterns = c(
+        "mast cell",
+        "mast-cell",
+        "histamine",
+        "tryptase"
+      ),
+      min_positive = 2L,
+      min_score = 0.40,
+      marker_only_min_positive = 2L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 7L
+    ),
+    list(
       rule_id = "ECM_remodeling",
       axis = "process",
       display_label = "extracellular-matrix-remodelling",
       compartment = "stromal",
       positive_markers = c(
         "COL1A1", "COL1A2", "COL3A1", "POSTN",
-        "MMP2", "MMP9", "TIMP3", "SPARC"
+        "MMP2", "MMP9", "TIMP3", "SPARC",
+        "DPT", "OGN", "PRELP", "BGN",
+        "COL22A1", "SFRP4"
       ),
       supportive_markers = c(
         "LUM", "DCN", "COL5A1", "COL5A2",
-        "ASPN", "VCAN"
+        "ASPN", "VCAN", "OMD", "CLEC3B",
+        "PI16", "MGP"
       ),
       exclusion_markers = character(),
       term_patterns = c(
@@ -823,11 +992,14 @@ phase4_default_evidence_rules <- function() {
       positive_markers = c(
         "S100B", "SOX10", "GFAP", "ALDH1L1",
         "SLC1A3", "GJB6", "GRIA2", "PVALB",
-        "SLC6A5", "GLRA1", "CALB2", "SCN2A"
+        "SLC6A5", "GLRA1", "CALB2", "SCN2A",
+        "NPTX1", "NPTX2", "NPTXR", "SLITRK2",
+        "MAST1"
       ),
       supportive_markers = c(
         "GRIN1", "GAL", "SIM1", "FOXG1",
-        "PAX6", "OLIG1", "OLIG2", "PLP1"
+        "PAX6", "OLIG1", "OLIG2", "PLP1",
+        "IGSF21", "RUNDC3A"
       ),
       exclusion_markers = character(),
       term_patterns = c(
@@ -928,7 +1100,9 @@ phase4_default_evidence_rules <- function() {
       positive_markers = c(
         "HOXA7", "HOXA9", "HOXA10", "HOXA11",
         "HOXB13", "HOXD10", "HOXD11", "HOXD12",
-        "PRRX1", "EMX2", "FZD10"
+        "PRRX1", "EMX2", "FZD10", "IRX1",
+        "IRX2", "IRX4", "IRX5", "IRX6",
+        "TBX5", "MESP1"
       ),
       supportive_markers = c(
         "TAFA5", "PRAC1", "PRAC2", "BARX1",
@@ -1025,6 +1199,211 @@ phase4_default_evidence_rules <- function() {
       priority = 8L
     ),
     list(
+      rule_id = "cell_cycle_regulatory",
+      axis = "process",
+      display_label = "cell-cycle-regulatory/CDK-associated",
+      compartment = "multi-compartment",
+      positive_markers = c(
+        "CDK4", "CDK6", "CCND1", "CCND2",
+        "CCND3", "MDM2", "CDKN2A", "CDKN2B",
+        "CDKN2C", "RB1", "E2F1", "E2F2",
+        "E2F3"
+      ),
+      supportive_markers = c(
+        "TSPAN31", "METTL1", "PROX1", "CYP27B1"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "cyclin-dependent protein serine/threonine kinase activity",
+        "positive regulation of cyclin-dependent",
+        "g1/s",
+        "cell cycle regulator",
+        "p53 signaling"
+      ),
+      required_term_patterns = c(
+        "cyclin-dependent",
+        "g1/s",
+        "cell cycle",
+        "p53"
+      ),
+      min_positive = 2L,
+      min_score = 0.38,
+      priority = 8L
+    ),
+    list(
+      rule_id = "cancer_testis_antigen_expression",
+      axis = "process",
+      display_label = "cancer-testis-antigen-expression-associated",
+      compartment = "tumour-associated",
+      positive_markers = c(
+        "MAGEA1", "MAGEA2", "MAGEA3", "MAGEA4",
+        "MAGEA6", "MAGEA10", "MAGEA12", "CTAG1A",
+        "CTAG1B", "CTAG2", "CSAG1", "CSAG2",
+        "CSAG3", "XAGE1A", "XAGE1B", "GAGE1",
+        "GAGE2A", "GAGE2B", "GAGE4", "SPANXB1",
+        "SPANXC"
+      ),
+      supportive_markers = c(
+        "BEX1", "TCEAL5", "NAP1L3"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "cancer.testis",
+        "melanoma.associated antigen",
+        "melanoma associated antigen",
+        "ctag",
+        "span-x",
+        "gage",
+        "xage"
+      ),
+      required_term_patterns = c(
+        "cancer.testis",
+        "melanoma.associated antigen",
+        "melanoma associated antigen",
+        "ctag"
+      ),
+      min_positive = 3L,
+      min_score = 0.40,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 8L
+    ),
+    list(
+      rule_id = "microtubule_cytoskeleton",
+      axis = "process",
+      display_label = "microtubule/cytoskeletal-associated",
+      compartment = "multi-compartment",
+      positive_markers = c(
+        "TUBA1A", "TUBA1B", "TUBA3C", "TUBB2A",
+        "TUBB2B", "TUBB3", "TUBB8", "TUBB8B",
+        "KIF1A", "KIF1B", "MNS1"
+      ),
+      supportive_markers = c(
+        "REEP2", "RIBC2", "TRIB2", "ZNF367"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "microtubule",
+        "tubulin",
+        "cilium",
+        "ciliary",
+        "axon transport"
+      ),
+      required_term_patterns = c(
+        "microtubule",
+        "tubulin",
+        "cilium",
+        "axon"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 5L
+    ),
+    list(
+      rule_id = "imprinted_developmental_program",
+      axis = "process",
+      display_label = "imprinted-developmental-program-associated",
+      compartment = "multi-compartment",
+      positive_markers = c(
+        "DLK1", "NNAT", "MEST", "RTL1",
+        "PEG3", "PEG10", "IGF2", "H19",
+        "MEG3", "PLAGL1"
+      ),
+      supportive_markers = c(
+        "CPA4", "CPA5", "CEL"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "genomic imprinting",
+        "imprinted gene",
+        "parental imprinting",
+        "embryonic development"
+      ),
+      required_term_patterns = c(
+        "imprint",
+        "embryonic"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 4L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 5L
+    ),
+    list(
+      rule_id = "axon_guidance_cell_adhesion",
+      axis = "process",
+      display_label = "axon-guidance/cell-adhesion-associated",
+      compartment = "neural/developmental",
+      positive_markers = c(
+        "EPHA4", "EPHA5", "EPHA6", "EPHA7",
+        "EPHA8", "EPHA10", "EPHB1", "EPHB2",
+        "EPHB3", "EPHB4", "PCDH17", "ROBO1",
+        "ROBO2", "SLIT1", "SLIT2", "SLIT3"
+      ),
+      supportive_markers = c(
+        "CALY", "SAMD5", "NELL1", "NELL2",
+        "SLITRK2", "THSD7A"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "axon guidance",
+        "eph receptor",
+        "neurite",
+        "cell adhesion",
+        "nervous system development"
+      ),
+      required_term_patterns = c(
+        "axon",
+        "eph receptor",
+        "neurite",
+        "nervous system"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 3L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 5L
+    ),
+    list(
+      rule_id = "perivascular_contractile",
+      axis = "process",
+      display_label = "perivascular/contractile-associated",
+      compartment = "vascular/stromal",
+      positive_markers = c(
+        "MYH11", "ACTA2", "TAGLN", "RGS5",
+        "CSPG4", "MCAM", "KCNMB1", "MYLK",
+        "DES", "CALD1", "NOTCH3"
+      ),
+      supportive_markers = c(
+        "PDGFRB", "COL4A1", "COL4A2", "RBP1",
+        "COX4I2", "ABCC9"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "smooth muscle contraction",
+        "contractile",
+        "pericyte",
+        "vascular smooth muscle"
+      ),
+      required_term_patterns = c(
+        "smooth muscle",
+        "contractile",
+        "pericyte"
+      ),
+      min_positive = 2L,
+      min_score = 0.38,
+      marker_only_min_positive = 2L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.34,
+      priority = 6L
+    ),
+    list(
       rule_id = "mitotic_proliferation",
       axis = "process",
       display_label = "mitotic/proliferative",
@@ -1066,10 +1445,13 @@ phase4_default_evidence_rules <- function() {
       compartment = "multi-compartment",
       positive_markers = c(
         "FABP4", "LPL", "LIPE", "PLIN1",
-        "DGAT2", "CIDEA", "CIDEC", "ADIPOQ"
+        "DGAT2", "CIDEA", "CIDEC", "ADIPOQ",
+        "APOD", "PON1", "PON3", "LIPC",
+        "FABP6"
       ),
       supportive_markers = c(
-        "LEP", "AQP7", "PCK1", "MLXIPL"
+        "LEP", "AQP7", "PCK1", "MLXIPL",
+        "NR0B2", "LCN15", "ABCG8"
       ),
       exclusion_markers = character(),
       term_patterns = c(
@@ -1077,14 +1459,16 @@ phase4_default_evidence_rules <- function() {
         "fatty acid",
         "triglyceride",
         "lipoprotein",
-        "cholesterol"
+        "cholesterol",
+        "sterol"
       ),
       required_term_patterns = c(
         "lipid",
         "fatty acid",
         "triglyceride",
         "lipoprotein",
-        "cholesterol"
+        "cholesterol",
+        "sterol"
       ),
       min_positive = 2L,
       min_score = 0.40,
@@ -1598,7 +1982,10 @@ phase4_select_axis_evidence <- function(
     competing <- all_axis_table[
       all_axis_table$rule_id != selected$rule_id[[1L]] &
         all_axis_table$positive_marker_count >= 2L &
-        all_axis_table$significant_term_count >= 1L,
+        (
+          all_axis_table$significant_term_count >= 1L |
+            all_axis_table$marker_only_eligible
+        ),
       ,
       drop = FALSE
     ]
@@ -1639,13 +2026,36 @@ phase4_select_axis_evidence <- function(
           second$conflict_support_score[[1L]]
       )
 
+      marker_only_comparison <- isTRUE(
+        selected$marker_only_eligible[[1L]]
+      ) || isTRUE(
+        second$marker_only_eligible[[1L]]
+      )
+
+      allowed_delta <- if (marker_only_comparison) {
+        max(
+          conflict_delta,
+          0.18
+        )
+      } else {
+        conflict_delta
+      }
+
       conflict <- (
-        second$conflict_support_score[[1L]] >= 0.45 &&
-          score_difference <= conflict_delta
+        selected_support_score >= 0.35 &&
+          second$conflict_support_score[[1L]] >= 0.35 &&
+          score_difference <= allowed_delta
       )
 
       if (isTRUE(conflict)) {
-        conflict_evidence <- second
+        # conflict_support_score is a temporary ranking column. Returning it
+        # would make conflict_evidence structurally different from the other
+        # rule-evidence tables and break later row binding.
+        conflict_evidence <- second[
+          ,
+          names(all_axis_table),
+          drop = FALSE
+        ]
       }
     }
   }
@@ -1928,6 +2338,7 @@ phase4_annotate_module_evidence <- function(
       },
       list(
         lineage$selected,
+        lineage$conflict_evidence,
         state_evidence_rows,
         process_evidence_rows
       )
@@ -1997,7 +2408,13 @@ phase4_annotate_module_evidence <- function(
     phase4_join_nonempty(
       c(
         if (isTRUE(lineage$conflict)) {
-          "mixed-lineage-associated"
+          paste0(
+            "mixed-lineage-associated (",
+            lineage$selected$display_label[[1L]],
+            " + ",
+            lineage$conflict_evidence$display_label[[1L]],
+            ")"
+          )
         } else if (nrow(lineage$selected)) {
           lineage$selected$display_label[[1L]]
         },
@@ -2165,6 +2582,26 @@ phase4_annotate_module_evidence <- function(
       )
     },
     lineage = lineage_label,
+    conflicting_lineage_rules = if (isTRUE(lineage$conflict)) {
+      phase4_join_nonempty(
+        c(
+          lineage$selected$rule_id,
+          lineage$conflict_evidence$rule_id
+        )
+      )
+    } else {
+      ""
+    },
+    conflicting_lineage_labels = if (isTRUE(lineage$conflict)) {
+      phase4_join_nonempty(
+        c(
+          lineage$selected$display_label,
+          lineage$conflict_evidence$display_label
+        )
+      )
+    } else {
+      ""
+    },
     state = state_label,
     process = process_label,
     primary_interpretation = selected_labels,
@@ -2313,3 +2750,4 @@ phase4_candidate_eligibility <- function(entity_class) {
 
   "manual_review_required"
 }
+

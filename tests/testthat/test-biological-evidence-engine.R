@@ -652,3 +652,532 @@ testthat::test_that(
     )
   }
 )
+
+testthat::test_that(
+  "non-interpretable mixed and uncharacterized terms are excluded from user-facing evidence",
+  {
+    enrichment <- data.frame(
+      category = c("STRING", "STRING", "GO"),
+      term_id = c("MIXED", "UNKNOWN", "VALID"),
+      description = c(
+        "Mixed, incl. Eukaryotic Translation Elongation, and unknown family",
+        "Mostly uncharacterized, incl. Membrane-attack complex / perforin",
+        "extracellular matrix organization"
+      ),
+      fdr = c(0.001, 0.002, 0.003),
+      genes = c(
+        "RPL7;RPS3A",
+        "TMEM179;AMER3",
+        "DPT;OGN;PRELP"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    retained <- phase4_significant_specific_terms(
+      enrichment
+    )
+
+    testthat::expect_identical(
+      retained$description,
+      "extracellular matrix organization"
+    )
+  }
+)
+
+testthat::test_that(
+  "matrix-rich stromal modules are resolved from exact genes and significant ECM evidence",
+  {
+    genes <- c(
+      "ASPN", "SFRP4", "BGN", "DPT", "OGN",
+      "OMD", "PRELP", "CLEC3B", "MGP", "PI16",
+      "COL22A1"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "GO"),
+      term_id = c("ECM", "COLLAGEN"),
+      description = c(
+        "extracellular matrix organization",
+        "collagen-containing extracellular matrix"
+      ),
+      fdr = c(0.00001, 0.00002),
+      genes = c(
+        "DPT;OGN;PRELP;BGN;SFRP4",
+        "COL22A1;ASPN;OMD"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 300
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "fibroblast_stromal_associated"
+    )
+
+    testthat::expect_identical(
+      summary$process,
+      "ECM_remodeling"
+    )
+
+    testthat::expect_true(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "specific endothelial marker-only modules are reportable without automatic priority",
+  {
+    genes <- c(
+      "CLDN5", "PLVAP", "ACKR1", "EMCN",
+      "SOX18", "APLNR", "CLEC14A", "RAMP3"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 301
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "endothelial_associated"
+    )
+
+    testthat::expect_false(
+      summary$priority_eligible
+    )
+
+    testthat::expect_match(
+      summary$warning,
+      "marker_only_interpretation_not_eligible_for_automatic_priority"
+    )
+  }
+)
+
+testthat::test_that(
+  "GIMAP-rich modules are recognized as T-cell-associated marker-only evidence",
+  {
+    genes <- c(
+      "SASH3", "GIMAP4", "GIMAP7", "GIMAP6",
+      "RASAL3", "GIMAP8", "GIMAP1", "SNX20"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 302
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "T_cell_associated"
+    )
+
+    testthat::expect_false(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "cancer-testis antigen programmes require multi-gene and interpretable term support",
+  {
+    genes <- c(
+      "MAGEA1", "MAGEA3", "MAGEA4", "MAGEA10",
+      "MAGEA12", "CTAG2", "CSAG1", "CSAG3",
+      "BEX1", "TCEAL5"
+    )
+
+    enrichment <- data.frame(
+      category = c("STRING", "InterPro"),
+      term_id = c("MAGE", "CTAG"),
+      description = c(
+        "Melanoma-associated antigen",
+        "Melanoma associated antigen, N-terminal, and CTAG/Pcc1 family"
+      ),
+      fdr = c(1e-8, 2e-7),
+      genes = c(
+        "MAGEA1;MAGEA3;MAGEA4;MAGEA10;MAGEA12",
+        "CTAG2;CSAG1;CSAG3"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 303
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$process,
+      "cancer_testis_antigen_expression"
+    )
+
+    testthat::expect_true(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "CDK4 MDM2 modules are represented as cell-cycle-regulatory rather than lipid-metabolic",
+  {
+    genes <- c(
+      "CDK4", "MDM2", "CDKN2C", "TSPAN31",
+      "METTL1", "PROX1", "CYP27B1"
+    )
+
+    enrichment <- data.frame(
+      category = "GO",
+      term_id = "CDK_REGULATION",
+      description =
+        "positive regulation of cyclin-dependent protein serine/threonine kinase activity",
+      fdr = 0.002,
+      genes = "CDK4;MDM2;CDKN2C",
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 304
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$process,
+      "cell_cycle_regulatory"
+    )
+
+    testthat::expect_false(
+      grepl(
+        "lipid",
+        summary$primary_interpretation,
+        ignore.case = TRUE
+      )
+    )
+  }
+)
+
+testthat::test_that(
+  "APOD PON LIPC modules resolve as lipid metabolic without an erythroid lineage",
+  {
+    genes <- c(
+      "APOD", "HBB", "NR0B2", "NGB",
+      "PON1", "LIPC", "FABP6", "LCN15",
+      "PON3"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "GO"),
+      term_id = c("LIPID", "STEROL"),
+      description = c(
+        "lipid metabolic process",
+        "sterol metabolic process"
+      ),
+      fdr = c(0.004, 0.006),
+      genes = c(
+        "APOD;PON1;LIPC;FABP6;PON3",
+        "NR0B2;LIPC;PON1"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 305
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$process,
+      "lipid_metabolism"
+    )
+
+    testthat::expect_identical(
+      summary$lineage,
+      "unresolved_lineage"
+    )
+  }
+)
+
+testthat::test_that(
+  "neuronal synaptic modules are resolved by NPTX and SLITRK evidence",
+  {
+    genes <- c(
+      "NPTX1", "NPTXR", "SLITRK2", "MAST1",
+      "RUNDC3A", "NPTX2", "IGSF21"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "GO"),
+      term_id = c("SYNAPSE", "RECEPTOR"),
+      description = c(
+        "glutamatergic synapse",
+        "regulation of postsynaptic neurotransmitter receptor activity"
+      ),
+      fdr = c(0.001, 0.002),
+      genes = c(
+        "NPTX1;NPTX2;NPTXR",
+        "NPTX1;NPTX2;SLITRK2"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 306
+    )
+
+    testthat::expect_identical(
+      result$summary$lineage,
+      "neural_glial_associated"
+    )
+  }
+)
+
+testthat::test_that(
+  "microtubule-rich marker-only modules are process-level and not automatically prioritized",
+  {
+    genes <- c(
+      "KIF1A", "TUBA1A", "TUBB2B", "REEP2",
+      "RIBC2", "MNS1", "TUBA3C", "TUBB8B"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 307
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$process,
+      "microtubule_cytoskeleton"
+    )
+
+    testthat::expect_false(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "keratinizing epithelial marker-only modules are reported cautiously",
+  {
+    genes <- c(
+      "KRT1", "KRT15", "PKP1", "KRT77",
+      "KRT79", "KRT73", "KRT71", "DMKN"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 308
+    )
+
+    testthat::expect_identical(
+      result$summary$lineage,
+      "keratinizing_squamous_epithelial_associated"
+    )
+
+    testthat::expect_false(
+      result$summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "IRX and TBX developmental programmes are process-level marker-only evidence",
+  {
+    genes <- c(
+      "IRX6", "TBX5", "IRX1", "IRX5",
+      "IRX2", "IRX4", "MESP1"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 309
+    )
+
+    testthat::expect_identical(
+      result$summary$process,
+      "developmental_patterning"
+    )
+
+    testthat::expect_false(
+      result$summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "DLK1 NNAT MEST RTL1 modules are represented as imprinted developmental programmes",
+  {
+    genes <- c(
+      "DLK1", "NNAT", "MEST", "RTL1",
+      "CPA5", "CPA4", "CEL"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 310
+    )
+
+    testthat::expect_identical(
+      result$summary$process,
+      "imprinted_developmental_program"
+    )
+
+    testthat::expect_false(
+      result$summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "marker-only mast and neutrophil evidence can produce an explicit mixed-lineage result",
+  {
+    genes <- c(
+      "CTSG", "TPSAB1", "ELANE",
+      "TPSB2", "CEBPE", "TPSD1"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 311
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$interpretation_class,
+      "mixed_biological"
+    )
+
+    testthat::expect_identical(
+      summary$lineage,
+      "mixed_lineage_associated"
+    )
+
+    testthat::expect_match(
+      summary$conflicting_lineage_rules,
+      "mast_cell_associated"
+    )
+
+    testthat::expect_match(
+      summary$conflicting_lineage_rules,
+      "neutrophil_associated"
+    )
+
+    testthat::expect_false(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "Eph receptor clusters are represented as axon-guidance cell-adhesion processes",
+  {
+    genes <- c(
+      "EPHA7", "EPHA8", "SAMD5",
+      "PCDH17", "CALY", "EPHA10"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 312
+    )
+
+    testthat::expect_identical(
+      result$summary$process,
+      "axon_guidance_cell_adhesion"
+    )
+
+    testthat::expect_false(
+      result$summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "uncharacterized perforin-containing database descriptions cannot create cytotoxic evidence",
+  {
+    genes <- c(
+      "TMEM179", "AMER3", "NELL2",
+      "NELL1", "THSD7A", "AMER2", "DTX1"
+    )
+
+    enrichment <- data.frame(
+      category = "STRING",
+      term_id = "UNCHARACTERIZED",
+      description =
+        "Mostly uncharacterized, incl. Membrane-attack complex / perforin, and Copine",
+      fdr = 0.01,
+      genes = "TMEM179;AMER3",
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 313
+    )
+
+    testthat::expect_identical(
+      result$summary$state,
+      "not_assigned"
+    )
+
+    testthat::expect_identical(
+      result$summary$interpretation_class,
+      "unresolved"
+    )
+  }
+)
+
+testthat::test_that(
+  "small incoherent channel ribosomal modules remain unresolved",
+  {
+    genes <- c(
+      "PDF", "KCNA1", "RPL9P8",
+      "MRPL12", "KCNK9"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 314
+    )
+
+    testthat::expect_identical(
+      result$summary$interpretation_class,
+      "unresolved"
+    )
+  }
+)
+
