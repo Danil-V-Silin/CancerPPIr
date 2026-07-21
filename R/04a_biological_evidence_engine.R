@@ -520,7 +520,8 @@ phase4_default_evidence_rules <- function() {
       ),
       supportive_markers = c(
         "PCSK1", "PCSK2", "SCG3", "SCG5",
-        "POMC", "DLL3"
+        "POMC", "DLL3", "SOX2", "ELAVL4",
+        "STMN2", "MYT1L", "FOXG1"
       ),
       exclusion_markers = character(),
       term_patterns = c(
@@ -536,6 +537,9 @@ phase4_default_evidence_rules <- function() {
       ),
       min_positive = 2L,
       min_score = 0.45,
+      marker_only_min_positive = 2L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.30,
       priority = 8L
     ),
     list(
@@ -743,6 +747,284 @@ phase4_default_evidence_rules <- function() {
       priority = 8L
     ),
     list(
+      rule_id = "immune_leukocyte_associated",
+      axis = "lineage",
+      display_label = "immune-leukocyte-associated",
+      compartment = "immune",
+      positive_markers = c(
+        "PTPRC", "LCP1", "LCP2", "PLEK",
+        "LAPTM5", "CD48", "CD53", "NCKAP1L",
+        "INPP5D", "SYK", "FGR", "SRGN"
+      ),
+      supportive_markers = c(
+        "FYB1", "RGS1", "IL10RA", "CORO1A",
+        "FERMT3", "DOCK2", "ARHGDIB", "SLA"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "leukocyte activation",
+        "immune receptor",
+        "hematopoietic cell",
+        "lymphocyte activation",
+        "leukocyte migration"
+      ),
+      required_term_patterns = c(
+        "leukocyte",
+        "immune receptor",
+        "hematopoietic"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.35,
+      priority = 5L
+    ),
+    list(
+      rule_id = "erythroid_associated",
+      axis = "lineage",
+      display_label = "erythroid-associated",
+      compartment = "hematopoietic",
+      positive_markers = c(
+        "HBB", "HBA1", "HBA2", "ALAS2",
+        "SLC4A1", "EPB42", "AHSP", "GYPA",
+        "GYPB", "KLF1", "BPGM", "CA1"
+      ),
+      supportive_markers = c(
+        "HBD", "HBM", "HBG1", "HBG2",
+        "TRIM10", "HBQ1", "PFKFB1", "ANK1"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "erythrocyte",
+        "red blood cell",
+        "hemoglobin",
+        "heme biosynthetic",
+        "oxygen transport"
+      ),
+      required_term_patterns = c(
+        "erythrocyte",
+        "red blood cell",
+        "hemoglobin",
+        "heme"
+      ),
+      min_positive = 3L,
+      min_score = 0.40,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.35,
+      priority = 9L
+    ),
+    list(
+      rule_id = "neural_glial_associated",
+      axis = "lineage",
+      display_label = "neural/glial-associated",
+      compartment = "neural",
+      positive_markers = c(
+        "S100B", "SOX10", "GFAP", "ALDH1L1",
+        "SLC1A3", "GJB6", "GRIA2", "PVALB",
+        "SLC6A5", "GLRA1", "CALB2", "SCN2A"
+      ),
+      supportive_markers = c(
+        "GRIN1", "GAL", "SIM1", "FOXG1",
+        "PAX6", "OLIG1", "OLIG2", "PLP1"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "neuron",
+        "neuronal",
+        "glial",
+        "synaptic",
+        "neurotransmitter",
+        "axon"
+      ),
+      required_term_patterns = c(
+        "neuron",
+        "neuronal",
+        "glial",
+        "synaptic"
+      ),
+      min_positive = 3L,
+      min_score = 0.40,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.35,
+      priority = 7L
+    ),
+    list(
+      rule_id = "secretory_epithelial_associated",
+      axis = "lineage",
+      display_label = "secretory-epithelial-associated",
+      compartment = "epithelial",
+      positive_markers = c(
+        "EPCAM", "KRT8", "KRT18", "KRT19",
+        "KRT7", "MUC1", "AQP5", "PIP",
+        "SCGB2A2", "DCD", "MUCL1", "MUC7"
+      ),
+      supportive_markers = c(
+        "TMPRSS2", "CA6", "ZG16B", "AZGP1",
+        "KRT17", "KRT5", "KRT14", "MSLN"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "epithelial",
+        "glandular",
+        "secretory",
+        "mucin",
+        "exocrine"
+      ),
+      required_term_patterns = c(
+        "epithelial",
+        "glandular",
+        "secretory",
+        "mucin"
+      ),
+      min_positive = 3L,
+      min_score = 0.40,
+      marker_only_min_positive = 4L,
+      marker_only_min_supportive = 2L,
+      marker_only_min_score = 0.34,
+      priority = 7L
+    ),
+    list(
+      rule_id = "chemokine_immune_organization",
+      axis = "state",
+      display_label = "chemokine-mediated immune organization",
+      compartment = "immune/stromal",
+      positive_markers = c(
+        "CCL19", "CCL21", "CXCL9", "CXCL10",
+        "CXCL11", "CCL8", "CCL18", "CCL11"
+      ),
+      supportive_markers = c(
+        "CXCL14", "CD209", "FPR3", "SLAMF8",
+        "ADAMDEC1", "SIGLEC8"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "chemokine",
+        "leukocyte migration",
+        "lymphocyte migration",
+        "immune cell recruitment",
+        "lymphoid organ"
+      ),
+      required_term_patterns = c(
+        "chemokine",
+        "leukocyte migration",
+        "lymphocyte migration",
+        "recruitment"
+      ),
+      min_positive = 2L,
+      min_score = 0.38,
+      marker_only_min_positive = 4L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 7L
+    ),
+    list(
+      rule_id = "developmental_patterning",
+      axis = "process",
+      display_label = "developmental-patterning/HOX-associated",
+      compartment = "multi-compartment",
+      positive_markers = c(
+        "HOXA7", "HOXA9", "HOXA10", "HOXA11",
+        "HOXB13", "HOXD10", "HOXD11", "HOXD12",
+        "PRRX1", "EMX2", "FZD10"
+      ),
+      supportive_markers = c(
+        "TAFA5", "PRAC1", "PRAC2", "BARX1",
+        "PROX1", "FOXA2", "NKX2-1"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "pattern specification",
+        "regionalization",
+        "anterior posterior",
+        "homeobox",
+        "embryonic development",
+        "morphogenesis"
+      ),
+      required_term_patterns = c(
+        "pattern",
+        "regionalization",
+        "homeobox",
+        "embryonic",
+        "morphogenesis"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 6L
+    ),
+    list(
+      rule_id = "xenobiotic_metabolism",
+      axis = "process",
+      display_label = "xenobiotic/drug-metabolic",
+      compartment = "epithelial/metabolic",
+      positive_markers = c(
+        "CYP2C9", "CYP2B6", "UGT2A3", "GSTM4",
+        "ALDH1A1", "ADH1C", "HNF4A", "LIPC",
+        "ABCG8", "GCKR", "PLA2G7", "PLA2G2D"
+      ),
+      supportive_markers = c(
+        "CREB3L3", "LPCAT2", "ADAMDEC1",
+        "ALDH1A2", "CYP27B1"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "xenobiotic",
+        "drug metabolism",
+        "oxidation reduction",
+        "retinoid metabolism",
+        "fatty acid metabolism"
+      ),
+      required_term_patterns = c(
+        "xenobiotic",
+        "drug metabolism",
+        "oxidation",
+        "retinoid"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 6L
+    ),
+    list(
+      rule_id = "heme_oxygen_transport",
+      axis = "process",
+      display_label = "heme/oxygen-transport",
+      compartment = "hematopoietic",
+      positive_markers = c(
+        "HBB", "HBA1", "HBA2", "ALAS2",
+        "SLC4A1", "EPB42", "AHSP", "GYPA"
+      ),
+      supportive_markers = c(
+        "HBD", "HBM", "HBG1", "HBG2",
+        "CA1", "BPGM", "PFKFB1"
+      ),
+      exclusion_markers = character(),
+      term_patterns = c(
+        "oxygen transport",
+        "heme biosynthetic",
+        "hemoglobin",
+        "gas transport"
+      ),
+      required_term_patterns = c(
+        "oxygen transport",
+        "heme",
+        "hemoglobin"
+      ),
+      min_positive = 3L,
+      min_score = 0.38,
+      marker_only_min_positive = 5L,
+      marker_only_min_supportive = 1L,
+      marker_only_min_score = 0.34,
+      priority = 8L
+    ),
+    list(
       rule_id = "mitotic_proliferation",
       axis = "process",
       display_label = "mitotic/proliferative",
@@ -927,13 +1209,23 @@ phase4_evaluate_evidence_rule <- function(
     term_count / 2
   )
 
+  coverage_denominator <- max(
+    3,
+    min(
+      8,
+      sqrt(
+        max(
+          1,
+          length(genes)
+        )
+      ) + 1
+    )
+  )
+
   coverage_component <- min(
     1,
     (positive_count + supportive_count) /
-      max(
-        3,
-        0.25 * max(1, length(genes))
-      )
+      coverage_denominator
   )
 
   exclusion_penalty <- min(
@@ -957,7 +1249,7 @@ phase4_evaluate_evidence_rule <- function(
     )
   )
 
-  eligible <- (
+  standard_eligible <- (
     positive_count >= as.integer(rule$min_positive)
   ) || (
     positive_count >= 1L &&
@@ -965,8 +1257,52 @@ phase4_evaluate_evidence_rule <- function(
       term_count >= 1L
   )
 
-  eligible <- isTRUE(eligible) &&
-    evidence_score >= as.numeric(rule$min_score)
+  marker_only_min_positive <- if (
+    is.null(rule$marker_only_min_positive)
+  ) {
+    Inf
+  } else {
+    as.numeric(
+      rule$marker_only_min_positive
+    )
+  }
+
+  marker_only_min_supportive <- if (
+    is.null(rule$marker_only_min_supportive)
+  ) {
+    Inf
+  } else {
+    as.numeric(
+      rule$marker_only_min_supportive
+    )
+  }
+
+  marker_only_min_score <- if (
+    is.null(rule$marker_only_min_score)
+  ) {
+    as.numeric(
+      rule$min_score
+    )
+  } else {
+    as.numeric(
+      rule$marker_only_min_score
+    )
+  }
+
+  marker_only_eligible <- term_count == 0L &&
+    (
+      positive_count >= marker_only_min_positive ||
+        (
+          positive_count >= as.integer(rule$min_positive) &&
+            supportive_count >= marker_only_min_supportive
+        )
+    ) &&
+    evidence_score >= marker_only_min_score
+
+  eligible <- (
+    isTRUE(standard_eligible) &&
+      evidence_score >= as.numeric(rule$min_score)
+  ) || isTRUE(marker_only_eligible)
 
   term_supporting_genes <- phase4_normalize_genes(
     unlist(
@@ -1026,8 +1362,11 @@ phase4_evaluate_evidence_rule <- function(
     supportive_component = supportive_component,
     term_component = term_component,
     coverage_component = coverage_component,
+    coverage_denominator = coverage_denominator,
     exclusion_penalty = exclusion_penalty,
     evidence_score = evidence_score,
+    standard_eligible = isTRUE(standard_eligible),
+    marker_only_eligible = isTRUE(marker_only_eligible),
     eligible = eligible,
     priority = as.integer(rule$priority),
     stringsAsFactors = FALSE
@@ -1431,6 +1770,52 @@ phase4_join_nonempty <- function(values, separator = "; ") {
   )
 }
 
+phase4_infer_selected_compartment <- function(
+  selected_rows,
+  lineage_selection
+) {
+  if (
+    is.data.frame(lineage_selection) &&
+    nrow(lineage_selection) > 0L
+  ) {
+    return(
+      lineage_selection$compartment[[1L]]
+    )
+  }
+
+  if (
+    is.null(selected_rows) ||
+    !is.data.frame(selected_rows) ||
+    nrow(selected_rows) == 0L
+  ) {
+    return("unresolved")
+  }
+
+  compartments <- unique(
+    trimws(
+      as.character(
+        selected_rows$compartment
+      )
+    )
+  )
+
+  compartments <- compartments[
+    !is.na(compartments) &
+      nzchar(compartments) &
+      compartments != "multi-compartment"
+  ]
+
+  if (length(compartments) == 1L) {
+    return(compartments[[1L]])
+  }
+
+  if (length(compartments) > 1L) {
+    return("multi-compartment")
+  }
+
+  "multi-compartment"
+}
+
 phase4_annotate_module_evidence <- function(
   genes,
   enrichment = NULL,
@@ -1608,25 +1993,21 @@ phase4_annotate_module_evidence <- function(
 
   selected_labels <- if (isTRUE(technical$detected)) {
     technical$display_label
-  } else {
+  } else if (nrow(selected_rows) > 0L) {
     phase4_join_nonempty(
       c(
         if (isTRUE(lineage$conflict)) {
           "mixed-lineage-associated"
         } else if (nrow(lineage$selected)) {
           lineage$selected$display_label[[1L]]
-        } else {
-          "unresolved biological context"
         },
-        if (nrow(state$selected)) {
-          state$selected$display_label[[1L]]
-        },
-        if (nrow(process$selected)) {
-          process$selected$display_label[[1L]]
-        }
+        state_evidence_rows$display_label,
+        process_evidence_rows$display_label
       ),
       separator = " / "
     )
+  } else {
+    "unresolved biological context"
   }
 
   has_conflict <- isTRUE(lineage$conflict) ||
@@ -1685,6 +2066,21 @@ phase4_annotate_module_evidence <- function(
       },
       if (
         !isTRUE(technical$detected) &&
+        !nrow(lineage$selected) &&
+        nrow(selected_rows) > 0L
+      ) {
+        "lineage_not_resolved_state_or_process_evidence_only"
+      },
+      if (
+        !isTRUE(technical$detected) &&
+        nrow(selected_rows) > 0L &&
+        any(selected_rows$marker_only_eligible) &&
+        !any(selected_rows$significant_term_count >= 1L)
+      ) {
+        "marker_only_interpretation_not_eligible_for_automatic_priority"
+      },
+      if (
+        !isTRUE(technical$detected) &&
         !nrow(selected_rows)
       ) {
         "insufficient_specific_marker_and_significant_enrichment_evidence"
@@ -1737,17 +2133,36 @@ phase4_annotate_module_evidence <- function(
       "technical_or_covariate"
     } else if (lineage_label == "mixed_lineage_associated") {
       "mixed_biological"
-    } else if (lineage_label == "unresolved_lineage") {
-      "unresolved"
-    } else {
+    } else if (nrow(selected_rows) > 0L) {
       "biological"
+    } else {
+      "unresolved"
+    },
+    interpretation_scope = if (isTRUE(technical$detected)) {
+      "technical_or_covariate"
+    } else if (lineage_label == "mixed_lineage_associated") {
+      "mixed_lineage"
+    } else if (nrow(lineage$selected) > 0L) {
+      "lineage_supported"
+    } else if (
+      nrow(state_evidence_rows) > 0L &&
+        nrow(process_evidence_rows) > 0L
+    ) {
+      "state_and_process_supported_lineage_unresolved"
+    } else if (nrow(state_evidence_rows) > 0L) {
+      "state_supported_lineage_unresolved"
+    } else if (nrow(process_evidence_rows) > 0L) {
+      "process_supported_lineage_unresolved"
+    } else {
+      "unresolved"
     },
     compartment = if (isTRUE(technical$detected)) {
       "not_applicable"
-    } else if (nrow(lineage$selected)) {
-      lineage$selected$compartment[[1L]]
     } else {
-      "unresolved"
+      phase4_infer_selected_compartment(
+        selected_rows = selected_rows,
+        lineage_selection = lineage$selected
+      )
     },
     lineage = lineage_label,
     state = state_label,
@@ -1759,7 +2174,9 @@ phase4_annotate_module_evidence <- function(
     confidence = confidence,
     priority_eligible = !isTRUE(technical$detected) &&
       confidence %in% c("high", "moderate") &&
-      !isTRUE(has_conflict),
+      !isTRUE(has_conflict) &&
+      nrow(selected_rows) > 0L &&
+      any(selected_rows$significant_term_count >= 1L),
     positive_marker_genes = phase4_join_nonempty(
       selected_positive_genes
     ),

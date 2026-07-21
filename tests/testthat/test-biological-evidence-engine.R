@@ -321,3 +321,334 @@ testthat::test_that(
     )
   }
 )
+
+
+testthat::test_that(
+  "strong process evidence resolves a module even when lineage is unresolved",
+  {
+    genes <- c(
+      "TOP2A", "MKI67", "CDK1", "FOXM1",
+      "CDC20", "CCNB1", "KIF11", "UBE2C"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "Reactome"),
+      term_id = c("MITOSIS", "CELL_CYCLE"),
+      description = c(
+        "mitotic chromosome segregation",
+        "cell cycle"
+      ),
+      fdr = c(0.0001, 0.0002),
+      genes = c(
+        "TOP2A;MKI67;CDK1;CDC20;CCNB1",
+        "FOXM1;KIF11;UBE2C"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 200
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$interpretation_class,
+      "biological"
+    )
+
+    testthat::expect_identical(
+      summary$interpretation_scope,
+      "process_supported_lineage_unresolved"
+    )
+
+    testthat::expect_identical(
+      summary$lineage,
+      "unresolved_lineage"
+    )
+
+    testthat::expect_identical(
+      summary$process,
+      "mitotic_proliferation"
+    )
+
+    testthat::expect_false(
+      grepl(
+        "unresolved biological context",
+        summary$primary_interpretation,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_true(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "strong state evidence resolves a module without forcing a lineage",
+  {
+    genes <- c(
+      "HLA-DRA", "HLA-DRB1", "HLA-DPA1",
+      "HLA-DPB1", "CD74", "CIITA"
+    )
+
+    enrichment <- data.frame(
+      category = "GO",
+      term_id = "ANTIGEN",
+      description = "antigen processing and presentation",
+      fdr = 0.0005,
+      genes = "HLA-DRA;HLA-DRB1;HLA-DPA1;HLA-DPB1;CD74;CIITA",
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 201
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$interpretation_class,
+      "biological"
+    )
+
+    testthat::expect_identical(
+      summary$interpretation_scope,
+      "state_supported_lineage_unresolved"
+    )
+
+    testthat::expect_identical(
+      summary$state,
+      "antigen_presentation"
+    )
+
+    testthat::expect_true(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "specific marker-only neuroendocrine evidence is reportable but not automatically prioritized",
+  {
+    genes <- c(
+      "ASCL1", "INSM1", "SOX2", "ELAVL4", "STMN2"
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = NULL,
+      module_id = 202
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$interpretation_class,
+      "biological"
+    )
+
+    testthat::expect_identical(
+      summary$lineage,
+      "neuroendocrine_associated"
+    )
+
+    testthat::expect_false(
+      summary$priority_eligible
+    )
+
+    testthat::expect_match(
+      summary$warning,
+      "marker_only_interpretation_not_eligible_for_automatic_priority"
+    )
+  }
+)
+
+testthat::test_that(
+  "erythroid signatures are recognized by universal rules",
+  {
+    genes <- c(
+      "HBB", "SLC4A1", "ALAS2", "EPB42",
+      "AHSP", "CA1", "HBD", "HBG2"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "GO"),
+      term_id = c("ERYTHROCYTE", "OXYGEN"),
+      description = c(
+        "erythrocyte differentiation",
+        "oxygen transport"
+      ),
+      fdr = c(0.0002, 0.0003),
+      genes = c(
+        "HBB;SLC4A1;ALAS2;EPB42;AHSP",
+        "HBB;HBD;HBG2"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 203
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "erythroid_associated"
+    )
+
+    testthat::expect_identical(
+      summary$process,
+      "heme_oxygen_transport"
+    )
+
+    testthat::expect_true(
+      summary$priority_eligible
+    )
+  }
+)
+
+testthat::test_that(
+  "secretory epithelial signatures are recognized without sample-specific logic",
+  {
+    genes <- c(
+      "SCGB2A2", "PIP", "DCD", "AQP5",
+      "MUCL1", "MUC7", "TMPRSS2", "CA6"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "Process"),
+      term_id = c("SECRETORY", "EPITHELIAL"),
+      description = c(
+        "regulated secretory pathway",
+        "epithelial cell differentiation"
+      ),
+      fdr = c(0.002, 0.004),
+      genes = c(
+        "SCGB2A2;PIP;DCD;AQP5",
+        "MUCL1;MUC7;TMPRSS2;CA6"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 204
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "secretory_epithelial_associated"
+    )
+
+    testthat::expect_identical(
+      summary$compartment,
+      "epithelial"
+    )
+  }
+)
+
+testthat::test_that(
+  "developmental HOX programmes are represented as processes rather than forced lineages",
+  {
+    genes <- c(
+      "HOXA7", "HOXA9", "HOXA10", "HOXA11",
+      "HOXD10", "HOXD11", "HOXD12", "PRRX1",
+      "FZD10", "EMX2"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "GO"),
+      term_id = c("PATTERN", "REGION"),
+      description = c(
+        "anterior posterior pattern specification",
+        "regionalization"
+      ),
+      fdr = c(0.0004, 0.0008),
+      genes = c(
+        "HOXA7;HOXA9;HOXA10;HOXD10",
+        "HOXD11;HOXD12;PRRX1;EMX2"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 205
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$interpretation_class,
+      "biological"
+    )
+
+    testthat::expect_identical(
+      summary$process,
+      "developmental_patterning"
+    )
+
+    testthat::expect_identical(
+      summary$lineage,
+      "unresolved_lineage"
+    )
+  }
+)
+
+testthat::test_that(
+  "broad leukocyte modules can be reported without pretending to know a specific lineage",
+  {
+    genes <- c(
+      "PTPRC", "LCP1", "LCP2", "PLEK",
+      "LAPTM5", "CD48", "CD53", "NCKAP1L",
+      "INPP5D", "SYK", "FGR", "SRGN"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "Process"),
+      term_id = c("LEUKOCYTE", "IMMUNE_RECEPTOR"),
+      description = c(
+        "leukocyte activation",
+        "immune receptor signaling"
+      ),
+      fdr = c(0.0003, 0.0007),
+      genes = c(
+        "PTPRC;LCP1;LCP2;PLEK;LAPTM5;CD48",
+        "INPP5D;SYK;FGR;NCKAP1L"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- phase4_annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 206
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "immune_leukocyte_associated"
+    )
+
+    testthat::expect_match(
+      summary$primary_interpretation,
+      "immune-leukocyte-associated"
+    )
+  }
+)
