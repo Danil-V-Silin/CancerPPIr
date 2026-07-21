@@ -23,6 +23,7 @@ load_cancerppir_modules <- function(
       "03_enrichment.R",
       "04_module_labeling.R",
       "04a_biological_evidence_engine.R",
+      "04b_biological_evidence_adapter.R",
       "05_reporting.R",
       "06_network_analysis.R",
       "07_pipeline.R"

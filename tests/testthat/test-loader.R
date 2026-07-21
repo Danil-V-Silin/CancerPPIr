@@ -5,6 +5,7 @@ testthat::test_that("module loader exposes the complete architecture", {
     "run_local_string_enrichment",
     "label_module_by_markers",
     "phase4_annotate_module_evidence",
+    "phase4_bind_pipeline_evidence",
     "run_network_analysis",
     "run_cancerppir"
   )
@@ -33,7 +34,7 @@ testthat::test_that("module loader exposes the complete architecture", {
 })
 
 testthat::test_that(
-  "module loader uses the deterministic nine-module order",
+  "module loader uses the deterministic ten-module order",
   {
     project_root <- Sys.getenv(
       "CANCERPPIR_PROJECT_ROOT",
@@ -58,6 +59,7 @@ testthat::test_that(
       "03_enrichment.R",
       "04_module_labeling.R",
       "04a_biological_evidence_engine.R",
+      "04b_biological_evidence_adapter.R",
       "05_reporting.R",
       "06_network_analysis.R",
       "07_pipeline.R"
