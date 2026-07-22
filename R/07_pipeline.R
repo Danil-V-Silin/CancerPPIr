@@ -150,28 +150,14 @@ run_cancerppir <- function(
     stop("No rows remained after gene-symbol normalization.", call. = FALSE)
   }
 
-  msg("Initializing STRINGdb.")
-  string_db <- tryCatch(
-    STRINGdb$new(
-      species = 9606,
-      version = "12.0",
-      score_threshold = score_threshold,
-      network_type = "full",
-      input_directory = cache_dir
-    ),
-    error = function(e) {
-      if (.Platform$OS.type == "windows") {
-        options(download.file.method = "wininet", url.method = "wininet")
-      }
-
-      STRINGdb$new(
-        species = 9606,
-        version = "12.0",
-        score_threshold = score_threshold,
-        network_type = "full",
-        input_directory = cache_dir
-      )
-    }
+  msg("Initializing STRINGdb from pinned local cache.")
+  string_db <- create_offline_stringdb(
+    cache_dir = cache_dir,
+    score_threshold = score_threshold,
+    species = 9606L,
+    version = "12.0",
+    network_type = "full",
+    link_data = "combined_only"
   )
 
   msg("Mapping genes to STRING identifiers.")
