@@ -1,0 +1,13 @@
+"case_id","workbook","sheet_name","baseline_rows","candidate_rows","baseline_columns","candidate_columns","baseline_md5","candidate_md5","identical_content","baseline_read_error","candidate_read_error"
+"A01","analytical_report","Degree distribution",30,30,4,4,"1213c45395a4a3595e97d0cdddeebf13","1213c45395a4a3595e97d0cdddeebf13",TRUE,,
+"A01","technical_report","Alias corrections",231,231,4,4,"d11dd9859570755ff66bd11d70eabd91","d11dd9859570755ff66bd11d70eabd91",TRUE,,
+"A01","technical_report","Gene status",400,400,10,10,"919f0839ededc8eb3e13e5c7311f5577","919f0839ededc8eb3e13e5c7311f5577",TRUE,,
+"A01","technical_report","Genes used table",169,169,6,6,"1e5d0420b5312781e81df24b7c28191f","1e5d0420b5312781e81df24b7c28191f",TRUE,,
+"A01","technical_report","HGNC normalization",400,400,3,3,"b291bdac4a7f810d38b976028e7afc72","b291bdac4a7f810d38b976028e7afc72",TRUE,,
+"A01","technical_report","Mapping summary",8,8,2,2,"ac1852a3d84cce65f513198958132bca","ac1852a3d84cce65f513198958132bca",TRUE,,
+"A01","technical_report","Raw candidate enrichment",1337,1337,13,13,"f6c96be2d95b02d34757a17927c0db1d","f6c96be2d95b02d34757a17927c0db1d",TRUE,,
+"A01","technical_report","Raw network enrichment",2413,2413,13,13,"6877c14691264bbfbfda1501c543f37e","6877c14691264bbfbfda1501c543f37e",TRUE,,
+"A01","technical_report","Session info",45,45,1,1,"4f0cb071146479a3955258ae757b9687","4f0cb071146479a3955258ae757b9687",TRUE,,
+"A01","technical_report","Top candidate enrichment",25,25,13,13,"a3cfde92424313c13cc09c925294288d","a3cfde92424313c13cc09c925294288d",TRUE,,
+"A01","technical_report","Top network enrichment",25,25,13,13,"6bed14b8f0bcf30fa6c9cb55f1086c77","6bed14b8f0bcf30fa6c9cb55f1086c77",TRUE,,
+"A01","technical_report","Unmapped genes",231,231,1,1,"62f6aed7e9d2f9c9bf56207ca9f7f812","62f6aed7e9d2f9c9bf56207ca9f7f812",TRUE,,

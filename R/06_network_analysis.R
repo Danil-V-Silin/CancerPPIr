@@ -13,6 +13,99 @@
 # Architecture checkpoint 2.11
 # -----------------------------------------------------------------------------
 
+
+# Fixed seed for reproducible Louvain community detection.
+#
+# igraph processes vertices in a random order during Louvain optimization.
+# The seed is therefore part of the analytical method. The wrapper below
+# restores the caller's .Random.seed so CancerPPIr does not alter unrelated
+# random-number generation in an interactive R session.
+CANCERPPIR_LOUVAIN_SEED <- 1729L
+
+with_preserved_random_seed <- function(
+  seed,
+  code
+) {
+  if (
+    length(seed) != 1L ||
+    is.na(seed) ||
+    !is.finite(seed) ||
+    seed < 0 ||
+    seed > .Machine$integer.max
+  ) {
+    stop(
+      paste0(
+        "seed must be one finite integer in [0, ",
+        .Machine$integer.max,
+        "]."
+      ),
+      call. = FALSE
+    )
+  }
+
+  seed <- as.integer(seed)
+
+  had_random_seed <- exists(
+    ".Random.seed",
+    envir = .GlobalEnv,
+    inherits = FALSE
+  )
+
+  if (had_random_seed) {
+    previous_random_seed <- get(
+      ".Random.seed",
+      envir = .GlobalEnv,
+      inherits = FALSE
+    )
+  }
+
+  on.exit(
+    {
+      if (had_random_seed) {
+        assign(
+          ".Random.seed",
+          previous_random_seed,
+          envir = .GlobalEnv
+        )
+      } else if (exists(
+        ".Random.seed",
+        envir = .GlobalEnv,
+        inherits = FALSE
+      )) {
+        rm(
+          ".Random.seed",
+          envir = .GlobalEnv
+        )
+      }
+    },
+    add = TRUE
+  )
+
+  set.seed(seed)
+  force(code)
+}
+
+run_louvain_deterministic <- function(
+  graph,
+  weights = NA,
+  seed = CANCERPPIR_LOUVAIN_SEED
+) {
+  if (!inherits(graph, "igraph")) {
+    stop(
+      "graph must be an igraph object.",
+      call. = FALSE
+    )
+  }
+
+  with_preserved_random_seed(
+    seed = seed,
+    code = igraph::cluster_louvain(
+      graph,
+      weights = weights
+    )
+  )
+}
+
 run_network_analysis <- function(
   string_db,
   mapped_final,
@@ -57,7 +150,7 @@ run_network_analysis <- function(
   lcc_nodes <- node_ids[comp$membership == largest_component]
   ppi_lcc <- igraph::induced_subgraph(ppi, vids = igraph::V(ppi)[name %in% lcc_nodes])
 
-  louvain <- igraph::cluster_louvain(ppi, weights = NA)
+  louvain <- run_louvain_deterministic(ppi, weights = NA)
 
   degree_all <- igraph::degree(ppi, mode = "all", loops = FALSE)
   betweenness_all <- igraph::betweenness(ppi, directed = FALSE, normalized = TRUE)
