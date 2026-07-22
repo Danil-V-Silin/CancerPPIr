@@ -1285,8 +1285,15 @@ run_cancerppir <- function(
   # Attach readable node attributes before writing GraphML. Cytoscape can use
   # final_functional_label / community_louvain for module coloring and
   # candidate_score / degree / betweenness for node sizing or ranking.
+  graphml_pvalue_export <- prepare_graphml_pvalue_export(
+    node_metrics_readable$pvalue
+  )
+
   cytoscape_node_attributes <- node_metrics_readable %>%
     mutate(
+      pvalue = graphml_pvalue_export$value,
+      pvalue_was_floored_for_graphml =
+        graphml_pvalue_export$floor_applied,
       louvain_module_id = community_louvain,
       cytoscape_label = gene,
       cytoscape_module_label = final_functional_label,

@@ -44,6 +44,60 @@ as_output_table <- function(x) {
 }
 
 ##############################################################################
+##############################################################################
+# prepare_graphml_pvalue_export
+##############################################################################
+CANCERPPIR_GRAPHML_PVALUE_FLOOR <- 1e-300
+
+prepare_graphml_pvalue_export <- function(pvalue) {
+  if (is.factor(pvalue)) {
+    pvalue <- as.character(pvalue)
+  }
+
+  if (is.character(pvalue)) {
+    raw_text <- trimws(pvalue)
+    missing_text <- is.na(raw_text) | !nzchar(raw_text)
+    numeric_pvalue <- suppressWarnings(as.numeric(raw_text))
+
+    coercion_failed <- !missing_text & is.na(numeric_pvalue)
+    if (any(coercion_failed)) {
+      stop(
+        "GraphML p-value export received non-numeric values.",
+        call. = FALSE
+      )
+    }
+
+    numeric_pvalue[missing_text] <- NA_real_
+  } else {
+    numeric_pvalue <- suppressWarnings(as.numeric(pvalue))
+  }
+
+  invalid <- !is.na(numeric_pvalue) & (
+    !is.finite(numeric_pvalue) |
+      numeric_pvalue < 0 |
+      numeric_pvalue > 1
+  )
+
+  if (any(invalid)) {
+    stop(
+      "GraphML p-values must be finite numbers between 0 and 1.",
+      call. = FALSE
+    )
+  }
+
+  floor_applied <- !is.na(numeric_pvalue) &
+    numeric_pvalue < CANCERPPIR_GRAPHML_PVALUE_FLOOR
+
+  safe_pvalue <- numeric_pvalue
+  safe_pvalue[floor_applied] <- CANCERPPIR_GRAPHML_PVALUE_FLOOR
+
+  list(
+    value = safe_pvalue,
+    floor_applied = floor_applied,
+    floor_value = CANCERPPIR_GRAPHML_PVALUE_FLOOR
+  )
+}
+
 # write_readable_xlsx - extracted from cancerppir.R lines 1214-1269
 ##############################################################################
 write_readable_xlsx <- function(path, sheets) {
