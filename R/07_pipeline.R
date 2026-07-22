@@ -649,6 +649,57 @@ run_cancerppir <- function(
 
 
 
+
+  # Phase 4 biological evidence shadow layer -----------------------------------
+  # This calculation uses the production node table and reproducible local
+  # STRING module enrichment. Its result is retained in memory for validation
+  # and later report migration. Legacy labels and exported files remain active
+  # and unchanged at this checkpoint.
+  msg("Running Phase 4 biological evidence shadow annotation.")
+
+  phase4_shadow_evidence <- phase4_bind_pipeline_evidence(
+    node_metrics = node_metrics,
+    module_enrichment = module_enrichment_string_local,
+    fdr_threshold = 0.05
+  )
+
+  phase4_shadow_validation_failures <-
+    phase4_shadow_evidence$validation %>%
+    filter(status == "FAIL")
+
+  if (nrow(phase4_shadow_validation_failures) > 0L) {
+    failed_checks <- paste(
+      phase4_shadow_validation_failures$check_id,
+      collapse = ", "
+    )
+
+    stop(
+      paste0(
+        "Phase 4 biological evidence shadow validation failed: ",
+        failed_checks,
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  msg(
+    "Phase 4 shadow annotation: ",
+    nrow(phase4_shadow_evidence$module_annotations),
+    " modules; ",
+    sum(
+      phase4_shadow_evidence$module_annotations$priority_eligible,
+      na.rm = TRUE
+    ),
+    " priority-eligible; ",
+    sum(
+      phase4_shadow_evidence$module_annotations$
+        interpretation_class == "unresolved",
+      na.rm = TRUE
+    ),
+    " unresolved."
+  )
+
   # Module-level readable evidence ------------------------------------------------
   module_enrichment_collapsed <- collapse_module_enrichment(module_enrichment_string_local, n_terms = 6L)
 
@@ -1266,6 +1317,7 @@ run_cancerppir <- function(
     final_priorities = final_priorities,
     graph_summary = graph_summary,
     mapping_summary = mapping_summary,
+    biological_evidence_shadow = phase4_shadow_evidence,
     files = c(
       analytical_report = file.path(output_dir, "CancerPPIr_Analytical_Report.xlsx"),
       technical_report = file.path(output_dir, "CancerPPIr_Technical_Report.xlsx"),
