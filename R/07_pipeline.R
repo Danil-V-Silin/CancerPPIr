@@ -1256,6 +1256,11 @@ run_cancerppir <- function(
     "Raw module enrichment" = module_enrichment_string_local,
     "Raw network enrichment" = enrichment_string_local_all,
     "Raw candidate enrichment" = enrichment_string_local_top,
+    "Phase4 module annotations" = phase4_shadow_evidence$module_annotations,
+    "Phase4 rule evidence" = phase4_shadow_evidence$module_rule_evidence,
+    "Phase4 significant terms" = phase4_shadow_evidence$significant_module_terms,
+    "Phase4 node annotations" = phase4_shadow_evidence$node_annotations,
+    "Phase4 validation" = phase4_shadow_evidence$validation,
     "Session info" = tibble(line = capture.output(sessionInfo()))
   )
 
