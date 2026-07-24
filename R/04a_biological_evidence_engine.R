@@ -1,9 +1,8 @@
 # CancerPPIr Phase 4: biological evidence engine
 #
-# This module is intentionally isolated from the current production labeling
-# functions. It provides a transparent, hierarchical evidence model that will
-# be integrated into the pipeline only after its unit tests and seven-case biological
-# review pass.
+# This module provides the canonical transparent, hierarchical biological
+# evidence model used by the production pipeline, analytical report and GraphML
+# export. It remains independent of legacy compatibility labeling functions.
 #
 # The engine does not estimate cell fractions and must not be described as
 # transcriptomic deconvolution.

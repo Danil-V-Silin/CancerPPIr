@@ -147,7 +147,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "the production GraphML path uses the sanitized p-value export",
+  "the canonical GraphML path uses the sanitized p-value export",
   {
     project_root <- Sys.getenv(
       "CANCERPPIR_PROJECT_ROOT",
@@ -156,12 +156,12 @@ testthat::test_that(
 
     testthat::expect_true(nzchar(project_root))
 
-    pipeline_source <- paste(
+    graphml_source <- paste(
       readLines(
         file.path(
           project_root,
           "R",
-          "07_pipeline.R"
+          "05b_canonical_annotation_output.R"
         ),
         warn = FALSE,
         encoding = "UTF-8"
@@ -171,16 +171,16 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "graphml_pvalue_export <- prepare_graphml_pvalue_export(",
-        pipeline_source,
+        "pvalue_export <- prepare_graphml_pvalue_export(",
+        graphml_source,
         fixed = TRUE
       )
     )
 
     testthat::expect_true(
       grepl(
-        "pvalue = graphml_pvalue_export$value",
-        pipeline_source,
+        "pvalue = as.numeric(pvalue_export$value)",
+        graphml_source,
         fixed = TRUE
       )
     )
@@ -188,7 +188,7 @@ testthat::test_that(
     testthat::expect_true(
       grepl(
         "pvalue_was_floored_for_graphml =",
-        pipeline_source,
+        graphml_source,
         fixed = TRUE
       )
     )

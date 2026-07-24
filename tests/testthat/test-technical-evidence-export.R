@@ -63,15 +63,15 @@ testthat::test_that(
 
     sheet_to_object <- c(
       "Phase4 module annotations" =
-        "phase4_shadow_evidence$module_annotations",
+        "biological_evidence$module_annotations",
       "Phase4 rule evidence" =
-        "phase4_shadow_evidence$module_rule_evidence",
+        "biological_evidence$module_rule_evidence",
       "Phase4 significant terms" =
-        "phase4_shadow_evidence$significant_module_terms",
+        "biological_evidence$significant_module_terms",
       "Phase4 node annotations" =
-        "phase4_shadow_evidence$node_annotations",
+        "biological_evidence$node_annotations",
       "Phase4 validation" =
-        "phase4_shadow_evidence$validation"
+        "biological_evidence$validation"
     )
 
     for (sheet_name in names(
@@ -127,7 +127,7 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "phase4_evidence = phase4_shadow_evidence",
+        "phase4_evidence = biological_evidence",
         pipeline_source,
         fixed = TRUE
       )
@@ -195,13 +195,29 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "analytical migration does not replace GraphML attributes",
+  "GraphML export uses the canonical biological annotation contract",
   {
     pipeline_source <- phase4_read_pipeline_source()
 
     testthat::expect_true(
       grepl(
-        "cytoscape_node_attributes <- node_metrics_readable",
+        "canonical_graphml_attributes <-",
+        pipeline_source,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_true(
+      grepl(
+        "phase4_build_canonical_graphml_attributes(",
+        pipeline_source,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_true(
+      grepl(
+        "node_annotations = biological_evidence$node_annotations",
         pipeline_source,
         fixed = TRUE
       )
@@ -209,7 +225,15 @@ testthat::test_that(
 
     testthat::expect_false(
       grepl(
-        "cytoscape_node_attributes <- phase4_shadow_evidence$node_annotations",
+        "cytoscape_module_label = final_functional_label",
+        pipeline_source,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_false(
+      grepl(
+        "cytoscape_node_attributes <- node_metrics_readable",
         pipeline_source,
         fixed = TRUE
       )

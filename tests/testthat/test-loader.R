@@ -10,6 +10,8 @@ testthat::test_that(
       "phase4_bind_pipeline_evidence",
       "build_phase4_analytical_workbook",
       "validate_phase4_analytical_workbook",
+      "phase4_build_canonical_graphml_attributes",
+      "phase4_build_canonical_pipeline_result",
       "run_network_analysis",
       "run_cancerppir"
     )
@@ -45,7 +47,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "module loader uses the deterministic eleven-module order",
+  "module loader uses the deterministic twelve-module order",
   {
     project_root <- Sys.getenv(
       "CANCERPPIR_PROJECT_ROOT",
@@ -75,6 +77,7 @@ testthat::test_that(
       "04b_biological_evidence_adapter.R",
       "05_reporting.R",
       "05a_analytical_workbook.R",
+      "05b_canonical_annotation_output.R",
       "06_network_analysis.R",
       "07_pipeline.R"
     )
@@ -97,6 +100,14 @@ testthat::test_that(
     testthat::expect_true(
       exists(
         "build_phase4_analytical_workbook",
+        envir = isolated_environment,
+        inherits = FALSE
+      )
+    )
+
+    testthat::expect_true(
+      exists(
+        "phase4_build_canonical_graphml_attributes",
         envir = isolated_environment,
         inherits = FALSE
       )

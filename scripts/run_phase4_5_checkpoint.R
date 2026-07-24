@@ -329,10 +329,10 @@ if (length(missing_technical_sheets) > 0L) {
 
 if (
   is.null(
-    result$analytical_report_validation
+    result$reports$analytical_validation
   ) ||
     any(
-      result$analytical_report_validation$status ==
+      result$reports$analytical_validation$status ==
         "FAIL"
     )
 ) {
@@ -374,7 +374,7 @@ utils::write.csv(
 )
 
 utils::write.csv(
-  result$analytical_report_validation,
+  result$reports$analytical_validation,
   file.path(
     results_root,
     "phase4_5_analytical_validation.csv"
@@ -420,7 +420,7 @@ cat(
 )
 
 print(
-  result$analytical_report_validation,
+  result$reports$analytical_validation,
   row.names = FALSE
 )
 

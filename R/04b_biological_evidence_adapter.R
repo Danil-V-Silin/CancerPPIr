@@ -4,9 +4,8 @@
 # Convert current in-memory pipeline tables into the explicit input schema
 # required by the universal Phase 4 biological evidence engine.
 #
-# This module does not write files and does not replace the production
-# reporting layer. It provides a tested boundary for later pipeline
-# integration.
+# This module does not write files. It provides the canonical tested boundary
+# between production network tables and the biological evidence engine.
 
 phase4_require_pipeline_columns <- function(
   data,

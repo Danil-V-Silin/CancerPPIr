@@ -636,32 +636,32 @@ run_cancerppir <- function(
 
 
 
-  # Phase 4 biological evidence shadow layer -----------------------------------
+  # Canonical biological evidence layer -----------------------------------
   # This calculation uses the production node table and reproducible local
   # STRING module enrichment. Its result is retained in memory for validation
-  # and later report migration. Legacy labels and exported files remain active
-  # and unchanged at this checkpoint.
-  msg("Running Phase 4 biological evidence shadow annotation.")
+  # for canonical analytical reporting, GraphML annotation and the public result object.
+  # Legacy readable tables are retained only under an explicit compatibility boundary.
+  msg("Running canonical biological evidence annotation.")
 
-  phase4_shadow_evidence <- phase4_bind_pipeline_evidence(
+  biological_evidence <- phase4_bind_pipeline_evidence(
     node_metrics = node_metrics,
     module_enrichment = module_enrichment_string_local,
     fdr_threshold = 0.05
   )
 
-  phase4_shadow_validation_failures <-
-    phase4_shadow_evidence$validation %>%
+  biological_evidence_validation_failures <-
+    biological_evidence$validation %>%
     filter(status == "FAIL")
 
-  if (nrow(phase4_shadow_validation_failures) > 0L) {
+  if (nrow(biological_evidence_validation_failures) > 0L) {
     failed_checks <- paste(
-      phase4_shadow_validation_failures$check_id,
+      biological_evidence_validation_failures$check_id,
       collapse = ", "
     )
 
     stop(
       paste0(
-        "Phase 4 biological evidence shadow validation failed: ",
+        "Canonical biological evidence validation failed: ",
         failed_checks,
         "."
       ),
@@ -670,16 +670,16 @@ run_cancerppir <- function(
   }
 
   msg(
-    "Phase 4 shadow annotation: ",
-    nrow(phase4_shadow_evidence$module_annotations),
+    "Canonical biological annotation: ",
+    nrow(biological_evidence$module_annotations),
     " modules; ",
     sum(
-      phase4_shadow_evidence$module_annotations$priority_eligible,
+      biological_evidence$module_annotations$priority_eligible,
       na.rm = TRUE
     ),
     " priority-eligible; ",
     sum(
-      phase4_shadow_evidence$module_annotations$
+      biological_evidence$module_annotations$
         interpretation_class == "unresolved",
       na.rm = TRUE
     ),
@@ -1216,7 +1216,7 @@ run_cancerppir <- function(
     score_threshold = score_threshold,
     top_n = top_n,
     degree_distribution = degree_distribution,
-    phase4_evidence = phase4_shadow_evidence,
+    phase4_evidence = biological_evidence,
     string_version = "12.0",
     louvain_seed = CANCERPPIR_LOUVAIN_SEED,
     fdr_threshold = 0.05
@@ -1247,11 +1247,11 @@ run_cancerppir <- function(
     "Raw module enrichment" = module_enrichment_string_local,
     "Raw network enrichment" = enrichment_string_local_all,
     "Raw candidate enrichment" = enrichment_string_local_top,
-    "Phase4 module annotations" = phase4_shadow_evidence$module_annotations,
-    "Phase4 rule evidence" = phase4_shadow_evidence$module_rule_evidence,
-    "Phase4 significant terms" = phase4_shadow_evidence$significant_module_terms,
-    "Phase4 node annotations" = phase4_shadow_evidence$node_annotations,
-    "Phase4 validation" = phase4_shadow_evidence$validation,
+    "Phase4 module annotations" = biological_evidence$module_annotations,
+    "Phase4 rule evidence" = biological_evidence$module_rule_evidence,
+    "Phase4 significant terms" = biological_evidence$significant_module_terms,
+    "Phase4 node annotations" = biological_evidence$node_annotations,
+    "Phase4 validation" = biological_evidence$validation,
     "Session info" = tibble(line = capture.output(sessionInfo()))
   )
 
@@ -1273,30 +1273,34 @@ run_cancerppir <- function(
   )
 
   # Cytoscape/Gephi network -------------------------------------------------------
-  # Attach readable node attributes before writing GraphML. Cytoscape can use
-  # final_functional_label / community_louvain for module coloring and
-  # candidate_score / degree / betweenness for node sizing or ranking.
-  graphml_pvalue_export <- prepare_graphml_pvalue_export(
-    node_metrics_readable$pvalue
-  )
-
-  cytoscape_node_attributes <- node_metrics_readable %>%
-    mutate(
-      pvalue = graphml_pvalue_export$value,
-      pvalue_was_floored_for_graphml =
-        graphml_pvalue_export$floor_applied,
-      louvain_module_id = community_louvain,
-      cytoscape_label = gene,
-      cytoscape_module_label = final_functional_label,
-      cytoscape_priority_class = candidate_evidence_matrix$priority_class[
-        match(STRING_id, candidate_evidence_matrix$STRING_id)
-      ]
+  # GraphML uses the explicit canonical Phase 4 evidence schema. Legacy label
+  # fields remain available only in compatibility tables and are deliberately
+  # excluded from the graph contract.
+  canonical_graphml_attributes <-
+    phase4_build_canonical_graphml_attributes(
+      node_annotations = biological_evidence$node_annotations,
+      final_priorities = analytical_sheets[[
+        "Final priorities"
+      ]],
+      candidate_evidence = analytical_sheets[[
+        "Candidate evidence"
+      ]]
     )
 
-  for (col in setdiff(names(cytoscape_node_attributes), "STRING_id")) {
-    values <- cytoscape_node_attributes[[col]][match(igraph::V(ppi)$name, cytoscape_node_attributes$STRING_id)]
-    ppi <- igraph::set_vertex_attr(ppi, col, value = values)
-  }
+  canonical_graphml_validation <-
+    phase4_validate_canonical_graphml_attributes(
+      canonical_graphml_attributes
+    )
+
+  phase4_stop_on_failed_validation(
+    canonical_graphml_validation,
+    "Canonical GraphML attributes"
+  )
+
+  ppi <- phase4_apply_canonical_graphml_attributes(
+    graph = ppi,
+    attributes = canonical_graphml_attributes
+  )
 
   igraph::write_graph(
     ppi,
@@ -1310,24 +1314,45 @@ run_cancerppir <- function(
   msg("Network: ", igraph::gorder(ppi), " nodes, ", igraph::gsize(ppi), " edges, ", comp$no, " components")
   msg("Main files: CancerPPIr_Analytical_Report.xlsx, CancerPPIr_Technical_Report.xlsx, STRING_links.txt, Network_for_Cytoscape.graphml")
 
-  invisible(list(
-    output_dir = output_dir,
-    graph = ppi,
-    node_metrics = node_metrics_readable,
-    module_summary = module_summary_readable,
-    candidate_evidence_matrix = candidate_evidence_matrix,
-    priority_directions = priority_directions,
-    final_priorities = final_priorities,
-    analytical_report_tables = analytical_sheets,
-    analytical_report_validation = phase4_analytical_report$validation,
-    graph_summary = graph_summary,
-    mapping_summary = mapping_summary,
-    biological_evidence_shadow = phase4_shadow_evidence,
-    files = c(
-      analytical_report = file.path(output_dir, "CancerPPIr_Analytical_Report.xlsx"),
-      technical_report = file.path(output_dir, "CancerPPIr_Technical_Report.xlsx"),
-      string_links = file.path(output_dir, "STRING_links.txt"),
-      graphml = file.path(output_dir, "Network_for_Cytoscape.graphml")
+  compatibility_outputs <- list(
+    status = "deprecated_compatibility_only",
+    migration = phase4_legacy_annotation_migration(),
+    legacy_module_summary = module_summary_readable,
+    legacy_candidate_evidence_matrix = candidate_evidence_matrix,
+    legacy_priority_directions = priority_directions,
+    legacy_final_priorities = final_priorities
+  )
+
+  invisible(
+    phase4_build_canonical_pipeline_result(
+      output_dir = output_dir,
+      graph = ppi,
+      biological_evidence = biological_evidence,
+      analytical_report_tables = analytical_sheets,
+      analytical_report_validation =
+        phase4_analytical_report$validation,
+      graphml_validation = canonical_graphml_validation,
+      graph_summary = graph_summary,
+      mapping_summary = mapping_summary,
+      files = c(
+        analytical_report = file.path(
+          output_dir,
+          "CancerPPIr_Analytical_Report.xlsx"
+        ),
+        technical_report = file.path(
+          output_dir,
+          "CancerPPIr_Technical_Report.xlsx"
+        ),
+        string_links = file.path(
+          output_dir,
+          "STRING_links.txt"
+        ),
+        graphml = file.path(
+          output_dir,
+          "Network_for_Cytoscape.graphml"
+        )
+      ),
+      compatibility = compatibility_outputs
     )
-  ))
+  )
 }
