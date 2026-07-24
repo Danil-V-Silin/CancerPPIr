@@ -4,7 +4,9 @@ phase4_read_pipeline_source <- function() {
     unset = ""
   )
 
-  testthat::expect_true(nzchar(project_root))
+  testthat::expect_true(
+    nzchar(project_root)
+  )
 
   pipeline_file <- file.path(
     project_root,
@@ -12,7 +14,9 @@ phase4_read_pipeline_source <- function() {
     "07_pipeline.R"
   )
 
-  testthat::expect_true(file.exists(pipeline_file))
+  testthat::expect_true(
+    file.exists(pipeline_file)
+  )
 
   paste(
     readLines(
@@ -41,8 +45,15 @@ testthat::test_that(
       fixed = TRUE
     )[[1L]]
 
-    testthat::expect_gt(technical_start, 0L)
-    testthat::expect_gt(technical_end, technical_start)
+    testthat::expect_gt(
+      technical_start,
+      0L
+    )
+
+    testthat::expect_gt(
+      technical_end,
+      technical_start
+    )
 
     technical_block <- substr(
       pipeline_source,
@@ -63,7 +74,9 @@ testthat::test_that(
         "phase4_shadow_evidence$validation"
     )
 
-    for (sheet_name in names(sheet_to_object)) {
+    for (sheet_name in names(
+      sheet_to_object
+    )) {
       object_name <- unname(
         sheet_to_object[[sheet_name]]
       )
@@ -71,7 +84,11 @@ testthat::test_that(
       testthat::expect_equal(
         lengths(
           gregexpr(
-            paste0("\"", sheet_name, "\""),
+            paste0(
+              "\"",
+              sheet_name,
+              "\""
+            ),
             technical_block,
             fixed = TRUE
           )
@@ -96,54 +113,89 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "Phase 4 evidence remains technical-only at this checkpoint",
+  "analytical workbook is built from the Phase 4 evidence contract",
   {
     pipeline_source <- phase4_read_pipeline_source()
 
-    analytical_start <- regexpr(
-      "analytical_sheets <- list(",
+    testthat::expect_true(
+      grepl(
+        "phase4_analytical_report <- build_phase4_analytical_workbook(",
+        pipeline_source,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_true(
+      grepl(
+        "phase4_evidence = phase4_shadow_evidence",
+        pipeline_source,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_true(
+      grepl(
+        "analytical_sheets <- phase4_analytical_report$sheets",
+        pipeline_source,
+        fixed = TRUE
+      )
+    )
+
+    legacy_sheet_names <- c(
+      "\"Major module priorities\"",
+      "\"Candidate rationale\"",
+      "\"Top candidates\"",
+      "\"Graph summary\"",
+      "\"All modules\"",
+      "\"Top degree\"",
+      "\"Top betweenness\"",
+      "\"Top stress\"",
+      "\"Degree distribution\""
+    )
+
+    analytical_write_start <- regexpr(
+      "# Main analytical workbook",
       pipeline_source,
       fixed = TRUE
     )[[1L]]
 
-    analytical_end <- regexpr(
-      "\"CancerPPIr_Analytical_Report.xlsx\"",
+    analytical_write_end <- regexpr(
+      "# Technical workbook",
       pipeline_source,
       fixed = TRUE
     )[[1L]]
 
-    testthat::expect_gt(analytical_start, 0L)
-    testthat::expect_gt(analytical_end, analytical_start)
+    testthat::expect_gt(
+      analytical_write_start,
+      0L
+    )
 
-    analytical_block <- substr(
+    testthat::expect_gt(
+      analytical_write_end,
+      analytical_write_start
+    )
+
+    analytical_write_block <- substr(
       pipeline_source,
-      analytical_start,
-      analytical_end - 1L
+      analytical_write_start,
+      analytical_write_end - 1L
     )
 
-    phase4_sheet_names <- c(
-      "Phase4 module annotations",
-      "Phase4 rule evidence",
-      "Phase4 significant terms",
-      "Phase4 node annotations",
-      "Phase4 validation"
-    )
-
-    for (sheet_name in phase4_sheet_names) {
+    for (legacy_sheet in legacy_sheet_names) {
       testthat::expect_false(
         grepl(
-          sheet_name,
-          analytical_block,
+          legacy_sheet,
+          analytical_write_block,
           fixed = TRUE
         ),
-        info = sheet_name
+        info = legacy_sheet
       )
     }
   }
 )
 
 testthat::test_that(
-  "technical evidence export does not replace legacy GraphML attributes",
+  "analytical migration does not replace GraphML attributes",
   {
     pipeline_source <- phase4_read_pipeline_source()
 

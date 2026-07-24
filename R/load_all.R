@@ -25,6 +25,7 @@ load_cancerppir_modules <- function(
       "04a_biological_evidence_engine.R",
       "04b_biological_evidence_adapter.R",
       "05_reporting.R",
+      "05a_analytical_workbook.R",
       "06_network_analysis.R",
       "07_pipeline.R"
     )

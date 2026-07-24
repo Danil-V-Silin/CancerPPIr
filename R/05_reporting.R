@@ -8,17 +8,24 @@
 # write_excel - extracted from cancerppir.R lines 237-249
 ##############################################################################
 write_excel <- function(path, sheets) {
-  wb <- createWorkbook()
+  if (!requireNamespace("openxlsx", quietly = TRUE)) {
+    stop(
+      "Package 'openxlsx' is required to write Excel workbooks.",
+      call. = FALSE
+    )
+  }
+
+  wb <- openxlsx::createWorkbook()
 
   for (nm in names(sheets)) {
-    addWorksheet(wb, nm)
-    writeData(wb, nm, sheets[[nm]])
+    openxlsx::addWorksheet(wb, nm)
+    openxlsx::writeData(wb, nm, sheets[[nm]])
     if (ncol(sheets[[nm]]) > 0) {
-      setColWidths(wb, nm, 1:ncol(sheets[[nm]]), "auto")
+      openxlsx::setColWidths(wb, nm, 1:ncol(sheets[[nm]]), "auto")
     }
   }
 
-  saveWorkbook(wb, path, overwrite = TRUE)
+  openxlsx::saveWorkbook(wb, path, overwrite = TRUE)
 }
 
 ##############################################################################
@@ -34,13 +41,13 @@ sanitize_sheet_name <- function(x) {
 ##############################################################################
 as_output_table <- function(x) {
   if (is.null(x)) {
-    return(tibble(note = "No data available for this sheet."))
+    return(tibble::tibble(note = "No data available for this sheet."))
   }
   x <- as.data.frame(x, stringsAsFactors = FALSE)
   if (!nrow(x) || !ncol(x)) {
-    return(tibble(note = "No data available for this sheet."))
+    return(tibble::tibble(note = "No data available for this sheet."))
   }
-  as_tibble(x)
+  tibble::as_tibble(x)
 }
 
 ##############################################################################
@@ -101,13 +108,27 @@ prepare_graphml_pvalue_export <- function(pvalue) {
 # write_readable_xlsx - extracted from cancerppir.R lines 1214-1269
 ##############################################################################
 write_readable_xlsx <- function(path, sheets) {
+  if (!requireNamespace("openxlsx", quietly = TRUE)) {
+    stop(
+      "Package 'openxlsx' is required to write Excel workbooks.",
+      call. = FALSE
+    )
+  }
+
+  if (!requireNamespace("tibble", quietly = TRUE)) {
+    stop(
+      "Package 'tibble' is required to prepare Excel output tables.",
+      call. = FALSE
+    )
+  }
+
   # Stable Excel writer for CancerPPIr.
   # IMPORTANT: no manual post-processing of the XLSX zip archive is performed here.
   # Earlier compatibility-repair code could introduce invalid relationships in Excel files.
   # openxlsx::saveWorkbook() is therefore used as the single source of truth.
-  wb <- createWorkbook()
-  header_style <- createStyle(textDecoration = "bold", fgFill = "#D9EAF7", border = "Bottom")
-  wrap_style <- createStyle(wrapText = TRUE, valign = "top")
+  wb <- openxlsx::createWorkbook()
+  header_style <- openxlsx::createStyle(textDecoration = "bold", fgFill = "#D9EAF7", border = "Bottom")
+  wrap_style <- openxlsx::createStyle(wrapText = TRUE, valign = "top")
 
   used_names <- character(0)
   for (nm in names(sheets)) {
@@ -129,22 +150,22 @@ write_readable_xlsx <- function(path, sheets) {
         col
       }
     })
-    x <- as_tibble(x)
+    x <- tibble::as_tibble(x)
 
-    addWorksheet(wb, sheet_name, gridLines = TRUE)
-    writeData(wb, sheet_name, x)
+    openxlsx::addWorksheet(wb, sheet_name, gridLines = TRUE)
+    openxlsx::writeData(wb, sheet_name, x)
 
     if (ncol(x) > 0L) {
-      addStyle(wb, sheet_name, header_style, rows = 1, cols = seq_len(ncol(x)), gridExpand = TRUE, stack = TRUE)
-      addStyle(wb, sheet_name, wrap_style, rows = seq_len(nrow(x) + 1L), cols = seq_len(ncol(x)), gridExpand = TRUE, stack = TRUE)
-      freezePane(wb, sheet_name, firstActiveRow = 2, firstActiveCol = 1)
-      addFilter(wb, sheet_name, row = 1, cols = seq_len(ncol(x)))
-      setColWidths(wb, sheet_name, cols = seq_len(ncol(x)), widths = "auto")
+      openxlsx::addStyle(wb, sheet_name, header_style, rows = 1, cols = seq_len(ncol(x)), gridExpand = TRUE, stack = TRUE)
+      openxlsx::addStyle(wb, sheet_name, wrap_style, rows = seq_len(nrow(x) + 1L), cols = seq_len(ncol(x)), gridExpand = TRUE, stack = TRUE)
+      openxlsx::freezePane(wb, sheet_name, firstActiveRow = 2, firstActiveCol = 1)
+      openxlsx::addFilter(wb, sheet_name, row = 1, cols = seq_len(ncol(x)))
+      openxlsx::setColWidths(wb, sheet_name, cols = seq_len(ncol(x)), widths = "auto")
     }
   }
 
   ok <- tryCatch({
-    saveWorkbook(wb, path, overwrite = TRUE)
+    openxlsx::saveWorkbook(wb, path, overwrite = TRUE)
     TRUE
   }, error = function(e) {
     stop("Could not write Excel workbook: ", path, "\nReason: ", conditionMessage(e), call. = FALSE)

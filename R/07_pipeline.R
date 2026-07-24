@@ -1205,19 +1205,24 @@ run_cancerppir <- function(
   )
 
   # Main analytical workbook ------------------------------------------------------
-  analytical_sheets <- list( 
-  "Executive summary" = executive_summary,
-    "Final priorities" = final_priorities,
-    "Major module priorities" = priority_directions,
-    "Candidate rationale" = candidate_evidence_matrix,
-    "Top candidates" = top_candidates_readable,
-    "Graph summary" = network_overview,
-    "All modules" = module_summary_readable,
-    "Top degree" = top_by_degree,
-    "Top betweenness" = top_by_betweenness,
-    "Top stress" = top_by_stress,
-    "Degree distribution" = degree_distribution
+  # The concise six-sheet workbook is built only from the deterministic Phase 4
+  # evidence objects. Complete legacy/raw tables remain in the technical workbook.
+  phase4_analytical_report <- build_phase4_analytical_workbook(
+    input_rows = nrow(input_tbl),
+    mapped_proteins = nrow(mapped_final),
+    unmapped_input_rows = after_unmapped,
+    mapping_rate_percent = after_pct,
+    graph_summary = graph_summary,
+    score_threshold = score_threshold,
+    top_n = top_n,
+    degree_distribution = degree_distribution,
+    phase4_evidence = phase4_shadow_evidence,
+    string_version = "12.0",
+    louvain_seed = CANCERPPIR_LOUVAIN_SEED,
+    fdr_threshold = 0.05
   )
+
+  analytical_sheets <- phase4_analytical_report$sheets
 
   write_readable_xlsx(
     file.path(output_dir, "CancerPPIr_Analytical_Report.xlsx"),
@@ -1313,6 +1318,8 @@ run_cancerppir <- function(
     candidate_evidence_matrix = candidate_evidence_matrix,
     priority_directions = priority_directions,
     final_priorities = final_priorities,
+    analytical_report_tables = analytical_sheets,
+    analytical_report_validation = phase4_analytical_report$validation,
     graph_summary = graph_summary,
     mapping_summary = mapping_summary,
     biological_evidence_shadow = phase4_shadow_evidence,
