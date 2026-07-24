@@ -10,7 +10,7 @@
 
 CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION <- "1.0.0"
 CANCERPPIR_GRAPHML_SCHEMA_VERSION <- "4.6.0"
-CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION <- "4.6.0"
+CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION <- "4.7.0"
 
 CANCERPPIR_LEGACY_ANNOTATION_FIELDS <- c(
   "module_direction",
@@ -619,7 +619,8 @@ phase4_build_canonical_pipeline_result <- function(
   graph_summary,
   mapping_summary,
   files,
-  compatibility = NULL
+  compatibility = NULL,
+  provenance = NULL
 ) {
   evidence_validation <-
     phase4_validate_canonical_biological_evidence(
@@ -654,15 +655,7 @@ phase4_build_canonical_pipeline_result <- function(
   }
 
   result <- list(
-    schema_versions = list(
-      pipeline_result =
-        CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION,
-      biological_evidence =
-        CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION,
-      analytical_workbook =
-        CANCERPPIR_ANALYTICAL_SCHEMA_VERSION,
-      graphml = CANCERPPIR_GRAPHML_SCHEMA_VERSION
-    ),
+    schema_versions = cancerppir_schema_versions(),
     output_dir = output_dir,
     network = list(
       graph = graph,
@@ -694,7 +687,12 @@ phase4_build_canonical_pipeline_result <- function(
       summary = mapping_summary
     ),
     files = files,
-    compatibility = compatibility
+    compatibility = compatibility,
+    provenance = if (is.null(provenance)) {
+      list(status = "not_generated")
+    } else {
+      provenance
+    }
   )
 
   class(result) <- c(
@@ -727,7 +725,8 @@ phase4_validate_canonical_pipeline_result <- function(
     "reports",
     "mapping",
     "files",
-    "compatibility"
+    "compatibility",
+    "provenance"
   )
 
   top_level_complete <- is.list(result) &&
@@ -752,25 +751,21 @@ phase4_validate_canonical_pipeline_result <- function(
     )
 
     schema_versions_valid <- identical(
-      result$schema_versions$pipeline_result,
-      CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION
-    ) &&
-      identical(
-        result$schema_versions$biological_evidence,
-        CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION
-      ) &&
-      identical(
-        result$schema_versions$graphml,
-        CANCERPPIR_GRAPHML_SCHEMA_VERSION
-      )
+      result$schema_versions,
+      cancerppir_schema_versions()
+    )
   }
+
+  provenance_present <- top_level_complete &&
+    is.list(result$provenance)
 
   checks <- c(
     canonical_result_top_level_complete = top_level_complete,
     shadow_result_field_absent = shadow_absent,
     canonical_priorities_present = canonical_priorities_present,
     canonical_network_present = canonical_network_present,
-    canonical_schema_versions_valid = schema_versions_valid
+    canonical_schema_versions_valid = schema_versions_valid,
+    output_provenance_present = provenance_present
   )
 
   data.frame(

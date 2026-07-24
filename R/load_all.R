@@ -27,6 +27,7 @@ load_cancerppir_modules <- function(
       "05_reporting.R",
       "05a_analytical_workbook.R",
       "05b_canonical_annotation_output.R",
+      "05c_output_provenance.R",
       "06_network_analysis.R",
       "07_pipeline.R"
     )
@@ -66,6 +67,14 @@ load_cancerppir_modules <- function(
     module_paths,
     winslash = "/",
     mustWork = TRUE
+  )
+
+  options(
+    cancerppir.project_root = normalizePath(
+      project_root,
+      winslash = "/",
+      mustWork = TRUE
+    )
   )
 
   invisible(normalized_paths)

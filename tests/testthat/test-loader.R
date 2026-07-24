@@ -12,6 +12,8 @@ testthat::test_that(
       "validate_phase4_analytical_workbook",
       "phase4_build_canonical_graphml_attributes",
       "phase4_build_canonical_pipeline_result",
+      "cancerppir_write_output_provenance",
+      "cancerppir_validate_output_provenance",
       "run_network_analysis",
       "run_cancerppir"
     )
@@ -78,6 +80,7 @@ testthat::test_that(
       "05_reporting.R",
       "05a_analytical_workbook.R",
       "05b_canonical_annotation_output.R",
+      "05c_output_provenance.R",
       "06_network_analysis.R",
       "07_pipeline.R"
     )
@@ -108,6 +111,14 @@ testthat::test_that(
     testthat::expect_true(
       exists(
         "phase4_build_canonical_graphml_attributes",
+        envir = isolated_environment,
+        inherits = FALSE
+      )
+    )
+
+    testthat::expect_true(
+      exists(
+        "cancerppir_write_output_provenance",
         envir = isolated_environment,
         inherits = FALSE
       )

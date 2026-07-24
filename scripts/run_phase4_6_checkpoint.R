@@ -231,10 +231,10 @@ loaded_modules <- load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-if (length(loaded_modules) != 12L) {
+if (length(loaded_modules) != 13L) {
   stop(
     paste0(
-      "Expected 12 production modules, loaded ",
+      "Expected 13 production modules, loaded ",
       length(loaded_modules),
       "."
     ),
@@ -461,7 +461,9 @@ required_file_keys <- c(
   "analytical_report",
   "technical_report",
   "string_links",
-  "graphml"
+  "graphml",
+  "output_manifest",
+  "output_checksums"
 )
 
 add_check(

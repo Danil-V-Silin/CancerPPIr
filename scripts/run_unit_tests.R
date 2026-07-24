@@ -11,7 +11,9 @@ project_root <- normalizePath(
 required_packages <- c(
   "testthat",
   "dplyr",
-  "tibble"
+  "tibble",
+  "jsonlite",
+  "digest"
 )
 
 missing_packages <- required_packages[
@@ -49,7 +51,7 @@ loaded_files <- load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-stopifnot(length(loaded_files) == 12L)
+stopifnot(length(loaded_files) == 13L)
 
 Sys.setenv(
   CANCERPPIR_PROJECT_ROOT = project_root

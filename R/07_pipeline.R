@@ -21,7 +21,10 @@ run_cancerppir <- function(
   top_n = 30L,
   run_enrichment = TRUE
 ) {
-  required_cran <- c("HGNChelper", "igraph", "openxlsx", "dplyr", "tibble", "curl", "sna")
+  required_cran <- c(
+    "HGNChelper", "igraph", "openxlsx", "dplyr", "tibble", "curl", "sna",
+    "jsonlite", "digest"
+  )
   required_bioc <- c("STRINGdb")
   optional_cran <- c("gprofiler2")
 
@@ -1308,11 +1311,108 @@ run_cancerppir <- function(
     format = "graphml"
   )
 
+  # Output provenance ------------------------------------------------------------
+  # The manifest records only basenames and non-path metadata. It includes
+  # checksums for the four principal outputs. The separate checksum file also
+  # authenticates the manifest itself and deliberately omits its own hash.
+  msg("Writing output manifest and SHA-256 checksums.")
+
+  primary_output_files <- c(
+    analytical_report = file.path(
+      output_dir,
+      "CancerPPIr_Analytical_Report.xlsx"
+    ),
+    technical_report = file.path(
+      output_dir,
+      "CancerPPIr_Technical_Report.xlsx"
+    ),
+    string_links = file.path(
+      output_dir,
+      "STRING_links.txt"
+    ),
+    graphml = file.path(
+      output_dir,
+      "Network_for_Cytoscape.graphml"
+    )
+  )
+
+  output_provenance <- cancerppir_write_output_provenance(
+    input_file = input_file,
+    output_dir = output_dir,
+    output_files = primary_output_files,
+    output_roles = c(
+      analytical_report = "human_readable_analytical_report",
+      technical_report = "technical_reproducibility_and_audit_report",
+      string_links = "STRING_network_links",
+      graphml = "canonical_annotated_network"
+    ),
+    output_schema_versions = c(
+      analytical_report = CANCERPPIR_ANALYTICAL_SCHEMA_VERSION,
+      technical_report = CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION,
+      string_links = "1.0.0",
+      graphml = CANCERPPIR_GRAPHML_SCHEMA_VERSION
+    ),
+    input_summary = list(
+      input_rows = nrow(input_tbl),
+      normalized_unique_genes = length(unique(input_tbl$gene)),
+      mapped_input_rows = after_mapped,
+      unmapped_input_rows = after_unmapped,
+      unique_mapped_proteins = nrow(mapped_final),
+      successful_alias_corrections = sum(
+        alias_corrections$mapped_after,
+        na.rm = TRUE
+      )
+    ),
+    analysis_configuration = list(
+      species_taxonomy_id = 9606L,
+      STRING_version = "12.0",
+      STRING_score_threshold = as.integer(score_threshold),
+      enrichment_mode = enrichment_mode,
+      local_enrichment_enabled = isTRUE(run_enrichment),
+      online_enrichment_enabled = isTRUE(run_online_enrichment),
+      Louvain_seed = as.integer(CANCERPPIR_LOUVAIN_SEED),
+      FDR_threshold = 0.05,
+      candidate_top_n = as.integer(top_n),
+      offline_cache = cancerppir_cache_resource_summary(
+        cache_dir
+      )
+    ),
+    run_summary = list(
+      network_nodes = igraph::gorder(ppi),
+      network_edges = igraph::gsize(ppi),
+      connected_components = comp$no,
+      Louvain_modules = nrow(
+        biological_evidence$module_annotations
+      ),
+      priority_eligible_modules = sum(
+        biological_evidence$module_annotations$priority_eligible,
+        na.rm = TRUE
+      ),
+      final_priority_candidates = nrow(
+        analytical_sheets[["Final priorities"]]
+      )
+    ),
+    project_root = getOption(
+      "cancerppir.project_root",
+      default = ""
+    ),
+    forbidden_paths = c(
+      cache_dir,
+      results_root
+    )
+  )
+
+  all_output_files <- c(
+    primary_output_files,
+    output_manifest = output_provenance$manifest_file,
+    output_checksums = output_provenance$checksums_file
+  )
+
   msg("Done.")
   msg("Output directory: ", normalizePath(output_dir))
   msg("Mapped genes: ", after_mapped, "/", after_total, " (", after_pct, "%)")
   msg("Network: ", igraph::gorder(ppi), " nodes, ", igraph::gsize(ppi), " edges, ", comp$no, " components")
-  msg("Main files: CancerPPIr_Analytical_Report.xlsx, CancerPPIr_Technical_Report.xlsx, STRING_links.txt, Network_for_Cytoscape.graphml")
+  msg("Main files: CancerPPIr_Analytical_Report.xlsx, CancerPPIr_Technical_Report.xlsx, STRING_links.txt, Network_for_Cytoscape.graphml, CancerPPIr_Output_Manifest.json, CancerPPIr_Output_Checksums.sha256")
 
   compatibility_outputs <- list(
     status = "deprecated_compatibility_only",
@@ -1334,25 +1434,9 @@ run_cancerppir <- function(
       graphml_validation = canonical_graphml_validation,
       graph_summary = graph_summary,
       mapping_summary = mapping_summary,
-      files = c(
-        analytical_report = file.path(
-          output_dir,
-          "CancerPPIr_Analytical_Report.xlsx"
-        ),
-        technical_report = file.path(
-          output_dir,
-          "CancerPPIr_Technical_Report.xlsx"
-        ),
-        string_links = file.path(
-          output_dir,
-          "STRING_links.txt"
-        ),
-        graphml = file.path(
-          output_dir,
-          "Network_for_Cytoscape.graphml"
-        )
-      ),
-      compatibility = compatibility_outputs
+      files = all_output_files,
+      compatibility = compatibility_outputs,
+      provenance = output_provenance
     )
   )
 }
