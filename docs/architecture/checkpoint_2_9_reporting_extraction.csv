@@ -1,0 +1,5 @@
+"checkpoint","function_name","original_start_line","original_end_line","original_line_span","original_text_md5","target_file","extraction_mode"
+"2.9","write_excel",237,249,13,"f57ef252f9159dbe1b4079838dd07b3f","R/05_reporting.R","exact_source_range_without_semantic_rewrite"
+"2.9","sanitize_sheet_name",983,986,4,"7a679deaf99d201add253b944b45e0fe","R/05_reporting.R","exact_source_range_without_semantic_rewrite"
+"2.9","as_output_table",988,997,10,"12461e181e06c71167591f336f578ad5","R/05_reporting.R","exact_source_range_without_semantic_rewrite"
+"2.9","write_readable_xlsx",1214,1269,56,"14fdd9f292fa024dee4d466597139ac5","R/05_reporting.R","exact_source_range_without_semantic_rewrite"

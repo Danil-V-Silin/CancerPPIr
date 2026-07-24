@@ -1,0 +1,5 @@
+"first_table","second_table","first_rows","second_rows","common_columns","common_cells_compared","identical_common_cells","identical_fraction","exact_common_projection_match"
+"Analytical: All modules","Technical: Raw all modules",43,43,48,2064,2064,1,TRUE
+"Analytical: Candidate rationale","Technical: Raw node metrics",169,169,31,5239,5239,1,TRUE
+"Analytical: Top candidates","Analytical: Candidate rationale",30,169,27,810,810,1,FALSE
+"Technical: Raw major modules","Technical: Raw all modules",5,43,48,240,240,1,FALSE

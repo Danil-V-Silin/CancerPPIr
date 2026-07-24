@@ -1,0 +1,13 @@
+CancerPPIr checkpoint 2.11 network-analysis extraction
+======================================================
+
+cancerppir.R MD5 before: f31c1e473a0ee401e1e5b27dcea1030e
+cancerppir.R MD5 after: 7dfeb68113d096b5faa4e6236cf7fff8
+R/06_network_analysis.R MD5 after: c4aef140839dba8e5299f4e5cd5b3816
+Source block moved: lines 404-689
+Top-level expressions moved: 39
+Explicit inputs: 14
+Returned outputs: 15
+run_network_analysis() available through loader: TRUE
+Loaded module files: 8
+Legacy MD5 unchanged: 0c5644140abbae2f17e30109432cc198

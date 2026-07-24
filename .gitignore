@@ -1,0 +1,29 @@
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio local project state
+.Rproj.user/
+
+# Local analytical data and generated results
+input/
+results/
+string_cache/
+
+# Large sequencing and alignment files
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.bam
+*.cram
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Patient-specific detailed baseline sheet exports
+tests/reference/*/analytical_report__*.csv
+tests/reference/*/technical_report__*.csv

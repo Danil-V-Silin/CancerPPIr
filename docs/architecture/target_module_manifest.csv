@@ -1,0 +1,10 @@
+"module_id","target_file","responsibility","extraction_order","contains_existing_functions","function_count","legacy_source_lines"
+"00_utils","R/00_utils.R","Small dependency-light helpers, validation, numeric utilities, normalization helpers and shared text utilities.",1,TRUE,21,151
+"01_input","R/01_input.R","Input delimiter detection, input-table reading and input-column normalization.",2,TRUE,2,75
+"02_string_mapping","R/02_string_mapping.R","HGNC and STRING identifier handling, alias correction, mapping fallbacks and STRING interaction retrieval.",3,TRUE,7,166
+"03_enrichment","R/03_enrichment.R","Local STRING enrichment, optional online enrichment, enrichment filtering, ranking and term collapsing.",4,TRUE,15,491
+"04_module_labeling","R/04_module_labeling.R","Marker-based labels, rulebook-based module interpretation, confidence scoring and supporting biological themes.",5,TRUE,14,317
+"05_reporting","R/05_reporting.R","Output-table normalization, worksheet preparation and Excel workbook generation.",6,TRUE,4,83
+"06_network_analysis","R/06_network_analysis.R","Graph construction, connected components, centrality metrics, candidate scoring, Louvain modules and graph-level summaries.",7,FALSE,0,0
+"07_pipeline","R/07_pipeline.R","End-to-end CancerPPIr orchestration with explicit inputs, configuration and returned analysis objects.",8,FALSE,0,0
+"load_all","R/load_all.R","Explicit source loader defining the stable module-loading order for the script-based workflow.",9,FALSE,0,0

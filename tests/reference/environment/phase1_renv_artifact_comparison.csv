@@ -1,0 +1,8 @@
+"case_id","legacy_xml_nodes","renv_xml_nodes","legacy_xml_edges","renv_xml_edges","graph_node_edge_counts_identical","string_links_identical"
+"A01",169,169,630,630,TRUE,TRUE
+"K01",248,248,397,397,TRUE,TRUE
+"L01",200,200,800,800,TRUE,TRUE
+"M01",338,338,1630,1630,TRUE,TRUE
+"P01",311,311,1765,1765,TRUE,TRUE
+"P02",285,285,1005,1005,TRUE,TRUE
+"R01",358,358,4507,4507,TRUE,TRUE

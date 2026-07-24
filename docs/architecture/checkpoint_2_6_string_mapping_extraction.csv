@@ -1,0 +1,8 @@
+"checkpoint","function_name","original_start_line","original_end_line","original_line_span","original_text_md5","target_file","extraction_mode"
+"2.6","classify_symbol_pattern",195,227,33,"78a3e29ecd4f90c159d1686fd24ff29b","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"
+"2.6","status_from_mapping",229,249,21,"44a7b2221034bbea7108a845561bafb5","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"
+"2.6","pick_string_id_col",597,613,17,"81cd4a9d382e5e83b8553cb0b0d879f1","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"
+"2.6","pick_alias_col",615,629,15,"c4bc4731b8a14f5f09c00321dd6a4866","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"
+"2.6","pick_preferred_name_col",631,640,10,"c6cea7b4e1438d5a6253e1f680a57a59","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"
+"2.6","make_string_links",642,657,16,"484f6edb04aa040d71ee3f6ad6d296ac","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"
+"2.6","map_to_string",673,726,54,"0ccf1cf1aeb05b9f65e7553b807eefa6","R/02_string_mapping.R","exact_source_range_without_semantic_rewrite"

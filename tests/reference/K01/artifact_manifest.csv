@@ -1,0 +1,5 @@
+"case_id","artifact","file_name","external_relative_path","exists","size_bytes","md5"
+"K01","analytical_report","CancerPPIr_Analytical_Report.xlsx","../results/legacy_baseline_2026-07-15/Genes_K/CancerPPIr_Analytical_Report.xlsx",TRUE,147350,"15c148a8c098bb0394d371b467cd549d"
+"K01","technical_report","CancerPPIr_Technical_Report.xlsx","../results/legacy_baseline_2026-07-15/Genes_K/CancerPPIr_Technical_Report.xlsx",TRUE,845714,"baf1bfe41f35d052942301b810466ac8"
+"K01","cytoscape_graph","Network_for_Cytoscape.graphml","../results/legacy_baseline_2026-07-15/Genes_K/Network_for_Cytoscape.graphml",TRUE,988517,"5577c9b398a241d9812177c80fbd6e19"
+"K01","string_links","STRING_links.txt","../results/legacy_baseline_2026-07-15/Genes_K/STRING_links.txt",TRUE,11849,"a68a8679e70c5fc34667eb0106c3bff6"

@@ -1,0 +1,103 @@
+"case_id","workbook","sheet_name","primary_rows","repeat_rows","primary_columns","repeat_columns","same_dimensions"
+"A01","analytical_report","Executive summary",12,12,3,3,TRUE
+"A01","analytical_report","Final priorities",15,15,7,7,TRUE
+"A01","analytical_report","Major module priorities",5,5,29,29,TRUE
+"A01","analytical_report","Candidate rationale",169,169,51,51,TRUE
+"A01","analytical_report","Top candidates",30,30,27,27,TRUE
+"A01","analytical_report","Graph summary",14,14,3,3,TRUE
+"A01","analytical_report","All modules",42,43,48,48,FALSE
+"A01","analytical_report","Top degree",30,30,22,22,TRUE
+"A01","analytical_report","Top betweenness",30,30,22,22,TRUE
+"A01","analytical_report","Top stress",30,30,22,22,TRUE
+"A01","technical_report","Raw node metrics",169,169,43,43,TRUE
+"A01","technical_report","Raw all modules",42,43,48,48,FALSE
+"A01","technical_report","Raw major modules",5,5,49,49,TRUE
+"A01","technical_report","Top module enrichment",40,40,14,14,TRUE
+"A01","technical_report","Raw module enrichment",3059,3004,14,14,FALSE
+"K01","analytical_report","Executive summary",12,12,3,3,TRUE
+"K01","analytical_report","Final priorities",15,15,7,7,TRUE
+"K01","analytical_report","Major module priorities",5,5,29,29,TRUE
+"K01","analytical_report","Candidate rationale",248,248,51,51,TRUE
+"K01","analytical_report","Top candidates",30,30,27,27,TRUE
+"K01","analytical_report","Graph summary",14,14,3,3,TRUE
+"K01","analytical_report","All modules",101,100,48,48,FALSE
+"K01","analytical_report","Top degree",30,30,22,22,TRUE
+"K01","analytical_report","Top betweenness",30,30,22,22,TRUE
+"K01","analytical_report","Top stress",30,30,22,22,TRUE
+"K01","technical_report","Raw node metrics",248,248,43,43,TRUE
+"K01","technical_report","Raw all modules",101,100,48,48,FALSE
+"K01","technical_report","Raw major modules",5,5,49,49,TRUE
+"K01","technical_report","Top module enrichment",42,43,14,14,FALSE
+"K01","technical_report","Raw module enrichment",4005,4136,14,14,FALSE
+"L01","analytical_report","Executive summary",12,12,3,3,TRUE
+"L01","analytical_report","Final priorities",15,15,7,7,TRUE
+"L01","analytical_report","Major module priorities",5,5,29,29,TRUE
+"L01","analytical_report","Candidate rationale",200,200,51,51,TRUE
+"L01","analytical_report","Top candidates",30,30,27,27,TRUE
+"L01","analytical_report","Graph summary",14,14,3,3,TRUE
+"L01","analytical_report","All modules",50,50,48,48,TRUE
+"L01","analytical_report","Top degree",30,30,22,22,TRUE
+"L01","analytical_report","Top betweenness",30,30,22,22,TRUE
+"L01","analytical_report","Top stress",30,30,22,22,TRUE
+"L01","technical_report","Raw node metrics",200,200,43,43,TRUE
+"L01","technical_report","Raw all modules",50,50,48,48,TRUE
+"L01","technical_report","Raw major modules",5,5,49,49,TRUE
+"L01","technical_report","Top module enrichment",47,46,14,14,FALSE
+"L01","technical_report","Raw module enrichment",3283,3211,14,14,FALSE
+"M01","analytical_report","Executive summary",12,12,3,3,TRUE
+"M01","analytical_report","Final priorities",15,15,7,7,TRUE
+"M01","analytical_report","Major module priorities",5,5,29,29,TRUE
+"M01","analytical_report","Candidate rationale",338,338,51,51,TRUE
+"M01","analytical_report","Top candidates",30,30,27,27,TRUE
+"M01","analytical_report","Graph summary",14,14,3,3,TRUE
+"M01","analytical_report","All modules",82,84,48,48,FALSE
+"M01","analytical_report","Top betweenness",30,30,22,22,TRUE
+"M01","analytical_report","Top stress",30,30,22,22,TRUE
+"M01","technical_report","Raw node metrics",338,338,43,43,TRUE
+"M01","technical_report","Raw all modules",82,84,48,48,FALSE
+"M01","technical_report","Raw major modules",5,5,49,49,TRUE
+"M01","technical_report","Top module enrichment",50,50,14,14,TRUE
+"M01","technical_report","Raw module enrichment",7663,7630,14,14,FALSE
+"P01","analytical_report","Final priorities",15,15,7,7,TRUE
+"P01","analytical_report","Major module priorities",5,5,29,29,TRUE
+"P01","analytical_report","Candidate rationale",311,311,51,51,TRUE
+"P01","analytical_report","Top candidates",30,30,27,27,TRUE
+"P01","analytical_report","Graph summary",14,14,3,3,TRUE
+"P01","analytical_report","All modules",73,73,48,48,TRUE
+"P01","analytical_report","Top betweenness",30,30,22,22,TRUE
+"P01","analytical_report","Top stress",30,30,22,22,TRUE
+"P01","technical_report","Raw node metrics",311,311,43,43,TRUE
+"P01","technical_report","Raw all modules",73,73,48,48,TRUE
+"P01","technical_report","Raw major modules",5,5,49,49,TRUE
+"P01","technical_report","Top module enrichment",50,50,14,14,TRUE
+"P01","technical_report","Raw module enrichment",7477,7480,14,14,FALSE
+"P02","analytical_report","Executive summary",12,12,3,3,TRUE
+"P02","analytical_report","Final priorities",15,15,7,7,TRUE
+"P02","analytical_report","Major module priorities",5,5,29,29,TRUE
+"P02","analytical_report","Candidate rationale",285,285,51,51,TRUE
+"P02","analytical_report","Top candidates",30,30,27,27,TRUE
+"P02","analytical_report","Graph summary",14,14,3,3,TRUE
+"P02","analytical_report","All modules",78,77,48,48,FALSE
+"P02","analytical_report","Top degree",30,30,22,22,TRUE
+"P02","analytical_report","Top betweenness",30,30,22,22,TRUE
+"P02","analytical_report","Top stress",30,30,22,22,TRUE
+"P02","technical_report","Raw node metrics",285,285,43,43,TRUE
+"P02","technical_report","Raw all modules",78,77,48,48,FALSE
+"P02","technical_report","Raw major modules",5,5,49,49,TRUE
+"P02","technical_report","Top module enrichment",43,43,14,14,TRUE
+"P02","technical_report","Raw module enrichment",6271,6596,14,14,FALSE
+"R01","analytical_report","Executive summary",12,12,3,3,TRUE
+"R01","analytical_report","Final priorities",15,15,7,7,TRUE
+"R01","analytical_report","Major module priorities",5,5,29,29,TRUE
+"R01","analytical_report","Candidate rationale",358,358,51,51,TRUE
+"R01","analytical_report","Top candidates",30,30,27,27,TRUE
+"R01","analytical_report","Graph summary",14,14,3,3,TRUE
+"R01","analytical_report","All modules",47,47,48,48,TRUE
+"R01","analytical_report","Top degree",30,30,22,22,TRUE
+"R01","analytical_report","Top betweenness",30,30,22,22,TRUE
+"R01","analytical_report","Top stress",30,30,22,22,TRUE
+"R01","technical_report","Raw node metrics",358,358,43,43,TRUE
+"R01","technical_report","Raw all modules",47,47,48,48,TRUE
+"R01","technical_report","Raw major modules",5,5,49,49,TRUE
+"R01","technical_report","Top module enrichment",50,50,14,14,TRUE
+"R01","technical_report","Raw module enrichment",10814,10797,14,14,FALSE

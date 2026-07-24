@@ -1,0 +1,25 @@
+CancerPPIr orchestration dependency audit
+==========================================
+
+Source file: cancerppir.R
+Source MD5: 7d9fc1a4e7e84cee3cea717f6c99e334
+Extracted functions analyzed: 63
+Top-level orchestration expressions: 165
+Assigned orchestration symbols detected: 131
+Functions with orchestration dependencies: 8
+Unique orchestration dependencies referenced by functions: 8
+
+Dependencies referenced from extracted functions
+-----------------------------------------------
+generic_exact_terms: is_generic_enrichment_term
+label_rulebook: online_concordance_status, assign_module_label_with_rules, label_rulebook_table, supporting_themes_from_evidence
+marker_sets: label_module_by_markers
+module_clean_labels: label_module_by_markers
+preferred_enrichment_categories: add_enrichment_priority
+secondary_enrichment_categories: add_enrichment_priority
+specific_biology_pattern: add_enrichment_priority, is_generic_enrichment_term
+string_db: run_string_enrichment_online
+
+Interpretation
+--------------
+Any listed dependency must be moved into a stable module, passed explicitly as a function argument, or deliberately preserved in the defining environment before the workflow is wrapped inside run_cancerppir().

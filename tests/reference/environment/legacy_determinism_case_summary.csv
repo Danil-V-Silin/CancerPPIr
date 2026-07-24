@@ -1,0 +1,8 @@
+"case_id","compared_sheets","identical_sheets","changed_sheets","strict_sheets_compared","strict_sheets_identical","strict_regression_core_match","exact_full_report_match","partially_stable_variation_detected","module_dependent_variation_detected","string_links_identical","graph_node_edge_counts_identical","primary_graph_read_ok","repeat_graph_read_ok","graphml_raw_identical","all_expected_files_exist"
+"A01",27,12,15,12,12,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE
+"K01",27,12,15,12,12,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE
+"L01",27,12,15,12,12,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE
+"M01",27,13,14,12,12,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE
+"P01",27,14,13,12,12,TRUE,FALSE,FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,TRUE
+"P02",27,12,15,12,12,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE
+"R01",27,12,15,12,12,TRUE,FALSE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,TRUE

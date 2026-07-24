@@ -1,0 +1,12 @@
+CancerPPIr checkpoint 2.10 dependency migration
+================================================
+
+cancerppir.R MD5 before: 7d9fc1a4e7e84cee3cea717f6c99e334
+cancerppir.R MD5 after: f31c1e473a0ee401e1e5b27dcea1030e
+Configuration objects moved: 7
+Online enrichment calls updated: 3
+run_string_enrichment_online() explicit string_db parameter: TRUE
+Mapped functions available through loader: 63/63
+Configuration objects available through loader: 7/7
+Remaining hidden orchestration dependencies: 0
+Legacy MD5 unchanged: 0c5644140abbae2f17e30109432cc198

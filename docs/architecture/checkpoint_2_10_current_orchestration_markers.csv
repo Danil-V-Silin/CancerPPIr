@@ -1,0 +1,9 @@
+"marker","pattern","line","expression_index"
+"module_loader","# Load extracted CancerPPIr source modules.",3,
+"cli_arguments","args <- commandArgs(trailingOnly = TRUE)",91,11
+"read_input","msg(""Reading input table."")",239,41
+"build_string_subnetwork","msg(""Building STRING subnetwork."")",426,69
+"calculate_network_metrics","msg(""Calculating network metrics."")",448,75
+"functional_enrichment","msg(""Running functional enrichment analysis."")",727,119
+"write_outputs","msg(""Writing consolidated output files."")",949,126
+"workflow_done","msg(""Done."")",1789,161

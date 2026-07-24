@@ -1,0 +1,2 @@
+"case_id","graph_read_ok","graph_read_error","nodes","edges","components","largest_component_nodes","largest_component_percent","isolated_nodes","mean_degree","maximum_degree","density","global_transitivity","mean_distance","diameter","vertex_attribute_count","edge_attribute_count","vertex_attributes","edge_attributes"
+"M01",FALSE,"At vendor/cigraph/src/io/parse_utils.c:146 : Failed to parse real number. Integer or double overflow",338,1630,,,,,,,,,,,,,,

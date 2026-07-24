@@ -1,0 +1,8 @@
+"case_id","input_file","output_directory","start_time","end_time","exit_code","status"
+"A01","../input/Genes_A.csv","../results/legacy_baseline_2026-07-15/Genes_A","2026-07-15T13:19:14+0300","2026-07-15T13:21:09+0300",0,"completed"
+"K01","../input/Genes_K.csv","../results/legacy_baseline_2026-07-15/Genes_K","2026-07-15T13:21:09+0300","2026-07-15T13:23:09+0300",0,"completed"
+"L01","../input/Genes_L.csv","../results/legacy_baseline_2026-07-15/Genes_L","2026-07-15T13:23:09+0300","2026-07-15T13:25:01+0300",0,"completed"
+"M01","../input/Genes_M.csv","../results/legacy_baseline_2026-07-15/Genes_M","2026-07-15T13:25:01+0300","2026-07-15T13:26:48+0300",0,"completed"
+"P01","../input/Genes_P01.csv","../results/legacy_baseline_2026-07-15/Genes_P01","2026-07-15T13:26:48+0300","2026-07-15T13:28:32+0300",0,"completed"
+"P02","../input/Genes_P02.csv","../results/legacy_baseline_2026-07-15/Genes_P02","2026-07-15T13:28:32+0300","2026-07-15T13:30:16+0300",0,"completed"
+"R01","../input/Genes_R.csv","../results/legacy_baseline_2026-07-15/Genes_R","2026-07-15T13:30:16+0300","2026-07-15T13:30:16+0300",0,"skipped_existing"
