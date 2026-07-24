@@ -250,7 +250,6 @@ phase4_9_validate_static_release <- function(
         personal_path_patterns,
         grepl,
         x = text,
-        fixed = TRUE,
         ignore.case = TRUE,
         FUN.VALUE = logical(1)
       )
