@@ -9,8 +9,16 @@ permissions:
 
 jobs:
   unit-and-cli-tests:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    name: Unit and CLI tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-2022
 
     env:
       RENV_CONFIG_REPOS_OVERRIDE: https://cloud.r-project.org
@@ -26,6 +34,8 @@ jobs:
           use-public-rspm: true
 
       - name: Install Linux runtime libraries
+        if: runner.os == 'Linux'
+        shell: bash
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends libglpk40

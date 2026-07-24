@@ -15,12 +15,14 @@
 #   2. output directory
 #   3. STRING cache directory
 #   4. execution mode: run-pipeline or validate-existing
+#   5. unit-test mode: run-unit-tests or skip-unit-tests
 #
 # Defaults:
 #   ../input
 #   ../results/phase4_5_multicase_checkpoint_v1
 #   ../string_cache
 #   run-pipeline
+#   run-unit-tests
 #
 # Examples:
 #   Rscript scripts/run_phase4_5_multicase_checkpoint.R
@@ -128,6 +130,39 @@ if (!(execution_mode %in% valid_execution_modes)) {
 validate_existing <- identical(
   execution_mode,
   "validate-existing"
+)
+
+unit_test_mode <- if (length(arguments) >= 5L) {
+  tolower(
+    trimws(
+      as.character(
+        arguments[[5L]]
+      )
+    )
+  )
+} else {
+  "run-unit-tests"
+}
+
+valid_unit_test_modes <- c(
+  "run-unit-tests",
+  "skip-unit-tests"
+)
+
+if (!(unit_test_mode %in% valid_unit_test_modes)) {
+  stop(
+    paste0(
+      "Unsupported unit-test mode: ",
+      unit_test_mode,
+      ". Use run-unit-tests or skip-unit-tests."
+    ),
+    call. = FALSE
+  )
+}
+
+run_unit_tests <- identical(
+  unit_test_mode,
+  "run-unit-tests"
 )
 
 if (!dir.exists(input_root)) {
@@ -361,41 +396,53 @@ on.exit(
   add = TRUE
 )
 
-message(
-  "[Phase 4.5 multicase] Running unit tests once."
-)
+if (run_unit_tests) {
+  message(
+    "[Phase 4.5 multicase] Running unit tests once."
+  )
 
-unit_test_status <- system2(
-  command = rscript_command,
-  args = shQuote(
-    unit_test_runner
-  ),
-  stdout = unit_test_log_temporary,
-  stderr = unit_test_log_temporary,
-  wait = TRUE
-)
-
-if (
-  is.null(unit_test_status) ||
-    is.na(unit_test_status) ||
-    unit_test_status != 0L
-) {
-  stop(
-    paste0(
-      "Unit tests failed with exit status ",
-      unit_test_status,
-      ".\n\nLog tail:\n",
-      tail_log(
-        unit_test_log_temporary
-      )
+  unit_test_status <- system2(
+    command = rscript_command,
+    args = shQuote(
+      unit_test_runner
     ),
-    call. = FALSE
+    stdout = unit_test_log_temporary,
+    stderr = unit_test_log_temporary,
+    wait = TRUE
+  )
+
+  if (
+    is.null(unit_test_status) ||
+      is.na(unit_test_status) ||
+      unit_test_status != 0L
+  ) {
+    stop(
+      paste0(
+        "Unit tests failed with exit status ",
+        unit_test_status,
+        ".\n\nLog tail:\n",
+        tail_log(
+          unit_test_log_temporary
+        )
+      ),
+      call. = FALSE
+    )
+  }
+
+  message(
+    "[Phase 4.5 multicase] Unit tests: PASS."
+  )
+} else {
+  writeLines(
+    "Unit tests skipped because they were already completed by the parent release checkpoint.",
+    unit_test_log_temporary,
+    useBytes = TRUE
+  )
+
+  message(
+    "[Phase 4.5 multicase] Unit tests: SKIPPED (completed by parent checkpoint)."
   )
 }
-
-message(
-  "[Phase 4.5 multicase] Unit tests: PASS."
-)
 
 technical_arguments <- c(
   shQuote(
