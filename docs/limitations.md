@@ -1,52 +1,112 @@
 # Limitations
 
-CancerPPIr is an exploratory workflow for network-based prioritization of proteins and module-level biological programs from bulk RNA-seq-derived gene tables. Its output is intended to support hypothesis generation and downstream review, not to define treatment on its own.
+CancerPPIr is an exploratory network-prioritization workflow. It supports
+hypothesis generation and structured evidence review; it is not a diagnostic
+device, treatment recommendation system, or substitute for qualified clinical
+interpretation.
 
-## Scope of inference
+## Input semantics
 
-CancerPPIr ranks proteins within a reconstructed STRING-derived PPI subnetwork. A high rank means that a protein is prominent in the analysed network and expression profile. It does not by itself establish therapeutic efficacy, clinical actionability, druggability, oncogenic dependency, or suitability for a specific treatment.
+The workflow accepts a column named `pvalue`, but that column may contain a raw
+p-value, adjusted p-value, or FDR supplied by the user. CancerPPIr preserves and
+uses the supplied values but cannot recover the upstream statistical definition.
+Comparisons across runs require consistent upstream differential-expression
+methods and column semantics.
 
-## Bulk RNA-seq input
+Duplicate identifiers, HGNC normalization, alias correction, and STRING mapping
+can change row counts. Input rows, mapped input rows, unique mapped proteins, and
+final graph nodes are distinct quantities.
 
-Bulk tumor RNA-seq represents a mixture of malignant cells and non-malignant components of the specimen, including immune, stromal, endothelial and other microenvironmental cells. CancerPPIr does not deconvolve cell types and does not distinguish tumor-cell-intrinsic signals from microenvironment-derived signals.
+## Bulk RNA-seq mixture
 
-The interpretation of immune, stromal, myeloid, antigen-presentation or extracellular-matrix modules should therefore be made in the context of histology, tumor purity, sampling site, pathology review and, when available, single-cell, spatial, immunohistochemical or flow-cytometry data.
+Bulk tumor RNA-seq combines malignant cells with immune, stromal, endothelial,
+and other specimen components. CancerPPIr does not deconvolve cell types, infer
+cell fractions, or prove tumor-cell-intrinsic origin. Module compartment and
+lineage fields are evidence-based contexts, not abundance estimates.
+
+Histology, tumor purity, sampling site, and—when available—single-cell, spatial,
+immunohistochemical, or flow-cytometry data remain necessary for cell-origin
+claims.
 
 ## STRING-derived network
 
-The network is derived from STRING protein associations. These edges represent known, curated or predicted functional associations compiled by STRING. They are not patient-specific physical interaction measurements and should not be interpreted as direct evidence that two proteins interact in the analysed tumor sample.
+STRING edges are curated, experimental, predicted, co-expression, text-mined,
+or otherwise integrated associations. They are not patient-specific physical
+interaction measurements. Network structure is influenced by STRING coverage,
+literature bias, organism annotation depth, the input gene set, mapping, and the
+selected score threshold.
 
-STRING coverage is affected by database content, literature bias, organism-specific annotation depth and prior biological knowledge. Well-studied proteins and pathways may therefore appear more connected than poorly annotated proteins.
+Highly studied proteins may appear more connected than poorly characterized
+proteins. A node absent from the final network may still be biologically
+important.
 
 ## Candidate score
 
-The `candidate_score` combines normalized degree, betweenness, log-transformed stress centrality, absolute logFC and `-log10(p-value)`. It is a ranking statistic for prioritizing proteins inside the reconstructed network.
+The candidate score combines normalized degree, betweenness, log-transformed
+stress centrality, absolute logFC, and transformed statistical evidence. It is a
+relative ranking inside one reconstructed network.
 
-The score should not be read as a probability of response, a measure of essentiality, or a drug-target confidence score. It does not include mutation status, copy-number alterations, protein abundance, post-translational regulation, ligandability, toxicity, survival association or evidence from clinical trials.
+It is not:
+
+- a probability of response;
+- an essentiality score;
+- a druggability or ligandability score;
+- a toxicity or therapeutic-index estimate;
+- evidence of causal oncogenic dependency;
+- evidence from clinical trials.
+
+Cross-case numerical comparison requires additional normalization and a
+separate study design; within-case ranks are the primary intended use.
 
 ## Module annotation
 
-Module labels are computational annotations assigned from curated marker-gene overlap and local STRING enrichment terms. They are reported as putative biological programs. A module label is strongest when marker evidence and specific enrichment terms agree; it is weaker when only one evidence layer is present.
+Canonical module interpretations are computational inferences from curated
+marker evidence and statistically significant local STRING terms. Confidence,
+conflict, warnings, and evidence rationale must accompany the interpretation.
 
-Labels should be interpreted together with `label_source`, `label_evidence_score`, `label_confidence`, `label_warning`, marker support and top interpretable enrichment terms. Modules flagged as unassigned or low-confidence should not be used for strong biological conclusions.
+Technical/covariate, mixed-conflict, and unresolved modules remain visible but
+are not automatically promoted. An unresolved module is not a pipeline error and
+does not imply absence of biological function.
 
-## Enrichment terms
+## Enrichment
 
-CancerPPIr uses locally cached STRING v12 enrichment terms in the current offline workflow. The term categories may include Gene Ontology, WikiPathways, UniProt keywords, STRING local network clusters and related STRING annotation categories available in the downloaded STRING enrichment file.
+Offline enrichment depends on the content and release of locally cached STRING
+v12 resources. Database categories may be redundant, unevenly annotated, or
+biased toward well-studied processes. Generic terms are excluded from the
+primary analytical evidence but retained in raw technical tables.
 
-Broad terms such as generic signalling, cell communication or regulation terms are not used as primary evidence for module labels. They are kept in the technical workbook for audit.
+Statistical enrichment does not establish causal relevance, therapeutic
+vulnerability, or sample-specific pathway activity.
+
+## Entity classification and eligibility
+
+Entity classification uses gene-symbol rules to prevent automatic promotion of
+special entities such as immunoglobulin/T-cell receptor loci, predicted loci,
+pseudogene-like, non-coding, mitochondrial, ribosomal, or Y-associated genes.
+These entities remain in network evidence where appropriate. Classification is
+conservative and may require manual review.
+
+## Provenance and checksums
+
+SHA-256 verifies exact bytes, not biological or semantic equivalence. XLSX files
+may receive different byte-level hashes across independent runs because of ZIP
+metadata or workbook timestamps even when visible tables are equivalent.
+Semantic comparison must inspect workbook tables and network attributes.
+
+The standard manifest records STRING cache basenames and sizes but does not
+re-read multi-gigabyte cache files solely to hash them. Git metadata may be
+unavailable when CancerPPIr is run from a source archive rather than a Git
+working tree.
 
 ## Appropriate use
 
 CancerPPIr is appropriate for:
 
 - prioritizing proteins for follow-up analysis;
-- summarizing dominant biological programs in a patient-specific PPI subnetwork;
-- comparing network-derived hypotheses across cases;
-- preparing candidate lists for additional validation.
+- summarizing network-associated biological programs;
+- generating auditable candidate rationales;
+- comparing hypotheses under a predefined study design;
+- selecting candidates for experimental, pharmacological, or literature review.
 
-CancerPPIr output should be integrated with independent evidence, including pathology, molecular alterations, expression context, druggability, pathway knowledge, model-system data and clinical literature.
-
-## Not a clinical decision system
-
-CancerPPIr is not a diagnostic device, treatment recommendation system or substitute for clinical interpretation. Any clinical or translational use requires independent validation and review by qualified specialists.
+Any translational claim requires independent pathology, molecular, protein-
+level, model-system, pharmacological, safety, and clinical evidence.

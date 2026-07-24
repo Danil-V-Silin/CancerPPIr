@@ -48,6 +48,17 @@ run_cli <- function(arguments = character()) {
   )
 }
 
+
+
+testthat::test_that("CLI --help reports the current public contract", {
+  result <- run_cli("--help")
+
+  testthat::expect_identical(result$status, 0L)
+  testthat::expect_true(any(grepl("Rscript cancerppir.R", result$output, fixed = TRUE)))
+  testthat::expect_true(any(grepl("CancerPPIr_Output_Manifest.json", result$output, fixed = TRUE)))
+  testthat::expect_true(any(grepl("CancerPPIr_Output_Checksums.sha256", result$output, fixed = TRUE)))
+})
+
 testthat::test_that("CLI prints usage and fails when required arguments are absent", {
   result <- run_cli()
 

@@ -50,42 +50,45 @@ rm(
 
 
 # CancerPPIr
-# Patient-specific PPI subnetwork analysis from tumor bulk RNA-seq profiles.
-#
-# Usage:
-#   Rscript CancerPPIr_final_v8_offline.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment]
-#
-# Output policy:
-#   The second argument is a results root directory. CancerPPIr automatically
-#   creates/reuses a patient-specific subfolder named exactly like the input file
-#   without extension. Example: input/Genes_R.csv -> results/Genes_R/.
-#
-# Enrichment policy:
-#   Offline-only, reproducible mode. Functional annotation uses locally cached
-#   STRING v12 enrichment terms plus curated marker-gene overlap. Online
-#   g:Profiler/STRING validation is intentionally disabled in this version.
-#
-# Example:
-#   Rscript CancerPPIr_final_v8_offline.R input/Genes_R.csv results string_cache 400 30 TRUE
+# Patient-specific PPI subnetwork analysis from bulk RNA-seq-derived gene tables.
 
-
-
-
+.cancerppir_usage_text <- paste(
+  "CancerPPIr",
+  "",
+  "Usage:",
+  "  Rscript cancerppir.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment]",
+  "  Rscript cancerppir.R --help",
+  "",
+  "Defaults:",
+  "  score_threshold = 400",
+  "  top_n = 30",
+  "  run_enrichment = TRUE (offline local STRING enrichment)",
+  "",
+  "Output folder:",
+  "  input.csv + results_dir=results -> results/input/",
+  "",
+  "Principal output files:",
+  "  CancerPPIr_Analytical_Report.xlsx",
+  "  CancerPPIr_Technical_Report.xlsx",
+  "  Network_for_Cytoscape.graphml",
+  "  STRING_links.txt",
+  "  CancerPPIr_Output_Manifest.json",
+  "  CancerPPIr_Output_Checksums.sha256",
+  "",
+  "Example:",
+  "  Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE",
+  sep = "\n"
+)
 
 args <- commandArgs(trailingOnly = TRUE)
 
-if (length(args) < 3) {
-  stop(
-    paste(
-      "Usage:",
-      "Rscript CancerPPIr_final_v8_offline.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment]",
-      "",
-      "Output folder is derived automatically:",
-      "  input/Genes_R.csv + results_dir=results -> results/Genes_R/",
-      sep = "\n"
-    ),
-    call. = FALSE
-  )
+if (length(args) == 1L && args[[1L]] %in% c("--help", "-h")) {
+  cat(.cancerppir_usage_text, "\n")
+  quit(save = "no", status = 0L)
+}
+
+if (length(args) < 3L) {
+  stop(.cancerppir_usage_text, call. = FALSE)
 }
 
 input_file <- args[[1]]

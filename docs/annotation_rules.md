@@ -1,127 +1,122 @@
-# Annotation rules
+# Canonical biological annotation rules
 
-CancerPPIr annotates major Louvain modules using explicit rules. The rules are designed to make module labels reproducible and auditable, rather than relying on free-text interpretation of enrichment results.
+CancerPPIr assigns module context through a deterministic evidence engine. The
+purpose is to expose why an interpretation was assigned, when evidence is
+conflicting, and when automatic prioritization is not justified.
 
-## Evidence used for module labels
+## Evidence inputs
 
-Module labels are assigned from three sources of evidence:
+The engine evaluates each Louvain module using:
 
-1. **Network structure**: proteins are first grouped into Louvain communities in the reconstructed STRING-derived PPI graph.
-2. **Curated marker-gene overlap**: module genes are compared with marker sets defined in the workflow.
-3. **Local STRING enrichment**: module proteins are tested against locally cached STRING v12 enrichment terms for *Homo sapiens*.
+1. module membership and size;
+2. curated positive and supportive marker genes;
+3. statistically significant local STRING v12 enrichment terms;
+4. term-supporting genes;
+5. agreement or conflict across compartment, lineage, state, and process axes;
+6. technical or covariate signatures that must not be promoted as biological
+   priorities.
 
-The current workflow runs in offline annotation mode. It does not query GO, WikiPathways, UniProt, g:Profiler or STRING web services during annotation. These resources may appear in the output because the downloaded STRING enrichment table already contains annotation categories such as Gene Ontology, WikiPathways, UniProt keywords, STRING local network clusters and related STRING term classes.
+Offline STRING enrichment is the primary term layer. Generic terms are not used
+as sufficient primary evidence, although raw terms remain available in the
+technical workbook.
 
-## Marker sets
+## Interpretation hierarchy
 
-CancerPPIr uses curated marker sets as a compact prior for common tumor-biopsy programs. The current marker groups are:
+The canonical module table separates:
 
-| Marker group | Biological context | Representative genes |
-|---|---|---|
-| `antigen_presentation` | MHC antigen presentation | `HLA-DRA`, `HLA-DRB1`, `HLA-DPA1`, `HLA-DPB1`, `CD74`, `B2M` |
-| `T_cell_cytotoxic` | T-cell and cytotoxic lymphocyte biology | `CD3D`, `CD3E`, `CD4`, `CD8A`, `GZMB`, `PRF1`, `NKG7`, `IFNG` |
-| `myeloid_macrophage` | Myeloid/macrophage-associated immune programs | `TYROBP`, `TREM2`, `CD163`, `MRC1`, `FCGR1A`, `FCGR2A`, `FCGR3A`, `SPI1` |
-| `chemokine_cytokine` | Chemokine and cytokine signalling | `TNF`, `CCL2`, `CCL5`, `CCR5`, `CXCL9`, `CXCL10`, `CXCL13`, `CXCR4` |
-| `complement_C1q` | Complement and C1q-associated biology | `C1QA`, `C1QB`, `C1QC`, `C1R`, `C1S`, `C2`, `C3`, `SERPING1` |
-| `extracellular_matrix_stromal` | Stromal and extracellular-matrix remodeling | `COL1A1`, `COL1A2`, `COL3A1`, `POSTN`, `MMP2`, `MMP9`, `VWF`, `PECAM1` |
-| `cell_cycle_mitotic` | Cell-cycle and mitotic proliferation | `CDK1`, `TOP2A`, `CDC20`, `CCNB1`, `AURKB`, `BIRC5`, `MKI67`, `PLK1` |
-| `lipid_metabolic` | Lipid and fatty-acid metabolism | `FABP4`, `LEP`, `ADIPOQ`, `LPL`, `LIPE`, `PLIN1`, `DGAT2`, `PCK1` |
-| `interferon_response` | Interferon and antiviral response | `IDO1`, `GBP4`, `GBP5`, `CXCL9`, `CXCL10`, `IFITM2`, `MX2`, `TRIM22` |
+| Axis | Question answered |
+|---|---|
+| `compartment` | broad tissue or cellular context supported by evidence |
+| `lineage` | lineage-associated evidence, when resolved |
+| `state` | activation, response, differentiation, or other state evidence |
+| `process` | biological process evidence |
+| `primary_interpretation` | conservative synthesis of supported axes |
+| `secondary_themes` | additional supported themes that do not replace the primary interpretation |
 
-The full marker lists are defined in `cancerppir.R`.
+These fields are computational interpretations. They are not cell-fraction
+estimates and do not prove tumor-cell origin.
 
-## Rulebook labels
-
-Each rule contains a specific label, a broader fallback label, admissible marker evidence and required term-level evidence. A precise label is used only when the evidence contains enough biological specificity. Otherwise, CancerPPIr uses the fallback label or leaves the module unassigned.
-
-| Specific label | Fallback label | Main evidence expected |
-|---|---|---|
-| `MHC_class_II_antigen_presentation_module` | `immune_antigen_presentation_associated_module` | Antigen-presentation markers and specific terms related to MHC, HLA, peptide antigen processing or presentation. |
-| `chemokine_cytokine_signaling_module` | `inflammatory_immune_signaling_module` | Chemokine/cytokine or interferon-response markers and terms related to chemokines, cytokines, interleukins, TNF or chemotaxis. |
-| `C1q_complement_macrophage_module` | `phagocytic_immune_cell_signaling_module` | Complement/C1q or macrophage marker support and specific terms related to complement, C1q, macrophages or Fc receptors. Phagocytosis alone is not sufficient for the specific C1q/complement label. |
-| `myeloid_phagocytic_immune_signaling_module` | `myeloid_innate_immune_signaling_module` | Myeloid/macrophage markers and terms related to myeloid cells, innate immunity, neutrophil degranulation, phagocytosis, CDC42 or actin/cytoskeleton organization. |
-| `T_cell_adaptive_immune_module` | `adaptive_immune_cell_module` | T-cell/cytotoxic markers and terms related to T cells, adaptive immunity, lymphocyte activation, cytotoxicity, natural killer cells, granzymes or perforin. |
-| `myeloid_leukocyte_signaling_module` | `leukocyte_immune_signaling_module` | Myeloid/macrophage markers and terms related to myeloid cells, leukocyte activation, immune receptors, hematopoietic cells or innate immunity. |
-| `stromal_ECM_remodeling_module` | `stromal_matrix_associated_module` | ECM/stromal markers and terms related to extracellular matrix, collagen, matrix organization, stromal biology or adhesion. |
-| `interferon_response_module` | `antiviral_inflammatory_response_module` | Interferon-response markers and terms related to interferon signalling, antiviral response or viral-response biology. |
-| `cell_cycle_mitotic_module` | `proliferation_associated_module` | Cell-cycle markers and terms related to mitosis, chromosome segregation, DNA replication, spindle biology or cyclins. |
-| `lipid_metabolic_module` | `metabolic_lipid_associated_module` | Lipid-metabolism markers and terms related to lipids, fatty acids, cholesterol, lipoproteins or triglycerides. |
-
-## Label assignment procedure
-
-For each major module, CancerPPIr evaluates all rulebook labels and assigns the best-supported label.
-
-1. Count module overlap with marker sets.
-2. Collect local STRING enrichment terms for the module.
-3. Remove broad terms from the primary interpretive layer.
-4. Score each label rule using marker evidence, term evidence, required specific evidence, enrichment FDR, module size and marker-term concordance.
-5. Select the highest-scoring rule.
-6. Use the specific label if required specific evidence is present or marker support is strong.
-7. Use the fallback label when evidence supports the broad biological direction but lacks specificity for the precise label.
-8. Leave the module unassigned if evidence is insufficient.
-
-The final label is reported together with `label_source`, `label_evidence_score`, `label_confidence` and `label_warning`.
-
-## Label evidence score
-
-`label_evidence_score` is an interpretability score for module annotation. It is not a clinical score.
-
-The score increases with:
-
-- at least one matching marker gene;
-- stronger marker overlap;
-- at least one matching specific enrichment term;
-- multiple matching enrichment terms;
-- required specific evidence for the selected rule;
-- significant enrichment after FDR correction;
-- stronger FDR support;
-- sufficient module size;
-- concordance between marker evidence and enrichment evidence.
-
-Higher scores support more reliable module labels, especially when both marker overlap and specific STRING enrichment point to the same biological program.
-
-## Label source
+## Interpretation classes
 
 | Value | Meaning |
 |---|---|
-| `curated_marker_overlap_plus_specific_STRING_enrichment` | Marker overlap and significant specific STRING enrichment both support the label. |
-| `specific_STRING_enrichment_only` | Significant specific STRING enrichment supports the label, but curated marker support is absent. |
-| `curated_marker_overlap_only` | Marker overlap supports the label, but significant specific STRING enrichment is absent. |
-| `not_assigned` | The evidence is insufficient for a reliable label. |
+| `biological` | specific biological evidence is sufficient for a resolved interpretation |
+| `mixed_biological` | biological evidence is present but conflicting lineage/context evidence limits automatic priority |
+| `technical_or_covariate` | technical, sex-linked, ribosomal, mitochondrial, or related covariate signature; reported but not automatically prioritized |
+| `unresolved` | available evidence is insufficiently specific |
 
-## Label confidence
+## Interpretation scope
 
-| Value | Meaning |
+`interpretation_scope` records the strongest supported resolution. Current
+values may indicate lineage support, state/process support with unresolved
+lineage, mixed lineage, technical/covariate status, or unresolved evidence.
+
+## Confidence and conflict
+
+Confidence is derived from marker and significant-term support, specificity,
+and evidence agreement. Automatic module priority requires:
+
+- interpretation class `biological`;
+- confidence `high` or `moderate`;
+- at least one significant supporting term;
+- no detected conflict;
+- non-technical status.
+
+`conflict_detected`, `warning`, and `evidence_rationale` must be read together.
+A conflict is not silently resolved by choosing the highest-scoring label.
+
+## Marker and enrichment fields
+
+| Field | Meaning |
 |---|---|
-| `high_concordant_marker_and_specific_STRING_evidence` | Strongest label category. Marker overlap and significant specific STRING enrichment are concordant. |
-| `medium_high_specific_STRING_evidence` | Specific STRING enrichment is strong, but marker support is weaker or absent. |
-| `medium_marker_supported` | Marker support is present, but STRING enrichment evidence is weaker or not significant. |
-| `medium_low_limited_support` | Some evidence is present, but it is limited. Treat the label as tentative. |
-| `low_unassigned_or_insufficient_evidence` | The module is unassigned or lacks reliable evidence for interpretation. |
+| `positive_marker_genes` | genes providing direct positive support for selected evidence rules |
+| `supportive_marker_genes` | genes that strengthen but do not independently establish the interpretation |
+| `term_supporting_genes` | module genes contributing to significant supporting terms |
+| `significant_supporting_terms` | filtered significant terms retained for interpretation |
+| `best_supporting_fdr` | strongest supporting FDR among retained evidence |
+| `evidence_rationale` | concise trace of evidence and interpretive limits |
 
-## Label warnings
+## Entity classification and candidate eligibility
 
-| Warning | Meaning |
+Nodes are independently classified before automatic protein priority.
+
+| `candidate_eligibility` | Meaning |
 |---|---|
-| `no_warning` | The label passed the rulebook checks without an audit warning. |
-| `label_downgraded_to_fallback_due_to_missing_required_specific_evidence` | The module supports a broad biological direction, but lacks evidence required for the more specific label. |
-| `label_assigned_from_STRING_only_without_curated_marker_support` | The label is based on enrichment terms without curated marker support. |
-| `marker_supported_but_no_specific_STRING_terms` | The label is based on marker overlap without significant specific enrichment terms. |
-| `limited_evidence_low_label_score` | The label was assigned with limited evidence. |
-| `no_reliable_marker_or_specific_STRING_evidence_for_label` | The module should not be used for strong functional interpretation. |
+| `review_ready_canonical` | canonical or unclassified protein-coding entity eligible for automatic review when its module is also eligible |
+| `network_evidence_only` | locus, predicted, pseudogene-like, or non-coding entity retained for network evidence but not automatic final priority |
+| `excluded_from_automatic_priority` | mitochondrial, ribosomal, Y-associated, or related class excluded from automatic promotion |
+| `manual_review_required` | entity requires explicit review before any priority claim |
 
-## Supporting biological themes
+Network inclusion and automatic priority are deliberately separate decisions.
 
-`supporting_biological_themes` records secondary themes detected in the module. The field is intentionally conservative. It prioritizes the assigned label theme and adds secondary themes only when there is stronger marker or term evidence. It should not be treated as an additional set of final labels.
+## Significant-term policy
 
-## Recommended reporting
+The analytical evidence layer retains only terms passing the configured FDR
+threshold, currently `0.05`, and the generic-term filter. Raw enrichment is kept
+in the technical workbook for reproducibility.
 
-A module label should be reported together with its evidence. For example:
+Absence of a resolved annotation can reflect limited marker coverage, limited
+term specificity, small module size, or database coverage. It does not prove
+absence of biological function.
 
-> The module was annotated as a chemokine/cytokine signalling program based on chemokine/cytokine marker overlap and significant local STRING enrichment for chemokine-response and cytokine-response terms.
+## Priority decision boundary
 
-Avoid wording that implies direct experimental validation:
+Final protein priorities require:
 
-> The module proves cytokine-driven therapy response.
+1. a `review_ready_canonical` entity;
+2. membership in a priority-eligible module;
+3. no module conflict that blocks automatic promotion;
+4. a valid candidate score and network rank.
 
-CancerPPIr module labels are computational annotations and should be validated in the biological and clinical context of the sample.
+The candidate score does not contribute clinical evidence. It ranks prominence
+within the reconstructed network and supplied expression profile.
+
+## Canonical and compatibility outputs
+
+Canonical evidence is exposed through `result$biological_evidence`, the Phase 4
+technical sheets, the analytical workbook, and GraphML. Retired annotation
+fields are available only under `result$compatibility` for migration and audit.
+They must not drive new priority decisions.
+
+See the [Phase 4 migration guide](phase4_migration_guide.md) for the legacy-to-
+canonical field map.

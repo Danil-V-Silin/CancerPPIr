@@ -1,180 +1,213 @@
 # Output interpretation guide
 
-This document explains how to read CancerPPIr output files and how to report the main results. It is intended for users who need to move from the exported tables to defensible biological interpretation.
+This guide explains the current CancerPPIr output contract and a defensible
+order of interpretation. CancerPPIr produces exploratory network evidence from a
+bulk RNA-seq-derived gene table. It does not directly measure protein
+interactions, cell fractions, drug response, or clinical benefit.
 
-CancerPPIr performs network-based prioritization from bulk RNA-seq-derived gene tables. Its outputs should be read as exploratory evidence for protein and module prioritization, not as direct evidence of treatment response or clinical actionability.
+## Output inventory
 
-## Output files
-
-CancerPPIr writes four main files for each input dataset.
-
-| File | Use |
-|---|---|
-| `CancerPPIr_Analytical_Report.xlsx` | Main report for interpretation. Contains summary statistics, candidate rankings, major module priorities and network summaries. |
-| `CancerPPIr_Technical_Report.xlsx` | Audit report. Contains mapping results, raw node metrics, raw enrichment tables and R session information. |
-| `Network_for_Cytoscape.graphml` | Annotated network for Cytoscape, Gephi or other graph visualization tools. |
-| `STRING_links.txt` | Current and STRING v12-pinned links for inspecting the reconstructed network in STRING. |
+| File | Audience | Purpose |
+|---|---|---|
+| `CancerPPIr_Analytical_Report.xlsx` | biological and translational reviewers | concise priority and context tables |
+| `CancerPPIr_Technical_Report.xlsx` | analysts and auditors | complete mapping, metrics, enrichment, canonical evidence, and session details |
+| `Network_for_Cytoscape.graphml` | network analysts | canonical node attributes and network topology |
+| `STRING_links.txt` | reviewers | browser links for STRING inspection |
+| `CancerPPIr_Output_Manifest.json` | analysts and reproducibility reviewers | input identity, versions, configuration, summary, and output hashes |
+| `CancerPPIr_Output_Checksums.sha256` | anyone receiving the run | byte-level file-integrity verification |
 
 ## Recommended reading order
 
-Start with the analytical workbook:
+1. Check network and mapping quality in `Executive summary`.
+2. Review biological programs in `Module priorities`.
+3. Inspect automatically eligible proteins in `Final priorities`.
+4. Use `Candidate evidence` to understand score components and exclusions.
+5. Use `Network overview` for graph structure and topological hubs.
+6. Read `Methods and limitations` before reporting results.
+7. Use the technical workbook, GraphML, manifest, and checksums for audit.
 
-1. `Executive summary`
-2. `Final priorities`
-3. `Major module priorities`
-4. `Candidate rationale`
-5. `Graph summary`
+## Analytical workbook
 
-Use the technical workbook when checking mapping, raw enrichment results, node-level metrics or reproducibility details.
-
-## Analytical report
+The analytical workbook schema is version `4.5.0` and contains exactly six
+sheets.
 
 ### `Executive summary`
 
-Use this sheet to check whether the run is suitable for interpretation. Review the input size, number of mapped genes, number of final graph nodes, number of edges, connected components, largest component size, number of Louvain modules and STRING score threshold.
+This is the run-level quality gate. It reports input and mapping counts, mapping
+rate, graph size, connected components, largest-component fraction, Louvain
+modules, module interpretation classes, final-priority count, and pinned run
+configuration.
 
-A low mapping rate, very small network or highly fragmented graph should be reported as a limitation of that run.
+A low mapping rate, small graph, or highly fragmented network does not
+necessarily mean the run failed, but it limits the strength and scope of
+interpretation.
 
 ### `Final priorities`
 
-This sheet gives a compact summary of the highest-priority proteins and their module context. It is useful for first-pass review, but it should not be used alone for biological conclusions.
+This sheet contains up to ten proteins that passed automatic entity and module
+eligibility filters. Important fields are:
 
-Use it to identify:
-
-- top-ranked proteins by composite candidate score;
-- the module or biological program in which each candidate appears;
-- the main evidence supporting prioritization;
-- warnings or low-confidence annotations.
-
-### `Major module priorities`
-
-This sheet summarizes the major Louvain modules selected for module-level interpretation. It is the best starting point for understanding the dominant biological signals in the reconstructed network.
-
-Key fields include:
-
-| Field | How to read it |
+| Field | Interpretation |
 |---|---|
-| `community_louvain` | Louvain community identifier. |
-| `module_size` | Number of proteins in the module. |
-| `final_functional_label` | Conservative module label assigned by the rulebook. |
-| `label_source` | Evidence layer supporting the label: marker overlap, local STRING enrichment, both or neither. |
-| `label_evidence_score` | Rule-based score for label support. It is not a clinical score. |
-| `label_confidence` | Qualitative confidence level for the module label. |
-| `label_warning` | Audit flag for weak, incomplete or missing label evidence. |
-| `top_interpretable_terms` | Selected local STRING enrichment terms used for interpretation. |
-| `supporting_biological_themes` | Secondary themes detected in the module. These are not additional final labels. |
+| `priority_rank` | rank inside the automatically eligible subset |
+| `network_candidate_rank` | rank inside the complete reconstructed network |
+| `candidate_score` | exploratory composite within-network score |
+| `biological_context` | canonical module-level interpretation |
+| `candidate_eligibility` | entity-level review status |
+| `module_confidence` | evidence confidence for the module context |
+| topology ranks | degree, betweenness, and stress positions |
+| `priority_rationale` | concise evidence-based explanation |
+| `priority_warning` | limitation or review flag |
 
-A strong module-level interpretation requires concordant marker evidence and specific enrichment terms, preferably with `label_warning = no_warning`.
+A protein can rank highly in the complete network but be absent from final
+priorities because its entity class or module evidence does not support
+automatic promotion.
 
-### `Candidate rationale`
+### `Module priorities`
 
-This is the main candidate-level evidence table. It should be used when writing or reviewing a conclusion about a specific protein.
+This sheet contains up to five biological modules that are priority eligible.
+Technical/covariate, mixed-conflict, low-confidence, or unresolved modules are
+not inserted merely to fill the table.
 
-Interpret candidates using several evidence layers together:
-
-| Evidence layer | Relevant fields |
+| Field | Interpretation |
 |---|---|
-| Network topology | `degree`, `betweenness`, `stress_centrality`, `closeness`, `local_clustering` |
-| Expression-level evidence | `logFC`, `abs_logFC`, `pvalue`, `neg_log10_pvalue` |
-| Composite prioritization | `candidate_score`, `candidate_rank`, `priority_class` |
-| Module context | `community_louvain`, `final_functional_label`, `putative_biological_program` |
-| Annotation support | `label_source`, `label_evidence_score`, `label_confidence`, `label_warning`, `top_interpretable_terms` |
+| `module_id` | Louvain module identifier |
+| `module_size` and `network_fraction` | module scale in the reconstructed network |
+| `biological_context` | canonical primary interpretation |
+| `interpretation_scope` | whether lineage, state, and/or process evidence is resolved |
+| `confidence` | `high`, `moderate`, or lower confidence category |
+| marker and term fields | explicit supporting genes and significant terms |
+| `best_supporting_fdr` | strongest reported supporting FDR |
+| `conflict_detected` | evidence conflict that constrains prioritization |
+| `warning` | unresolved or limited-evidence flag |
+| `evidence_rationale` | auditable summary of evidence and limits |
 
-A high `candidate_score` means that the protein is prominent in the reconstructed network and expression profile. It does not establish druggability, dependency or treatment sensitivity.
+The number of module rows may be less than five. That is a result, not a missing
+value problem.
 
-### `Top candidates`, `Top degree`, `Top betweenness`, `Top stress`
+### `Candidate evidence`
 
-These sheets are short ranked views of the candidate table. They are useful for quick inspection and for identifying proteins with different topological roles:
+This is the main protein-level audit table. It contains the top network
+candidates plus any additional proteins needed to preserve final priorities.
 
-- high `degree`: hub-like proteins;
-- high `betweenness`: bridge-like proteins;
-- high `stress_centrality`: proteins traversed by many shortest paths.
+The score components are reported separately:
 
-Use these sheets for screening. Use `Candidate rationale` for final reporting.
+- `degree_component`;
+- `betweenness_component`;
+- `log_stress_component`;
+- `abs_logFC_component`;
+- `statistical_component`.
 
-### `All modules`
+`priority_status`, `candidate_eligibility`, `entity_class`, module evidence,
+warning, and rationale explain why a protein is or is not automatically promoted.
 
-This sheet lists all Louvain modules, including smaller or weakly annotated communities. It is useful for checking whether relevant proteins belong to small modules that were not included among major module priorities.
+### `Network overview`
 
-### `Graph summary`
+This long-format sheet combines:
 
-This sheet reports network-level properties. Use it to describe the size and structure of the reconstructed PPI subnetwork and to identify runs where the graph is too small or fragmented for strong interpretation.
+- graph-level metrics;
+- a deduplicated union of top degree, betweenness, and stress hubs;
+- degree distribution.
 
-### `Degree distribution`
+Use it to characterize topology. Do not treat a topological hub as a validated
+drug target without independent evidence.
 
-This sheet gives a compact view of node-degree distribution. It is mainly descriptive and can be used to check whether the network contains hub-like structure.
+### `Methods and limitations`
 
-## Technical report
+This sheet records the candidate-score definition, offline annotation policy,
+eligibility rules, bulk RNA-seq limitations, STRING limitations, and clinical
+non-actionability statement. It is part of the result and should accompany any
+formal interpretation.
 
-The technical workbook is not intended as the main interpretation layer. It supports audit and reproducibility.
+## Technical workbook
 
-| Sheet | Use |
-|---|---|
-| `Mapping summary` | Summary of gene-to-STRING mapping. |
-| `Gene status` | Gene-level mapping and filtering status. |
-| `Alias corrections` | Symbols corrected through STRING alias matching. |
-| `Unmapped genes` | Input genes not mapped to STRING identifiers. |
-| `HGNC normalization` | Gene-symbol normalization performed by HGNChelper. |
-| `Genes used table` | Final mapped genes/proteins used for network construction. |
-| `Raw node metrics` | Full node-level metric table. |
-| `Raw all modules` | All Louvain modules before analytical filtering. |
-| `Raw major modules` | Major modules selected for interpretation. |
-| `Top module enrichment` | Compact enrichment terms for each module. |
-| `Top network enrichment` | Compact enrichment terms for the full reconstructed network. |
-| `Top candidate enrichment` | Compact enrichment terms for top-ranked candidate proteins. |
-| `Raw module enrichment` | Unfiltered module-level enrichment results. |
-| `Raw network enrichment` | Unfiltered network-level enrichment results. |
-| `Raw candidate enrichment` | Unfiltered candidate-level enrichment results. |
-| `Session info` | R session information for reproducibility. |
+The technical workbook schema is version `4.4.0`. It is the audit layer, not the
+recommended first view.
 
-## Enrichment tables
+### Mapping and input audit
 
-The enrichment tables are audit layers. They should not be read as independent validation of clinical relevance.
+- `Mapping summary`
+- `Gene status`
+- `Alias corrections`
+- `Unmapped genes`
+- `HGNC normalization`
+- `Genes used table`
 
-`Top module enrichment` is the most useful enrichment table for interpretation. It shows which annotation terms support the module labels. These results are already condensed in the analytical workbook through `top_interpretable_terms`, `label_source`, `label_evidence_score` and `label_confidence`.
+These sheets distinguish input rows, mapped input rows, unique mapped proteins,
+and final graph nodes. These quantities are not interchangeable.
 
-`Top network enrichment` summarizes the reconstructed network as a whole. It is useful for describing the global biological composition of the network, but it does not explain individual candidates.
+### Network and enrichment audit
 
-`Top candidate enrichment` summarizes the top-ranked candidate set. It can show whether top candidates are concentrated in a shared biological program, but it should not be interpreted as evidence that the candidates are therapeutic targets.
+- `Raw node metrics`
+- `Raw all modules`
+- `Raw major modules`
+- `Top module enrichment`
+- `Top network enrichment`
+- `Top candidate enrichment`
+- `Raw module enrichment`
+- `Raw network enrichment`
+- `Raw candidate enrichment`
 
-Raw enrichment sheets are kept for audit. They include broad and redundant database terms that are not used as primary evidence for module labels.
+Raw enrichment sheets may contain broad, redundant, or non-priority terms. They
+are preserved for audit and are not all used in the analytical interpretation.
 
-## Minimum evidence for reporting a candidate
+### Canonical Phase 4 evidence
 
-When reporting a candidate protein, include the following information:
+- `Phase4 module annotations`
+- `Phase4 rule evidence`
+- `Phase4 significant terms`
+- `Phase4 node annotations`
+- `Phase4 validation`
 
-1. Its rank or `candidate_score`;
-2. The main topology metric supporting prioritization;
-3. The expression-level evidence supplied in the input table;
-4. The Louvain module and final module label;
-5. The label confidence and warning status;
-6. The most relevant interpretable enrichment terms or marker support.
+The module and node annotation sheets are the canonical biological-evidence
+source. `Phase4 significant terms` contains filtered statistically significant
+support used by the engine. `Phase4 validation` must contain no failed checks in
+a successful run.
 
-A concise reporting sentence should link the candidate to its evidence:
+### Runtime audit
 
-> `PTPRC` was prioritized as a high-ranking network candidate because it had high network centrality, strong candidate-score support and belonged to a major immune/myeloid module supported by marker overlap and local STRING enrichment.
+`Session info` records the R session and loaded package versions.
 
-Avoid unsupported wording such as:
+## GraphML
 
-> `PTPRC` is a validated therapeutic target for this patient.
+The GraphML schema is version `4.6.0`. It contains:
 
-## Minimum evidence for reporting a module
+- identifiers and expression values;
+- topology metrics and ranks;
+- the candidate score and five score components;
+- `entity_class`, `candidate_eligibility`, and priority status;
+- canonical module compartment, lineage, state, process, interpretation,
+  confidence, conflict, warnings, and evidence rationale;
+- Cytoscape convenience labels.
 
-When reporting a module, include:
+Very small positive `pvalue` values may be floored only for safe GraphML numeric
+serialization. The original statistical evidence remains represented by
+`neg_log10_pvalue`, and the GraphML flag records whether flooring occurred.
 
-1. Louvain module identifier;
-2. Module size;
-3. Final functional label;
-4. Label source;
-5. Label confidence;
-6. Warning status;
-7. Representative genes or candidates;
-8. Top interpretable enrichment terms.
+## Manifest and checksums
 
-A conservative formulation is:
+The output manifest schema is version `1.0.0`. It records the input basename and
+SHA-256, software/runtime metadata, public schema versions, analysis
+configuration, run summary, and hashes of the four principal analysis outputs.
+It intentionally excludes absolute user paths.
 
-> The module was annotated as a chemokine/cytokine signalling program based on chemokine/cytokine marker overlap and local STRING enrichment for chemokine- and cytokine-response terms.
+The checksum file schema is version `1.0.0`. It hashes the four principal
+outputs and the manifest. It does not hash itself.
 
-## Practical interpretation rule
+See the [reproducibility guide](reproducibility_guide.md) for verification
+commands.
 
-Interpret the results in this order: network quality first, module context second, candidate-level evidence third. Do not interpret a high-ranking candidate outside its module context, and do not treat a module label as strong if it has low confidence or an unresolved warning.
+## Evidence hierarchy for reporting
+
+Report conclusions in this order:
+
+1. input and mapping quality;
+2. graph structure;
+3. module evidence and confidence;
+4. candidate topology and expression evidence;
+5. entity and module eligibility;
+6. external biological, pharmacological, and clinical validation.
+
+A defensible protein-level statement links the network rank to its module and
+limitations. Avoid statements that convert a network priority into a proven
+therapeutic target.
