@@ -180,6 +180,23 @@ See:
 - [Phase 4 migration guide](docs/development/history/output-schema-migration.md)
 - [Documentation index](docs/README.md)
 
+## Project documentation and governance
+
+Current release-candidate metadata: `1.0.0-rc.1`.
+
+- [Installation](docs/user-guide/installation.md)
+- [Quick start](docs/user-guide/quick-start.md)
+- [CLI contract](docs/reference/cli.md)
+- [Output contract](docs/reference/output-contract.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Citation metadata](CITATION.cff)
+- [Changelog](CHANGELOG.md)
+- [Release process](docs/development/release-process.md)
+- [Repository governance](docs/development/repository-governance.md)
+
+CancerPPIr is distributed under the [MIT License](LICENSE).
+
 ## Responsible use
 
 Bulk RNA-seq profiles combine malignant and non-malignant specimen components.

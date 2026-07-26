@@ -1,0 +1,9 @@
+"ref_name","commit_sha","commit_date","contained_in_origin_main"
+"origin","c42d6a2e48c38b4b0616a07e5d0b7a94bc6c599e","2026-07-24T22:14:45+03:00",TRUE
+"origin/main","c42d6a2e48c38b4b0616a07e5d0b7a94bc6c599e","2026-07-24T22:14:45+03:00",TRUE
+"origin/refactor/phase-0-1","345ad3d781d2991ea01a8e9aabe894af4dc686c4","2026-07-15T15:11:24+03:00",TRUE
+"origin/refactor/phase-1-renv","60d06463d832885ba978e0b2c01ede50bfa33dbd","2026-07-20T13:12:24+03:00",TRUE
+"origin/refactor/phase-2-architecture","70afdf4949665c9f5b168e0f26342cebf055a53b","2026-07-21T17:17:57+03:00",TRUE
+"origin/refactor/phase-4-output-quality","820ebb5002c526472df932753b8f61882900b103","2026-07-24T21:17:01+03:00",TRUE
+"origin/refactor/repository-layout","deaba34cf139b566ed4897e9fb0dbb802fc318ca","2026-07-27T01:26:29+03:00",FALSE
+"origin/test/phase-3-automation","3b47aa15a6ce0339a0279507489a0fa6c9d593d3","2026-07-21T18:07:10+03:00",TRUE
