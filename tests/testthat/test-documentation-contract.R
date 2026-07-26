@@ -4,7 +4,7 @@ project_root <- Sys.getenv(
 )
 
 source(
-  file.path(project_root, "scripts", "validate_phase4_8_documentation.R"),
+  file.path(project_root, "scripts", "validate_documentation_contract.R"),
   local = TRUE
 )
 

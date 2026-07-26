@@ -12,7 +12,7 @@ remain internally consistent, reproducible and portable.
 The canonical command is:
 
 ```bash
-Rscript scripts/run_phase4_release_checkpoint.R \
+Rscript scripts/run_release_checkpoint.R \
   ../input \
   ../results/phase4_release_checkpoint_v1 \
   ../string_cache \
@@ -39,7 +39,7 @@ If production calculation finishes but a later release validator fails, the
 same outputs can be reused:
 
 ```bash
-Rscript scripts/run_phase4_release_checkpoint.R \
+Rscript scripts/run_release_checkpoint.R \
   ../input \
   ../results/phase4_release_checkpoint_v1 \
   ../string_cache \
@@ -53,7 +53,7 @@ workbooks, GraphML files, manifests and checksum files.
 
 ## Static release contract
 
-`scripts/validate_phase4_release_static.R` checks that:
+`scripts/validate_release_contract.R` checks that:
 
 - all production and release R files parse;
 - no active `biological_evidence_shadow` API remains;
