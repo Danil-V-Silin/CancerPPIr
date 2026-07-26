@@ -118,5 +118,5 @@ technical sheets, the analytical workbook, and GraphML. Retired annotation
 fields are available only under `result$compatibility` for migration and audit.
 They must not drive new priority decisions.
 
-See the [Phase 4 migration guide](phase4_migration_guide.md) for the legacy-to-
+See the [Phase 4 migration guide](../development/history/output-schema-migration.md) for the legacy-to-
 canonical field map.

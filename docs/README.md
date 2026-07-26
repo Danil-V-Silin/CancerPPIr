@@ -1,33 +1,30 @@
 # CancerPPIr documentation
 
-Use this page as the navigation index for the current public workflow.
+This directory separates user guidance, public reference material,
+and maintainer-facing development records.
 
-## Start here
+## User guide
 
-- [Repository README](../README.md): installation, input, quick start, and output
-  inventory.
-- [Examples](../examples/README.md): synthetic input and expected run layout.
-- [Output interpretation guide](output_interpretation_guide.md): how to read the
-  analytical workbook, technical workbook, GraphML, manifest, and checksums.
+- [Output interpretation](user-guide/output-interpretation.md)
+- [Clinical interpretation](user-guide/clinical-interpretation.md)
+- [Reproducibility](user-guide/reproducibility.md)
 
-## Interpretation and terminology
+## Reference
 
-- [Annotation rules](annotation_rules.md): canonical biological-evidence model,
-  evidence hierarchy, confidence, conflict, and priority eligibility.
-- [Clinical interpretation guide](clinical_interpretation_guide.md): evidence
-  ladder, reporting boundaries, and independent validation requirements.
-- [Glossary](glossary.md): definitions of public fields and concepts.
-- [Limitations](limitations.md): analytical, biological, and clinical limits.
+- [Annotation rules](reference/annotation-rules.md)
+- [Glossary](reference/glossary.md)
+- [Limitations](reference/limitations.md)
+- [Analytical workbook contract](reference/contracts/analytical-workbook.md)
+- [Canonical annotation contract](reference/contracts/canonical-annotations.md)
+- [Output provenance contract](reference/contracts/output-provenance.md)
+- [Release-validation contract](reference/contracts/release-validation.md)
 
-## Reproducibility and migration
+## Development records
 
-- [Reproducibility guide](reproducibility_guide.md): manifest and checksum
-  verification, schema versions, and sharing a reproducible run.
-- [Phase 4 migration guide](phase4_migration_guide.md): mapping from retired
-  workbook views and legacy annotation fields to canonical outputs.
+- [Target architecture](development/architecture/target-architecture.md)
+- [Output-quality specification](development/specifications/output-quality-and-biological-interpretation.md)
+- [Legacy architecture](development/history/legacy-architecture.md)
+- [Output-schema migration](development/history/output-schema-migration.md)
+- Historical architecture checkpoints are retained under `development/history/architecture-checkpoints/`.
 
-## Architecture contracts
-
-Architecture documents under `docs/architecture/` define versioned internal and
-public contracts. They are intended for maintainers and reviewers rather than
-first-pass result interpretation.
+Return to the [repository README](../README.md).

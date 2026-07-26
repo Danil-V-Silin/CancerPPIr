@@ -111,8 +111,8 @@ CancerPPIr/
 
 ## Generated planning artifacts
 
-- `target_function_module_map.csv`
-- `target_module_manifest.csv`
-- `target_workflow_plan.csv`
-- `architecture_extraction_sequence.csv`
-- `planned_orchestration_functions.csv`
+- `../history/architecture-checkpoints/target_function_module_map.csv`
+- `../history/architecture-checkpoints/target_module_manifest.csv`
+- `../history/architecture-checkpoints/target_workflow_plan.csv`
+- `../history/architecture-checkpoints/architecture_extraction_sequence.csv`
+- `../history/architecture-checkpoints/planned_orchestration_functions.csv`

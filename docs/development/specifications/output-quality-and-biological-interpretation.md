@@ -271,7 +271,7 @@ Suggested output classes:
 - **Unresolved:** evidence insufficient or contradictory.
 - **Technical/covariate:** interpretable as a technical or sample-associated signature, not a biological priority.
 
-The exact thresholds must be defined in code and documented in `docs/annotation_rules.md`.
+The exact thresholds must be defined in code and documented in `docs/reference/annotation-rules.md`.
 
 ---
 

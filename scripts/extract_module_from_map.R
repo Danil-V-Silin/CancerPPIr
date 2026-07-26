@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Extract one group of top-level functions from cancerppir.R into a target
-# module according to docs/architecture/target_function_module_map.csv.
+# module according to docs/development/history/architecture-checkpoints/target_function_module_map.csv.
 #
 # Usage:
 #   Rscript scripts/extract_module_from_map.R \

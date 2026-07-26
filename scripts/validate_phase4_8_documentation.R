@@ -28,13 +28,13 @@ phase4_8_validate_documentation <- function(
   required_files <- c(
     "README.md",
     "docs/README.md",
-    "docs/output_interpretation_guide.md",
-    "docs/annotation_rules.md",
-    "docs/clinical_interpretation_guide.md",
-    "docs/glossary.md",
-    "docs/limitations.md",
-    "docs/phase4_migration_guide.md",
-    "docs/reproducibility_guide.md",
+    "docs/user-guide/output-interpretation.md",
+    "docs/reference/annotation-rules.md",
+    "docs/user-guide/clinical-interpretation.md",
+    "docs/reference/glossary.md",
+    "docs/reference/limitations.md",
+    "docs/development/history/output-schema-migration.md",
+    "docs/user-guide/reproducibility.md",
     "examples/minimal_input.csv",
     "examples/README.md",
     "scripts/validate_phase4_8_documentation.R",
@@ -78,12 +78,12 @@ phase4_8_validate_documentation <- function(
   user_docs <- c(
     "README.md",
     "docs/README.md",
-    "docs/output_interpretation_guide.md",
-    "docs/annotation_rules.md",
-    "docs/clinical_interpretation_guide.md",
-    "docs/glossary.md",
-    "docs/limitations.md",
-    "docs/reproducibility_guide.md",
+    "docs/user-guide/output-interpretation.md",
+    "docs/reference/annotation-rules.md",
+    "docs/user-guide/clinical-interpretation.md",
+    "docs/reference/glossary.md",
+    "docs/reference/limitations.md",
+    "docs/user-guide/reproducibility.md",
     "examples/README.md"
   )
   user_docs <- user_docs[file.exists(file.path(project_root, user_docs))]
@@ -124,7 +124,7 @@ phase4_8_validate_documentation <- function(
     "Network overview",
     "Methods and limitations"
   )
-  output_guide <- read_utf8("docs/output_interpretation_guide.md")
+  output_guide <- read_utf8("docs/user-guide/output-interpretation.md")
   add_check(
     "current_analytical_sheet_contract_is_documented",
     all(vapply(
@@ -146,7 +146,7 @@ phase4_8_validate_documentation <- function(
     output_manifest = "1.0.0",
     output_checksums = "1.0.0"
   )
-  reproducibility_text <- read_utf8("docs/reproducibility_guide.md")
+  reproducibility_text <- read_utf8("docs/user-guide/reproducibility.md")
   add_check(
     "schema_versions_are_documented",
     all(vapply(

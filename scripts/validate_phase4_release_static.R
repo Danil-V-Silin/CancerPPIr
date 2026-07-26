@@ -58,7 +58,7 @@ phase4_9_validate_static_release <- function(
       "scripts/run_phase4_release_checkpoint.R",
       "tests/testthat/test-release-edge-cases.R",
       "tests/testthat/test-release-static-contract.R",
-      "docs/architecture/phase4_9_release_contract.md",
+      "docs/reference/contracts/release-validation.md",
       ".github/workflows/r-tests.yml"
     )
   )

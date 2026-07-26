@@ -42,7 +42,7 @@
 
 ## Generated files
 
-- `legacy_top_level_expressions.csv`
-- `legacy_function_inventory.csv`
-- `legacy_package_references.csv`
-- `legacy_workflow_markers.csv`
+- `architecture-checkpoints/legacy_top_level_expressions.csv`
+- `architecture-checkpoints/legacy_function_inventory.csv`
+- `architecture-checkpoints/legacy_package_references.csv`
+- `architecture-checkpoints/legacy_workflow_markers.csv`

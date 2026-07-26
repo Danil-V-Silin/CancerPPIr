@@ -194,7 +194,7 @@ It intentionally excludes absolute user paths.
 The checksum file schema is version `1.0.0`. It hashes the four principal
 outputs and the manifest. It does not hash itself.
 
-See the [reproducibility guide](reproducibility_guide.md) for verification
+See the [reproducibility guide](reproducibility.md) for verification
 commands.
 
 ## Evidence hierarchy for reporting
