@@ -17,19 +17,19 @@ load_cancerppir_modules <- function(
   module_files <- file.path(
     "R",
     c(
-      "00_utils.R",
-      "01_input.R",
-      "02_string_mapping.R",
-      "03_enrichment.R",
-      "04_module_labeling.R",
-      "04a_biological_evidence_engine.R",
-      "04b_biological_evidence_adapter.R",
-      "05_reporting.R",
-      "05a_analytical_workbook.R",
-      "05b_canonical_annotation_output.R",
-      "05c_output_provenance.R",
-      "06_network_analysis.R",
-      "07_pipeline.R"
+      "utils.R",
+      "input.R",
+      "string_mapping.R",
+      "enrichment.R",
+      "module_labeling.R",
+      "biological_evidence_engine.R",
+      "biological_evidence_adapter.R",
+      "reporting.R",
+      "analytical_workbook.R",
+      "canonical_annotation_output.R",
+      "output_provenance.R",
+      "network_analysis.R",
+      "pipeline.R"
     )
   )
 

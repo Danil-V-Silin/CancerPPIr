@@ -13,8 +13,7 @@ testthat::test_that(
     source(
       file.path(
         project_root,
-        "scripts",
-        "validate_phase4_release_static.R"
+        "scripts", "validate_release_contract.R"
       ),
       local = TRUE
     )

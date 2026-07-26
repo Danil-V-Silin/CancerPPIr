@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use CancerPPIr, please cite the software release and the associated article when available."
+title: "CancerPPIr: an R workflow for patient-specific protein-protein interaction subnetwork profiling from bulk RNA-seq profiles from histologically confirmed malignant tumor specimens"
+type: software
+authors:
+  - family-names: "Silin"
+    given-names: "Danil V."
+version: "1.0.0-rc.1"
+date-released: "2026-07-27"
+repository-code: "https://github.com/Danil-V-Silin/CancerPPIr"
+url: "https://github.com/Danil-V-Silin/CancerPPIr"
+license: MIT
+keywords:
+  - protein-protein interaction
+  - bulk RNA-seq
+  - network biology
+  - cancer bioinformatics
+  - STRING
+  - Louvain

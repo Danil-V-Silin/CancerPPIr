@@ -171,14 +171,31 @@ the manifest.
 
 See:
 
-- [Output interpretation guide](docs/output_interpretation_guide.md)
-- [Annotation rules](docs/annotation_rules.md)
-- [Clinical interpretation guide](docs/clinical_interpretation_guide.md)
-- [Clinical and analytical limitations](docs/limitations.md)
-- [Glossary](docs/glossary.md)
-- [Reproducibility guide](docs/reproducibility_guide.md)
-- [Phase 4 migration guide](docs/phase4_migration_guide.md)
+- [Output interpretation guide](docs/user-guide/output-interpretation.md)
+- [Annotation rules](docs/reference/annotation-rules.md)
+- [Clinical interpretation guide](docs/user-guide/clinical-interpretation.md)
+- [Clinical and analytical limitations](docs/reference/limitations.md)
+- [Glossary](docs/reference/glossary.md)
+- [Reproducibility guide](docs/user-guide/reproducibility.md)
+- [Phase 4 migration guide](docs/development/history/output-schema-migration.md)
 - [Documentation index](docs/README.md)
+
+## Project documentation and governance
+
+Current release-candidate metadata: `1.0.0-rc.1`.
+
+- [Installation](docs/user-guide/installation.md)
+- [Quick start](docs/user-guide/quick-start.md)
+- [CLI contract](docs/reference/cli.md)
+- [Output contract](docs/reference/output-contract.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+- [Citation metadata](CITATION.cff)
+- [Changelog](CHANGELOG.md)
+- [Release process](docs/development/release-process.md)
+- [Repository governance](docs/development/repository-governance.md)
+
+CancerPPIr is distributed under the [MIT License](LICENSE).
 
 ## Responsible use
 

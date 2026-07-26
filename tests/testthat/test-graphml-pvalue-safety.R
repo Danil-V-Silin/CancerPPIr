@@ -161,7 +161,7 @@ testthat::test_that(
         file.path(
           project_root,
           "R",
-          "05b_canonical_annotation_output.R"
+          "canonical_annotation_output.R"
         ),
         warn = FALSE,
         encoding = "UTF-8"
