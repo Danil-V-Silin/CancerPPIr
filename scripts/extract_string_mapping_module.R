@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Extract CancerPPIr HGNC and STRING mapping helpers from cancerppir.R
-# into R/02_string_mapping.R.
+# into R/string_mapping.R.
 #
 # Checkpoint 2.6:
 # - seven existing functions are copied without semantic rewriting;
@@ -22,7 +22,7 @@ legacy_file <- file.path(
 
 module_file <- file.path(
   "R",
-  "02_string_mapping.R"
+  "string_mapping.R"
 )
 
 loader_file <- file.path(
@@ -533,7 +533,7 @@ if (length(missing_map_columns) > 0L) {
 
 mapping_map <- function_map[
   function_map$target_file ==
-    "R/02_string_mapping.R",
+    "R/string_mapping.R",
   ,
   drop = FALSE
 ]
@@ -549,7 +549,7 @@ if (
 ) {
   stop(
     paste0(
-      "R/02_string_mapping.R must receive exactly these seven functions:\n",
+      "R/string_mapping.R must receive exactly these seven functions:\n",
       paste(
         paste0(
           "- ",
@@ -800,7 +800,7 @@ temporary_source <- file.path(
 
 temporary_module <- file.path(
   temporary_directory,
-  "02_string_mapping.R"
+  "string_mapping.R"
 )
 
 write_text_file(
@@ -975,7 +975,7 @@ if (!identical(
   sort(mapping_names)
 )) {
   stop(
-    "R/02_string_mapping.R failed post-write function validation.",
+    "R/string_mapping.R failed post-write function validation.",
     call. = FALSE
   )
 }
@@ -1038,8 +1038,8 @@ if (!all(loaded_mapping_status)) {
 }
 
 previous_target_files <- c(
-  "R/00_utils.R",
-  "R/01_input.R"
+  "R/utils.R",
+  "R/input.R"
 )
 
 previous_function_names <- function_map$function_name[
@@ -1085,7 +1085,7 @@ manifest <- data.frame(
     text_md5,
     FUN.VALUE = character(1)
   ),
-  target_file = "R/02_string_mapping.R",
+  target_file = "R/string_mapping.R",
   extraction_mode =
     "exact_source_range_without_semantic_rewrite",
   stringsAsFactors = FALSE
@@ -1155,7 +1155,7 @@ message(
 )
 
 message(
-  "[string mapping extraction] R/02_string_mapping.R MD5: ",
+  "[string mapping extraction] R/string_mapping.R MD5: ",
   module_md5_after
 )
 

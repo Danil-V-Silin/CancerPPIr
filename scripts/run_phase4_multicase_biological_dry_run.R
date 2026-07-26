@@ -62,7 +62,7 @@ project_root <- normalizePath(
 engine_file <- file.path(
   project_root,
   "R",
-  "04a_biological_evidence_engine.R"
+  "biological_evidence_engine.R"
 )
 
 if (!file.exists(engine_file)) {

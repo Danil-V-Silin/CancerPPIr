@@ -10,11 +10,11 @@
 # Run from the repository root:
 #   Rscript scripts/fix_clean_names_case_handling.R
 
-target_file <- file.path("R", "00_utils.R")
+target_file <- file.path("R", "utils.R")
 
 if (!file.exists(target_file)) {
   stop(
-    "R/00_utils.R was not found. Run this script from the repository root.",
+    "R/utils.R was not found. Run this script from the repository root.",
     call. = FALSE
   )
 }
@@ -207,7 +207,7 @@ if (!isTRUE(file.copy(
   overwrite = TRUE
 ))) {
   stop(
-    "Failed to update R/00_utils.R.",
+    "Failed to update R/utils.R.",
     call. = FALSE
   )
 }

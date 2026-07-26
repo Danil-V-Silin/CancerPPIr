@@ -17,7 +17,7 @@ project_root <- normalizePath(
 required_files <- c(
   "cancerppir.R",
   "R/load_all.R",
-  "R/07_pipeline.R",
+  "R/pipeline.R",
   "scripts/run_unit_tests.R",
   "scripts/compare_architecture_checkpoint_case.R",
   "renv.lock"

@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Extract CancerPPIr input-handling functions from the current monolithic
-# cancerppir.R file into R/01_input.R.
+# cancerppir.R file into R/input.R.
 #
 # Checkpoint 2.5:
 # - guess_separator() and read_gene_table() are copied without semantic
@@ -22,7 +22,7 @@ legacy_file <- file.path(
 
 module_file <- file.path(
   "R",
-  "01_input.R"
+  "input.R"
 )
 
 loader_file <- file.path(
@@ -428,7 +428,7 @@ if (length(missing_map_columns) > 0L) {
 }
 
 input_map <- function_map[
-  function_map$target_file == "R/01_input.R",
+  function_map$target_file == "R/input.R",
   ,
   drop = FALSE
 ]
@@ -450,7 +450,7 @@ if (
   stop(
     paste0(
       "The architecture map must assign exactly guess_separator() and ",
-      "read_gene_table() to R/01_input.R."
+      "read_gene_table() to R/input.R."
     ),
     call. = FALSE
   )
@@ -691,7 +691,7 @@ temporary_source <- file.path(
 
 temporary_module <- file.path(
   temporary_directory,
-  "01_input.R"
+  "input.R"
 )
 
 write_text_file(
@@ -866,7 +866,7 @@ if (!identical(
   sort(input_names)
 )) {
   stop(
-    "R/01_input.R failed post-write function validation.",
+    "R/input.R failed post-write function validation.",
     call. = FALSE
   )
 }
@@ -941,7 +941,7 @@ if (!all(loaded_input_status)) {
 }
 
 utility_names <- function_map$function_name[
-  function_map$target_file == "R/00_utils.R"
+  function_map$target_file == "R/utils.R"
 ]
 
 loaded_utility_status <- vapply(
@@ -987,7 +987,7 @@ manifest <- data.frame(
     text_md5,
     FUN.VALUE = character(1)
   ),
-  target_file = "R/01_input.R",
+  target_file = "R/input.R",
   extraction_mode =
     "exact_source_range_without_semantic_rewrite",
   stringsAsFactors = FALSE
@@ -1057,7 +1057,7 @@ message(
 )
 
 message(
-  "[input extraction] R/01_input.R MD5:        ",
+  "[input extraction] R/input.R MD5:        ",
   module_md5_after
 )
 

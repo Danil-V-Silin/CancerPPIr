@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Extract the dependency-light utility functions from the monolithic
-# cancerppir.R file into R/00_utils.R.
+# cancerppir.R file into R/utils.R.
 #
 # This checkpoint performs an architecture-only change:
 # - function bodies are copied without semantic rewriting;
@@ -20,7 +20,7 @@ legacy_file <- file.path(
 
 module_file <- file.path(
   "R",
-  "00_utils.R"
+  "utils.R"
 )
 
 loader_file <- file.path(
@@ -427,7 +427,7 @@ if (length(missing_map_columns) > 0L) {
 }
 
 utility_map <- function_map[
-  function_map$target_file == "R/00_utils.R",
+  function_map$target_file == "R/utils.R",
   ,
   drop = FALSE
 ]
@@ -749,7 +749,7 @@ temporary_source <- file.path(
 
 temporary_module <- file.path(
   temporary_directory,
-  "00_utils.R"
+  "utils.R"
 )
 
 write_text_file(
@@ -947,7 +947,7 @@ if (!identical(
   sort(utility_names)
 )) {
   stop(
-    "R/00_utils.R failed the post-write function validation.",
+    "R/utils.R failed the post-write function validation.",
     call. = FALSE
   )
 }
@@ -1035,7 +1035,7 @@ manifest <- data.frame(
     text_md5,
     FUN.VALUE = character(1)
   ),
-  target_file = "R/00_utils.R",
+  target_file = "R/utils.R",
   extraction_mode =
     "exact_source_range_without_semantic_rewrite",
   stringsAsFactors = FALSE
@@ -1097,7 +1097,7 @@ message(
 )
 
 message(
-  "[utils extraction] R/00_utils.R MD5:        ",
+  "[utils extraction] R/utils.R MD5:        ",
   module_md5_after
 )
 

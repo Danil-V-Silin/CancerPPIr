@@ -9,7 +9,7 @@
 #
 # Example:
 #   Rscript scripts/extract_module_from_map.R \
-#     R/03_enrichment.R 15 2.7 enrichment
+#     R/enrichment.R 15 2.7 enrichment
 
 arguments <- commandArgs(
   trailingOnly = TRUE
@@ -25,7 +25,7 @@ if (length(arguments) != 4L) {
       "4. module label\n\n",
       "Example:\n",
       "Rscript scripts/extract_module_from_map.R ",
-      "R/03_enrichment.R 15 2.7 enrichment"
+      "R/enrichment.R 15 2.7 enrichment"
     ),
     call. = FALSE
   )
@@ -99,14 +99,14 @@ manifest_file <- file.path(
 expected_legacy_md5 <- "0c5644140abbae2f17e30109432cc198"
 
 loader_order <- c(
-  "R/00_utils.R",
-  "R/01_input.R",
-  "R/02_string_mapping.R",
-  "R/03_enrichment.R",
-  "R/04_module_labeling.R",
-  "R/05_reporting.R",
-  "R/06_network_analysis.R",
-  "R/07_pipeline.R"
+  "R/utils.R",
+  "R/input.R",
+  "R/string_mapping.R",
+  "R/enrichment.R",
+  "R/module_labeling.R",
+  "R/reporting.R",
+  "R/network_analysis.R",
+  "R/pipeline.R"
 )
 
 if (!target_file %in% loader_order) {

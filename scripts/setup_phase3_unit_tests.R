@@ -20,12 +20,12 @@ project_root <- normalizePath(
 
 required_files <- c(
   "R/load_all.R",
-  "R/00_utils.R",
-  "R/01_input.R",
-  "R/03_enrichment.R",
-  "R/04_module_labeling.R",
-  "R/06_network_analysis.R",
-  "R/07_pipeline.R",
+  "R/utils.R",
+  "R/input.R",
+  "R/enrichment.R",
+  "R/module_labeling.R",
+  "R/network_analysis.R",
+  "R/pipeline.R",
   "renv.lock"
 )
 

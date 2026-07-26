@@ -84,7 +84,7 @@ loaded_files <- load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-expected_adapter_file <- "04b_biological_evidence_adapter.R"
+expected_adapter_file <- "biological_evidence_adapter.R"
 
 if (!expected_adapter_file %in% basename(loaded_files)) {
   stop(

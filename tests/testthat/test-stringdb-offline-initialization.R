@@ -199,7 +199,7 @@ testthat::test_that(
     pipeline_candidates <- file.path(
       candidate_roots,
       "R",
-      "07_pipeline.R"
+      "pipeline.R"
     )
 
     pipeline_path <- pipeline_candidates[

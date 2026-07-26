@@ -9,8 +9,8 @@
 #   Rscript scripts/migrate_orchestration_dependencies.R
 
 source_file <- "cancerppir.R"
-enrichment_file <- file.path("R", "03_enrichment.R")
-labeling_file <- file.path("R", "04_module_labeling.R")
+enrichment_file <- file.path("R", "enrichment.R")
+labeling_file <- file.path("R", "module_labeling.R")
 loader_file <- file.path("R", "load_all.R")
 legacy_file <- file.path("legacy", "cancerppir_legacy.R")
 
@@ -793,12 +793,12 @@ temporary_source <- file.path(
 
 temporary_enrichment <- file.path(
   temporary_directory,
-  "03_enrichment.R"
+  "enrichment.R"
 )
 
 temporary_labeling <- file.path(
   temporary_directory,
-  "04_module_labeling.R"
+  "module_labeling.R"
 )
 
 write_text_file(
@@ -905,7 +905,7 @@ if (!isTRUE(file.copy(
   overwrite = TRUE
 ))) {
   stop(
-    "Failed to update R/03_enrichment.R.",
+    "Failed to update R/enrichment.R.",
     call. = FALSE
   )
 }
@@ -916,7 +916,7 @@ if (!isTRUE(file.copy(
   overwrite = TRUE
 ))) {
   stop(
-    "Failed to update R/04_module_labeling.R.",
+    "Failed to update R/module_labeling.R.",
     call. = FALSE
   )
 }

@@ -249,9 +249,9 @@ loaded_files <- load_cancerppir_modules(
 )
 
 required_loaded_files <- c(
-  "04a_biological_evidence_engine.R",
-  "04b_biological_evidence_adapter.R",
-  "07_pipeline.R"
+  "biological_evidence_engine.R",
+  "biological_evidence_adapter.R",
+  "pipeline.R"
 )
 
 missing_loaded_files <- setdiff(

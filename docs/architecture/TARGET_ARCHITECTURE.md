@@ -16,14 +16,14 @@ No analytical behavior is intentionally changed during this phase.
 CancerPPIr/
 |-- cancerppir.R
 |-- R/
-|   |-- 00_utils.R
-|   |-- 01_input.R
-|   |-- 02_string_mapping.R
-|   |-- 03_enrichment.R
-|   |-- 04_module_labeling.R
-|   |-- 05_reporting.R
-|   |-- 06_network_analysis.R
-|   |-- 07_pipeline.R
+|   |-- utils.R
+|   |-- input.R
+|   |-- string_mapping.R
+|   |-- enrichment.R
+|   |-- module_labeling.R
+|   |-- reporting.R
+|   |-- network_analysis.R
+|   |-- pipeline.R
 |   `-- load_all.R
 |-- legacy/
 |   `-- cancerppir_legacy.R
@@ -36,43 +36,43 @@ CancerPPIr/
 
 | Target file | Responsibility | Current functions | Legacy function lines | Order |
 | --- | --- | --- | --- | --- |
-| R/00_utils.R | Small dependency-light helpers, validation, numeric utilities, normalization helpers and shared text utilities. | 21 | 151 | 1 |
-| R/01_input.R | Input delimiter detection, input-table reading and input-column normalization. | 2 | 75 | 2 |
-| R/02_string_mapping.R | HGNC and STRING identifier handling, alias correction, mapping fallbacks and STRING interaction retrieval. | 7 | 166 | 3 |
-| R/03_enrichment.R | Local STRING enrichment, optional online enrichment, enrichment filtering, ranking and term collapsing. | 15 | 491 | 4 |
-| R/04_module_labeling.R | Marker-based labels, rulebook-based module interpretation, confidence scoring and supporting biological themes. | 14 | 317 | 5 |
-| R/05_reporting.R | Output-table normalization, worksheet preparation and Excel workbook generation. | 4 | 83 | 6 |
-| R/06_network_analysis.R | Graph construction, connected components, centrality metrics, candidate scoring, Louvain modules and graph-level summaries. | 0 | 0 | 7 |
-| R/07_pipeline.R | End-to-end CancerPPIr orchestration with explicit inputs, configuration and returned analysis objects. | 0 | 0 | 8 |
+| R/utils.R | Small dependency-light helpers, validation, numeric utilities, normalization helpers and shared text utilities. | 21 | 151 | 1 |
+| R/input.R | Input delimiter detection, input-table reading and input-column normalization. | 2 | 75 | 2 |
+| R/string_mapping.R | HGNC and STRING identifier handling, alias correction, mapping fallbacks and STRING interaction retrieval. | 7 | 166 | 3 |
+| R/enrichment.R | Local STRING enrichment, optional online enrichment, enrichment filtering, ranking and term collapsing. | 15 | 491 | 4 |
+| R/module_labeling.R | Marker-based labels, rulebook-based module interpretation, confidence scoring and supporting biological themes. | 14 | 317 | 5 |
+| R/reporting.R | Output-table normalization, worksheet preparation and Excel workbook generation. | 4 | 83 | 6 |
+| R/network_analysis.R | Graph construction, connected components, centrality metrics, candidate scoring, Louvain modules and graph-level summaries. | 0 | 0 | 7 |
+| R/pipeline.R | End-to-end CancerPPIr orchestration with explicit inputs, configuration and returned analysis objects. | 0 | 0 | 8 |
 | R/load_all.R | Explicit source loader defining the stable module-loading order for the script-based workflow. | 0 | 0 | 9 |
 
 ## Workflow ownership
 
 | Workflow stage | Current source anchor | Target owner | Planned entry point |
 | --- | --- | --- | --- |
-| CLI and configuration | commandArgs at line 77 | cancerppir.R and R/07_pipeline.R | parse CLI arguments and call run_cancerppir() |
-| Input-table ingestion | Reading input table at line 855 | R/01_input.R and R/07_pipeline.R | read_gene_table() |
-| HGNC symbol normalization | Checking gene symbols at line 858 | R/02_string_mapping.R | normalize and audit gene symbols |
-| STRING initialization and mapping | STRING initialization at line 881; mapping at line 905 | R/02_string_mapping.R and R/07_pipeline.R | prepare_string_mapping() |
-| STRING subnetwork construction | Building STRING subnetwork at line 1042 | R/06_network_analysis.R | build_string_network() |
-| Network metrics and candidate scoring | Calculating network metrics at line 1064 | R/06_network_analysis.R | calculate_network_metrics() |
-| Functional enrichment | Functional enrichment at line 1365 | R/03_enrichment.R | run_enrichment_stage() |
-| Module interpretation | Module labeling helpers and module-dependent top-level expressions | R/04_module_labeling.R | build_module_annotations() |
-| Report assembly and export | Writing consolidated output files at line 1587 | R/05_reporting.R and R/07_pipeline.R | assemble_and_write_reports() |
+| CLI and configuration | commandArgs at line 77 | cancerppir.R and R/pipeline.R | parse CLI arguments and call run_cancerppir() |
+| Input-table ingestion | Reading input table at line 855 | R/input.R and R/pipeline.R | read_gene_table() |
+| HGNC symbol normalization | Checking gene symbols at line 858 | R/string_mapping.R | normalize and audit gene symbols |
+| STRING initialization and mapping | STRING initialization at line 881; mapping at line 905 | R/string_mapping.R and R/pipeline.R | prepare_string_mapping() |
+| STRING subnetwork construction | Building STRING subnetwork at line 1042 | R/network_analysis.R | build_string_network() |
+| Network metrics and candidate scoring | Calculating network metrics at line 1064 | R/network_analysis.R | calculate_network_metrics() |
+| Functional enrichment | Functional enrichment at line 1365 | R/enrichment.R | run_enrichment_stage() |
+| Module interpretation | Module labeling helpers and module-dependent top-level expressions | R/module_labeling.R | build_module_annotations() |
+| Report assembly and export | Writing consolidated output files at line 1587 | R/reporting.R and R/pipeline.R | assemble_and_write_reports() |
 
 ## Planned orchestration functions
 
 | Planned function | Target file | Purpose |
 | --- | --- | --- |
 | load_cancerppir_modules | R/load_all.R | Source project modules in an explicit deterministic order. |
-| prepare_string_mapping | R/02_string_mapping.R | Perform HGNC normalization, STRING mapping and alias correction. |
-| build_string_network | R/06_network_analysis.R | Construct and normalize the patient-specific STRING graph. |
-| calculate_network_metrics | R/06_network_analysis.R | Calculate components, centralities and Louvain communities. |
-| build_candidate_tables | R/06_network_analysis.R | Calculate candidate scores and candidate-ranking tables. |
-| run_enrichment_stage | R/03_enrichment.R | Execute local and optional online functional enrichment. |
-| build_module_annotations | R/04_module_labeling.R | Assign putative module labels, confidence and supporting themes. |
-| assemble_and_write_reports | R/05_reporting.R | Create analytical, technical, GraphML and STRING-link outputs. |
-| run_cancerppir | R/07_pipeline.R | Coordinate the complete patient-specific CancerPPIr workflow. |
+| prepare_string_mapping | R/string_mapping.R | Perform HGNC normalization, STRING mapping and alias correction. |
+| build_string_network | R/network_analysis.R | Construct and normalize the patient-specific STRING graph. |
+| calculate_network_metrics | R/network_analysis.R | Calculate components, centralities and Louvain communities. |
+| build_candidate_tables | R/network_analysis.R | Calculate candidate scores and candidate-ranking tables. |
+| run_enrichment_stage | R/enrichment.R | Execute local and optional online functional enrichment. |
+| build_module_annotations | R/module_labeling.R | Assign putative module labels, confidence and supporting themes. |
+| assemble_and_write_reports | R/reporting.R | Create analytical, technical, GraphML and STRING-link outputs. |
+| run_cancerppir | R/pipeline.R | Coordinate the complete patient-specific CancerPPIr workflow. |
 
 ## Safe extraction sequence
 
@@ -80,12 +80,12 @@ CancerPPIr/
 | --- | --- | --- | --- |
 | 1 | Architecture documentation | Commit inventory and target architecture documents without changing cancerppir.R. | No analytical execution required; source checksum must remain unchanged. |
 | 2 | Module skeleton and loader | Create the R directory, empty target files and an explicit R/load_all.R source order. | Parse all R files; legacy workflow remains unchanged. |
-| 3 | Shared utilities | Move only dependency-light utility function definitions into R/00_utils.R. | R01 pilot followed by strict comparison. |
-| 4 | Input handling | Move delimiter detection and read_gene_table() into R/01_input.R. | R01 pilot followed by strict comparison. |
-| 5 | STRING mapping | Move HGNC/STRING mapping helpers into R/02_string_mapping.R. | R01 pilot, then all seven cases. |
-| 6 | Enrichment helpers | Move enrichment cache, local enrichment, optional online enrichment and term-ranking helpers into R/03_enrichment.R. | R01 pilot, then all seven cases. |
-| 7 | Module-labeling helpers | Move marker and rulebook interpretation helpers into R/04_module_labeling.R. | R01 pilot plus structural module-output comparison. |
-| 8 | Reporting helpers | Move workbook and output-table helpers into R/05_reporting.R. | All seven cases and workbook-schema comparison. |
+| 3 | Shared utilities | Move only dependency-light utility function definitions into R/utils.R. | R01 pilot followed by strict comparison. |
+| 4 | Input handling | Move delimiter detection and read_gene_table() into R/input.R. | R01 pilot followed by strict comparison. |
+| 5 | STRING mapping | Move HGNC/STRING mapping helpers into R/string_mapping.R. | R01 pilot, then all seven cases. |
+| 6 | Enrichment helpers | Move enrichment cache, local enrichment, optional online enrichment and term-ranking helpers into R/enrichment.R. | R01 pilot, then all seven cases. |
+| 7 | Module-labeling helpers | Move marker and rulebook interpretation helpers into R/module_labeling.R. | R01 pilot plus structural module-output comparison. |
+| 8 | Reporting helpers | Move workbook and output-table helpers into R/reporting.R. | All seven cases and workbook-schema comparison. |
 | 9 | Network and pipeline orchestration | Wrap graph construction, metrics, scoring and the remaining top-level workflow in explicit functions. | All seven cases and complete Phase 0 strict regression core. |
 | 10 | Slim CLI and final regression | Reduce cancerppir.R to an entry-point adapter and run the full seven-case regression comparison. | All seven cases, clean Git state and architecture-complete tag. |
 

@@ -224,14 +224,14 @@ target_modules <- data.frame(
     "load_all"
   ),
   target_file = c(
-    "R/00_utils.R",
-    "R/01_input.R",
-    "R/02_string_mapping.R",
-    "R/03_enrichment.R",
-    "R/04_module_labeling.R",
-    "R/05_reporting.R",
-    "R/06_network_analysis.R",
-    "R/07_pipeline.R",
+    "R/utils.R",
+    "R/input.R",
+    "R/string_mapping.R",
+    "R/enrichment.R",
+    "R/module_labeling.R",
+    "R/reporting.R",
+    "R/network_analysis.R",
+    "R/pipeline.R",
     "R/load_all.R"
   ),
   responsibility = c(
@@ -595,15 +595,15 @@ workflow_plan <- data.frame(
     )
   ),
   target_owner = c(
-    "cancerppir.R and R/07_pipeline.R",
-    "R/01_input.R and R/07_pipeline.R",
-    "R/02_string_mapping.R",
-    "R/02_string_mapping.R and R/07_pipeline.R",
-    "R/06_network_analysis.R",
-    "R/06_network_analysis.R",
-    "R/03_enrichment.R",
-    "R/04_module_labeling.R",
-    "R/05_reporting.R and R/07_pipeline.R"
+    "cancerppir.R and R/pipeline.R",
+    "R/input.R and R/pipeline.R",
+    "R/string_mapping.R",
+    "R/string_mapping.R and R/pipeline.R",
+    "R/network_analysis.R",
+    "R/network_analysis.R",
+    "R/enrichment.R",
+    "R/module_labeling.R",
+    "R/reporting.R and R/pipeline.R"
   ),
   planned_entry_point = c(
     "parse CLI arguments and call run_cancerppir()",
@@ -648,25 +648,25 @@ extraction_sequence <- data.frame(
     ),
     paste0(
       "Move only dependency-light utility function definitions into ",
-      "R/00_utils.R."
+      "R/utils.R."
     ),
     paste0(
       "Move delimiter detection and read_gene_table() into ",
-      "R/01_input.R."
+      "R/input.R."
     ),
     paste0(
-      "Move HGNC/STRING mapping helpers into R/02_string_mapping.R."
+      "Move HGNC/STRING mapping helpers into R/string_mapping.R."
     ),
     paste0(
       "Move enrichment cache, local enrichment, optional online ",
-      "enrichment and term-ranking helpers into R/03_enrichment.R."
+      "enrichment and term-ranking helpers into R/enrichment.R."
     ),
     paste0(
       "Move marker and rulebook interpretation helpers into ",
-      "R/04_module_labeling.R."
+      "R/module_labeling.R."
     ),
     paste0(
-      "Move workbook and output-table helpers into R/05_reporting.R."
+      "Move workbook and output-table helpers into R/reporting.R."
     ),
     paste0(
       "Wrap graph construction, metrics, scoring and the remaining ",
@@ -710,14 +710,14 @@ planned_functions <- data.frame(
   ),
   target_file = c(
     "R/load_all.R",
-    "R/02_string_mapping.R",
-    "R/06_network_analysis.R",
-    "R/06_network_analysis.R",
-    "R/06_network_analysis.R",
-    "R/03_enrichment.R",
-    "R/04_module_labeling.R",
-    "R/05_reporting.R",
-    "R/07_pipeline.R"
+    "R/string_mapping.R",
+    "R/network_analysis.R",
+    "R/network_analysis.R",
+    "R/network_analysis.R",
+    "R/enrichment.R",
+    "R/module_labeling.R",
+    "R/reporting.R",
+    "R/pipeline.R"
   ),
   purpose = c(
     "Source project modules in an explicit deterministic order.",
@@ -797,14 +797,14 @@ tree_lines <- c(
   "CancerPPIr/",
   "|-- cancerppir.R",
   "|-- R/",
-  "|   |-- 00_utils.R",
-  "|   |-- 01_input.R",
-  "|   |-- 02_string_mapping.R",
-  "|   |-- 03_enrichment.R",
-  "|   |-- 04_module_labeling.R",
-  "|   |-- 05_reporting.R",
-  "|   |-- 06_network_analysis.R",
-  "|   |-- 07_pipeline.R",
+  "|   |-- utils.R",
+  "|   |-- input.R",
+  "|   |-- string_mapping.R",
+  "|   |-- enrichment.R",
+  "|   |-- module_labeling.R",
+  "|   |-- reporting.R",
+  "|   |-- network_analysis.R",
+  "|   |-- pipeline.R",
   "|   `-- load_all.R",
   "|-- legacy/",
   "|   `-- cancerppir_legacy.R",

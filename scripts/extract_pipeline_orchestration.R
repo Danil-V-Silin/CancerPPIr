@@ -2,7 +2,7 @@
 
 # Final Phase 2 extraction:
 # move runtime dependency setup and the remaining end-to-end workflow from
-# cancerppir.R into R/07_pipeline.R as run_cancerppir().
+# cancerppir.R into R/pipeline.R as run_cancerppir().
 #
 # The CLI argument parser remains in cancerppir.R and calls run_cancerppir().
 #
@@ -10,7 +10,7 @@
 #   Rscript scripts/extract_pipeline_orchestration.R
 
 source_file <- "cancerppir.R"
-module_file <- file.path("R", "07_pipeline.R")
+module_file <- file.path("R", "pipeline.R")
 loader_file <- file.path("R", "load_all.R")
 legacy_file <- file.path("legacy", "cancerppir_legacy.R")
 
@@ -203,7 +203,7 @@ if (any(grepl(
   fixed = TRUE
 ))) {
   stop(
-    "R/07_pipeline.R already defines run_cancerppir().",
+    "R/pipeline.R already defines run_cancerppir().",
     call. = FALSE
   )
 }
@@ -433,7 +433,7 @@ temporary_source <- file.path(
 
 temporary_module <- file.path(
   temporary_directory,
-  "07_pipeline.R"
+  "pipeline.R"
 )
 
 writeLines(
@@ -482,7 +482,7 @@ if (
   )) != 1L
 ) {
   stop(
-    "Temporary R/07_pipeline.R does not contain exactly one run_cancerppir() definition.",
+    "Temporary R/pipeline.R does not contain exactly one run_cancerppir() definition.",
     call. = FALSE
   )
 }
@@ -554,7 +554,7 @@ if (!isTRUE(file.copy(
   overwrite = TRUE
 ))) {
   stop(
-    "Failed to update R/07_pipeline.R.",
+    "Failed to update R/pipeline.R.",
     call. = FALSE
   )
 }
@@ -715,11 +715,11 @@ validation_lines <- c(
     source_md5_after
   ),
   paste0(
-    "R/07_pipeline.R MD5 before: ",
+    "R/pipeline.R MD5 before: ",
     module_md5_before
   ),
   paste0(
-    "R/07_pipeline.R MD5 after: ",
+    "R/pipeline.R MD5 after: ",
     module_md5_after
   ),
   paste0(

@@ -11,7 +11,7 @@ phase4_read_pipeline_source <- function() {
   pipeline_file <- file.path(
     project_root,
     "R",
-    "07_pipeline.R"
+    "pipeline.R"
   )
 
   testthat::expect_true(

@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Extract the current network-analysis orchestration block from cancerppir.R
-# into R/06_network_analysis.R as run_network_analysis().
+# into R/network_analysis.R as run_network_analysis().
 #
 # The analytical statements are moved without semantic rewriting.
 #
@@ -9,7 +9,7 @@
 #   Rscript scripts/extract_network_analysis_block.R
 
 source_file <- "cancerppir.R"
-module_file <- file.path("R", "06_network_analysis.R")
+module_file <- file.path("R", "network_analysis.R")
 loader_file <- file.path("R", "load_all.R")
 legacy_file <- file.path("legacy", "cancerppir_legacy.R")
 
@@ -230,7 +230,7 @@ if (any(grepl(
   fixed = TRUE
 ))) {
   stop(
-    "R/06_network_analysis.R already defines run_network_analysis().",
+    "R/network_analysis.R already defines run_network_analysis().",
     call. = FALSE
   )
 }
@@ -472,7 +472,7 @@ temporary_source <- file.path(
 
 temporary_module <- file.path(
   temporary_directory,
-  "06_network_analysis.R"
+  "network_analysis.R"
 )
 
 writeLines(
@@ -589,7 +589,7 @@ if (!isTRUE(file.copy(
   overwrite = TRUE
 ))) {
   stop(
-    "Failed to update R/06_network_analysis.R.",
+    "Failed to update R/network_analysis.R.",
     call. = FALSE
   )
 }
@@ -733,7 +733,7 @@ validation_lines <- c(
     source_md5_after
   ),
   paste0(
-    "R/06_network_analysis.R MD5 after: ",
+    "R/network_analysis.R MD5 after: ",
     module_md5_after
   ),
   paste0(
