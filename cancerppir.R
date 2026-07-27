@@ -60,9 +60,9 @@ rm(
   "  Rscript cancerppir.R --help",
   "",
   "Defaults:",
-  "  score_threshold = 400",
-  "  top_n = 30",
-  "  run_enrichment = TRUE (offline local STRING enrichment)",
+  "  score_threshold = 400 (integer, 1-1000)",
+  "  top_n = 30 (positive integer)",
+  "  run_enrichment = TRUE or FALSE (offline local STRING enrichment)",
   "",
   "Output folder:",
   "  input.csv + results_dir=results -> results/input/",
@@ -91,30 +91,88 @@ if (length(args) < 3L) {
   stop(.cancerppir_usage_text, call. = FALSE)
 }
 
-input_file <- args[[1]]
-results_root <- args[[2]]
-cache_dir <- args[[3]]
-score_threshold <- if (length(args) >= 4) as.integer(args[[4]]) else 400L
-top_n <- if (length(args) >= 5) as.integer(args[[5]]) else 30L
+if (length(args) > 6L) {
+  stop(
+    paste(
+      "Too many arguments. Expected at most 6 positional arguments.",
+      .cancerppir_usage_text,
+      sep = "\n\n"
+    ),
+    call. = FALSE
+  )
+}
 
-# Offline-only version. Argument 6 controls whether local enrichment tables are
-# calculated. If a legacy value such as "offline" is passed here, enrichment is
-# kept enabled to avoid accidental loss of annotation.
-if (length(args) >= 6) {
-  arg6 <- tolower(trimws(as.character(args[[6]])))
-  run_enrichment <- if (arg6 %in% c("offline", "local", "local_only", "reproducible")) {
-    TRUE
-  } else {
-    parse_bool(args[[6]])
+parse_integer_argument <- function(
+  value,
+  argument_name,
+  minimum,
+  maximum = Inf,
+  error_message
+) {
+  value <- trimws(as.character(value))
+
+  if (!grepl("^[0-9]+$", value)) {
+    stop(error_message, call. = FALSE)
   }
+
+  numeric_value <- suppressWarnings(as.numeric(value))
+
+  if (
+    length(numeric_value) != 1L ||
+      is.na(numeric_value) ||
+      !is.finite(numeric_value) ||
+      numeric_value != floor(numeric_value) ||
+      numeric_value < minimum ||
+      numeric_value > maximum ||
+      numeric_value > .Machine$integer.max
+  ) {
+    stop(error_message, call. = FALSE)
+  }
+
+  as.integer(numeric_value)
+}
+
+parse_cli_boolean <- function(value) {
+  normalized <- toupper(trimws(as.character(value)))
+
+  if (identical(normalized, "TRUE")) return(TRUE)
+  if (identical(normalized, "FALSE")) return(FALSE)
+
+  stop("run_enrichment must be TRUE or FALSE.", call. = FALSE)
+}
+
+input_file <- args[[1L]]
+results_root <- args[[2L]]
+cache_dir <- args[[3L]]
+
+score_threshold <- if (length(args) >= 4L) {
+  parse_integer_argument(
+    args[[4L]],
+    argument_name = "score_threshold",
+    minimum = 1,
+    maximum = 1000,
+    error_message = "score_threshold must be an integer from 1 to 1000."
+  )
 } else {
-  run_enrichment <- TRUE
+  400L
 }
 
-if (length(args) >= 7) {
-  message("[CancerPPIr] Extra command-line arguments after run_enrichment are ignored in the offline-only version.")
+top_n <- if (length(args) >= 5L) {
+  parse_integer_argument(
+    args[[5L]],
+    argument_name = "top_n",
+    minimum = 1,
+    error_message = "top_n must be a positive integer."
+  )
+} else {
+  30L
 }
 
+run_enrichment <- if (length(args) >= 6L) {
+  parse_cli_boolean(args[[6L]])
+} else {
+  TRUE
+}
 
 invisible(
   run_cancerppir(

@@ -28,7 +28,7 @@ interactions, cell fractions, drug response, or clinical benefit.
 
 ## Analytical workbook
 
-The analytical workbook schema is version `4.5.0` and contains exactly six
+The analytical workbook schema is version `1.0.0` and contains exactly six
 sheets.
 
 ### `Executive summary`
@@ -121,7 +121,7 @@ formal interpretation.
 
 ## Technical workbook
 
-The technical workbook schema is version `4.4.0`. It is the audit layer, not the
+The technical workbook schema is version `1.0.0`. It is the audit layer, not the
 recommended first view.
 
 ### Mapping and input audit
@@ -151,17 +151,17 @@ and final graph nodes. These quantities are not interchangeable.
 Raw enrichment sheets may contain broad, redundant, or non-priority terms. They
 are preserved for audit and are not all used in the analytical interpretation.
 
-### Canonical Phase 4 evidence
+### Canonical biological evidence
 
-- `Phase4 module annotations`
-- `Phase4 rule evidence`
-- `Phase4 significant terms`
-- `Phase4 node annotations`
-- `Phase4 validation`
+- `Module annotations`
+- `Rule evidence`
+- `Significant terms`
+- `Node annotations`
+- `Validation`
 
 The module and node annotation sheets are the canonical biological-evidence
-source. `Phase4 significant terms` contains filtered statistically significant
-support used by the engine. `Phase4 validation` must contain no failed checks in
+source. `Significant terms` contains filtered statistically significant
+support used by the engine. `Validation` must contain no failed checks in
 a successful run.
 
 ### Runtime audit
@@ -170,7 +170,7 @@ a successful run.
 
 ## GraphML
 
-The GraphML schema is version `4.6.0`. It contains:
+The GraphML schema is version `1.0.0`. It contains:
 
 - identifiers and expression values;
 - topology metrics and ranks;

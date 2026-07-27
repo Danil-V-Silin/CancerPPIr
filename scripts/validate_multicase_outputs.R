@@ -917,22 +917,22 @@ for (case_index in seq_len(
 
       node_annotations <- read_sheet(
         technical_workbook,
-        "Phase4 node annotations"
+        "Node annotations"
       )
 
       module_annotations <- read_sheet(
         technical_workbook,
-        "Phase4 module annotations"
+        "Module annotations"
       )
 
       significant_terms <- read_sheet(
         technical_workbook,
-        "Phase4 significant terms"
+        "Significant terms"
       )
 
       phase4_validation <- read_sheet(
         technical_workbook,
-        "Phase4 validation"
+        "Validation"
       )
 
       mapping_summary <- read_sheet(
@@ -1371,7 +1371,7 @@ for (case_index in seq_len(
       ]]
 
       required_configuration_tokens <- c(
-        "schema=4.5.0",
+        "schema=1.0.0",
         "STRING=12.0",
         "score_threshold=400",
         "offline_enrichment=TRUE",

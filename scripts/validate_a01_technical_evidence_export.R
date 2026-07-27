@@ -202,11 +202,11 @@ candidate_technical_sheets <- openxlsx::getSheetNames(
 )
 
 new_phase4_sheets <- c(
-  "Phase4 module annotations",
-  "Phase4 rule evidence",
-  "Phase4 significant terms",
-  "Phase4 node annotations",
-  "Phase4 validation"
+  "Module annotations",
+  "Rule evidence",
+  "Significant terms",
+  "Node annotations",
+  "Validation"
 )
 
 # The installer inserts before Session info, not after Raw network summary.
@@ -269,27 +269,27 @@ graphml_identical <- identical(
 
 module_annotations <- read_sheet(
   files$candidate_technical,
-  "Phase4 module annotations"
+  "Module annotations"
 )
 
 rule_evidence <- read_sheet(
   files$candidate_technical,
-  "Phase4 rule evidence"
+  "Rule evidence"
 )
 
 significant_terms <- read_sheet(
   files$candidate_technical,
-  "Phase4 significant terms"
+  "Significant terms"
 )
 
 node_annotations <- read_sheet(
   files$candidate_technical,
-  "Phase4 node annotations"
+  "Node annotations"
 )
 
 validation <- read_sheet(
   files$candidate_technical,
-  "Phase4 validation"
+  "Validation"
 )
 
 required_module_columns <- c(
@@ -408,15 +408,15 @@ summary <- data.frame(
       technical_legacy_comparison$identical
     ),
     graphml_identical,
-    "Phase4 module annotations" %in%
+    "Module annotations" %in%
       candidate_technical_sheets,
-    "Phase4 rule evidence" %in%
+    "Rule evidence" %in%
       candidate_technical_sheets,
-    "Phase4 significant terms" %in%
+    "Significant terms" %in%
       candidate_technical_sheets,
-    "Phase4 node annotations" %in%
+    "Node annotations" %in%
       candidate_technical_sheets,
-    "Phase4 validation" %in%
+    "Validation" %in%
       candidate_technical_sheets,
     length(missing_module_columns) == 0L,
     length(missing_node_columns) == 0L,

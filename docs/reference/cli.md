@@ -2,17 +2,21 @@
 
 ```text
 Rscript cancerppir.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment]
+Rscript cancerppir.R --help
 ```
 
 | Position | Argument | Requirement |
 |---:|---|---|
-| 1 | `input.csv` | Delimited input table |
+| 1 | `input.csv` | Existing delimited input table |
 | 2 | `results_dir` | Root output directory |
 | 3 | `string_cache` | Local STRING cache directory |
-| 4 | `score_threshold` | Optional; default `400` |
-| 5 | `top_n` | Optional; default `30` |
-| 6 | `run_enrichment` | Optional; default `TRUE` |
+| 4 | `score_threshold` | Optional integer from `1` to `1000`; default `400` |
+| 5 | `top_n` | Optional positive integer; default `30` |
+| 6 | `run_enrichment` | Optional `TRUE` or `FALSE`; default `TRUE` |
 
-Use `Rscript cancerppir.R --help` as the executable source of truth.
+Exactly three to six positional arguments are accepted. Additional arguments
+are rejected rather than ignored. Invalid integers, fractional values,
+out-of-range thresholds, and unrecognized Boolean values produce a non-zero
+exit status before network analysis begins.
 
-A non-zero exit status indicates that the requested run did not complete successfully.
+`Rscript cancerppir.R --help` is the executable source of truth.

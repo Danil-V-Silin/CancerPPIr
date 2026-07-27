@@ -76,12 +76,40 @@ run_cancerppir <- function(
     stop("Input file not found: ", input_file, call. = FALSE)
   }
 
-  if (is.na(score_threshold) || score_threshold <= 0) {
-    stop("score_threshold must be a positive integer.", call. = FALSE)
+  score_threshold_numeric <- suppressWarnings(as.numeric(score_threshold))
+  if (
+    length(score_threshold_numeric) != 1L ||
+      is.na(score_threshold_numeric) ||
+      !is.finite(score_threshold_numeric) ||
+      score_threshold_numeric != floor(score_threshold_numeric) ||
+      score_threshold_numeric < 1 ||
+      score_threshold_numeric > 1000
+  ) {
+    stop(
+      "score_threshold must be an integer from 1 to 1000.",
+      call. = FALSE
+    )
   }
+  score_threshold <- as.integer(score_threshold_numeric)
 
-  if (is.na(top_n) || top_n <= 0) {
+  top_n_numeric <- suppressWarnings(as.numeric(top_n))
+  if (
+    length(top_n_numeric) != 1L ||
+      is.na(top_n_numeric) ||
+      !is.finite(top_n_numeric) ||
+      top_n_numeric != floor(top_n_numeric) ||
+      top_n_numeric < 1
+  ) {
     stop("top_n must be a positive integer.", call. = FALSE)
+  }
+  top_n <- as.integer(top_n_numeric)
+
+  if (
+    length(run_enrichment) != 1L ||
+      is.na(run_enrichment) ||
+      !is.logical(run_enrichment)
+  ) {
+    stop("run_enrichment must be TRUE or FALSE.", call. = FALSE)
   }
 
   if (!dir.exists(output_dir)) dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
@@ -1250,11 +1278,11 @@ run_cancerppir <- function(
     "Raw module enrichment" = module_enrichment_string_local,
     "Raw network enrichment" = enrichment_string_local_all,
     "Raw candidate enrichment" = enrichment_string_local_top,
-    "Phase4 module annotations" = biological_evidence$module_annotations,
-    "Phase4 rule evidence" = biological_evidence$module_rule_evidence,
-    "Phase4 significant terms" = biological_evidence$significant_module_terms,
-    "Phase4 node annotations" = biological_evidence$node_annotations,
-    "Phase4 validation" = biological_evidence$validation,
+    "Module annotations" = biological_evidence$module_annotations,
+    "Rule evidence" = biological_evidence$module_rule_evidence,
+    "Significant terms" = biological_evidence$significant_module_terms,
+    "Node annotations" = biological_evidence$node_annotations,
+    "Validation" = biological_evidence$validation,
     "Session info" = tibble(line = capture.output(sessionInfo()))
   )
 

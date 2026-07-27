@@ -62,15 +62,15 @@ testthat::test_that(
     )
 
     sheet_to_object <- c(
-      "Phase4 module annotations" =
+      "Module annotations" =
         "biological_evidence$module_annotations",
-      "Phase4 rule evidence" =
+      "Rule evidence" =
         "biological_evidence$module_rule_evidence",
-      "Phase4 significant terms" =
+      "Significant terms" =
         "biological_evidence$significant_module_terms",
-      "Phase4 node annotations" =
+      "Node annotations" =
         "biological_evidence$node_annotations",
-      "Phase4 validation" =
+      "Validation" =
         "biological_evidence$validation"
     )
 

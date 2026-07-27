@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4 final release checkpoint
+# CancerPPIr release checkpoint
 #
 # One final release gate:
 #   1. runs the complete unit-test suite once in run-pipeline mode;
@@ -22,7 +22,7 @@
 #
 # Defaults:
 #   ../input
-#   ../results/phase4_release_checkpoint_v1
+#   ../results/release_candidate_validation_v1
 #   ../string_cache
 #   run-pipeline
 #   run-tests for run-pipeline; skip-tests for validate-existing
@@ -32,7 +32,7 @@
 #
 #   Rscript scripts/run_release_checkpoint.R \
 #     "..\input" \
-#     "..\results\phase4_release_checkpoint_v1" \
+#     "..\results\release_candidate_validation_v1" \
 #     "..\string_cache" \
 #     validate-existing \
 #     skip-tests
@@ -62,7 +62,7 @@ output_root <- if (length(arguments) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_release_checkpoint_v1"
+    "release_candidate_validation_v1"
   )
 }
 
@@ -416,7 +416,7 @@ on.exit(
 
 if (run_tests) {
   message(
-    "[Phase 4 release] Running the complete unit-test suite once."
+    "[CancerPPIr release] Running the complete unit-test suite once."
   )
 
   unit_status <- system2(
@@ -452,7 +452,7 @@ if (run_tests) {
   }
 
   message(
-    "[Phase 4 release] Unit tests: PASS."
+    "[CancerPPIr release] Unit tests: PASS."
   )
 } else {
   writeLines(
@@ -462,7 +462,7 @@ if (run_tests) {
   )
 
   message(
-    "[Phase 4 release] Unit tests: SKIPPED."
+    "[CancerPPIr release] Unit tests: SKIPPED."
   )
 }
 
@@ -593,7 +593,7 @@ if (nrow(preflight_failures) > 0L) {
 }
 
 message(
-  "[Phase 4 release] Static, documentation and CLI preflight: PASS."
+  "[CancerPPIr release] Static, documentation and CLI preflight: PASS."
 )
 
 multicase_arguments <- c(
@@ -617,7 +617,7 @@ multicase_arguments <- c(
 )
 
 message(
-  "[Phase 4 release] ",
+  "[CancerPPIr release] ",
   if (validate_existing) {
     "Revalidating existing seven-case outputs."
   } else {
@@ -663,7 +663,7 @@ invisible(
     unit_test_log_temporary,
     file.path(
       output_root,
-      "phase4_release_unit_tests.log"
+      "release_unit_tests.log"
     ),
     overwrite = TRUE
   )
@@ -674,7 +674,7 @@ invisible(
     multicase_log_temporary,
     file.path(
       output_root,
-      "phase4_release_multicase.log"
+      "release_multicase.log"
     ),
     overwrite = TRUE
   )
@@ -814,7 +814,7 @@ for (case_index in seq_len(
   sample_id <- case_map$sample_id[[case_index]]
 
   message(
-    "[Phase 4 release] Validating canonical release outputs for ",
+    "[CancerPPIr release] Validating canonical release outputs for ",
     sample_id,
     "."
   )
@@ -1004,7 +1004,7 @@ for (case_index in seq_len(
         technical_nodes <- as.data.frame(
           openxlsx::read.xlsx(
             technical_file,
-            sheet = "Phase4 node annotations",
+            sheet = "Node annotations",
             colNames = TRUE,
             check.names = FALSE
           ),
@@ -1015,7 +1015,7 @@ for (case_index in seq_len(
         technical_modules <- as.data.frame(
           openxlsx::read.xlsx(
             technical_file,
-            sheet = "Phase4 module annotations",
+            sheet = "Module annotations",
             colNames = TRUE,
             check.names = FALSE
           ),
@@ -1392,22 +1392,22 @@ summary_table <- data.frame(
 
 summary_file <- file.path(
   output_root,
-  "phase4_release_summary.csv"
+  "release_summary.csv"
 )
 
 case_summary_file <- file.path(
   output_root,
-  "phase4_release_case_summary.csv"
+  "release_case_summary.csv"
 )
 
 validation_file <- file.path(
   output_root,
-  "phase4_release_validation.csv"
+  "release_validation.csv"
 )
 
 preflight_file <- file.path(
   output_root,
-  "phase4_release_preflight_validation.csv"
+  "release_preflight_validation.csv"
 )
 
 utils::write.csv(
@@ -1487,12 +1487,12 @@ cat(
   "\n- ",
   file.path(
     output_root,
-    "phase4_release_unit_tests.log"
+    "release_unit_tests.log"
   ),
   "\n- ",
   file.path(
     output_root,
-    "phase4_release_multicase.log"
+    "release_multicase.log"
   ),
   "\n",
   sep = ""
@@ -1511,7 +1511,7 @@ overall_pass <- (
 
 if (!overall_pass) {
   cat(
-    "\nPHASE 4 RELEASE CHECKPOINT: FAILED\n"
+    "\nCANCERPPIR RELEASE CHECKPOINT: FAILED\n"
   )
 
   quit(
@@ -1521,5 +1521,5 @@ if (!overall_pass) {
 }
 
 cat(
-  "\nPHASE 4 RELEASE CHECKPOINT: PASSED\n"
+  "\nCANCERPPIR RELEASE CHECKPOINT: PASSED\n"
 )

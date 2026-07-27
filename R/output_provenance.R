@@ -8,7 +8,7 @@
 # The separate SHA-256 file contains checksums for those outputs plus the JSON
 # manifest itself. The checksum file deliberately does not contain its own hash.
 
-CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "4.4.0"
+CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "1.0.0"
 CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "1.0.0"
 CANCERPPIR_OUTPUT_CHECKSUMS_SCHEMA_VERSION <- "1.0.0"
 

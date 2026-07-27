@@ -11,6 +11,8 @@ Every successful CancerPPIr run writes six principal files:
 | `CancerPPIr_Output_Manifest.json` | Machine-readable provenance and inventory |
 | `CancerPPIr_Output_Checksums.sha256` | SHA-256 integrity verification |
 
+## Analytical workbook
+
 The analytical workbook contains exactly six sheets in this order:
 
 1. `Executive summary`
@@ -20,5 +22,21 @@ The analytical workbook contains exactly six sheets in this order:
 5. `Network overview`
 6. `Methods and limitations`
 
-Versioned details are maintained under `docs/reference/contracts/`.
-Changes to required filenames, sheets, columns, GraphML fields, manifest schemas, or checksum behavior are compatibility-sensitive.
+## Technical workbook
+
+The technical workbook retains complete mapping, topology, enrichment,
+biological-evidence, validation, and runtime audit tables. The five canonical
+biological-evidence sheets use these descriptive names:
+
+1. `Module annotations`
+2. `Rule evidence`
+3. `Significant terms`
+4. `Node annotations`
+5. `Validation`
+
+## Compatibility boundary
+
+Changes to required filenames, workbook sheets or required columns, GraphML
+fields, manifest structures, schema versions, or checksum behavior are
+compatibility-sensitive. Versioned details are maintained under
+`docs/reference/contracts/`.

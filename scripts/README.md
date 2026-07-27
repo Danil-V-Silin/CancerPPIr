@@ -1,7 +1,7 @@
 # Active scripts
 
-The `scripts/` directory contains supported project-level commands.
-Run these commands from the repository root.
+The `scripts/` directory contains supported project-level commands. Run them
+from the repository root.
 
 ## Routine validation
 
@@ -9,6 +9,8 @@ Run these commands from the repository root.
 - `run_smoke_test.R` — single-case smoke validation.
 - `validate_documentation_contract.R` — documentation contract.
 - `validate_release_contract.R` — static release contract.
+- `validate_publication_readiness.R` — publication metadata and public-contract
+  audit.
 
 ## Release qualification
 
@@ -19,6 +21,6 @@ Run these commands from the repository root.
 - `validate_multicase_technical_exports.R` — technical-export validation.
 - `validate_a01_technical_evidence_export.R` — focused A01 export validation.
 
-The seven-case release checkpoint is intentionally not part of routine
-unit testing. Maintainer-only migration and historical utilities are under
+The seven-case release checkpoint is intentionally not part of routine unit
+testing. Maintainer-only migration and historical utilities are under
 [`tools/`](../tools/README.md).

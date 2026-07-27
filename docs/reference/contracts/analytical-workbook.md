@@ -1,15 +1,15 @@
-# Phase 4.5 analytical workbook contract
+# Analytical workbook contract
 
-Schema version: `4.5.0`
+Schema version: `1.0.0`
 
 ## Scope
 
 This contract defines the stable human-readable CancerPPIr analytical workbook.
-The complete mapping, node, module, enrichment and validation audit remains in
-`CancerPPIr_Technical_Report.xlsx`.
+The complete mapping, node, module, enrichment, provenance, and validation audit
+remains in `CancerPPIr_Technical_Report.xlsx`.
 
-The analytical workbook is generated from the deterministic Phase 4 biological
-evidence engine. Legacy module-label fields are not analytical evidence.
+The analytical workbook is generated from the canonical biological-evidence
+object. Legacy labeling fields are not analytical evidence.
 
 ## Exact sheet order
 
@@ -43,60 +43,42 @@ At most five modules are reported. A module is eligible only when:
 - `priority_eligible == TRUE`
 - `conflict_detected == FALSE`
 
-Ordering is deterministic: confidence, module size, best supporting FDR and
+Ordering is deterministic: confidence, module size, best supporting FDR, and
 module identifier.
 
 ### Candidate evidence
 
 The sheet contains the top `top_n` proteins by the deterministic full-network
-candidate order, plus any Final priorities not already present. Special or
+candidate order, plus Final priorities not already present. Special or
 predicted loci remain visible with their eligibility status and warning.
 
-## Candidate score transparency
+## Candidate-score transparency
 
 The workbook exposes the five normalized score components:
 
-- degree
-- betweenness
-- `log1p(stress_centrality)`
-- absolute `logFC`
-- `-log10(pvalue)`
+- degree;
+- betweenness;
+- `log1p(stress_centrality)`;
+- absolute `logFC`;
+- `-log10(pvalue)`.
 
 Their row mean must reconstruct `candidate_score` within floating-point
 tolerance.
 
-## Biological evidence policy
+## Biological-evidence policy
 
-Only the Phase 4 evidence-engine fields are used for analytical biological
-context. Supporting enrichment terms must be:
+Only canonical biological-evidence fields are used for analytical biological
+context. Supporting enrichment terms must be statistically significant,
+non-generic, and satisfy `FDR <= 0.05`.
 
-- statistically significant;
-- non-generic;
-- `FDR <= 0.05`.
-
-Technical/covariate, mixed-conflict and unresolved modules are not promoted to
+Technical/covariate, mixed-conflict, and unresolved modules are not promoted to
 automatic biological priorities.
 
 ## Interpretation boundaries
 
-The output does not claim:
-
-- cell fractions or deconvolution;
-- tumor-cell specificity;
-- patient-specific physical protein interactions;
-- therapeutic efficacy;
-- clinical actionability.
+The output does not claim cell fractions, deconvolution, tumor-cell
+specificity, patient-specific physical protein interactions, therapeutic
+efficacy, or clinical actionability.
 
 Ranks and module labels are exploratory, evidence-supported prioritization
 outputs requiring independent validation.
-
-## Compatibility boundary
-
-During Phase 4.5:
-
-- the technical workbook remains complete;
-- GraphML generation remains unchanged;
-- STRING links remain unchanged;
-- legacy in-memory reporting objects remain available for compatibility;
-- the new six-sheet tables are returned as `analytical_report_tables`;
-- validation results are returned as `analytical_report_validation`.

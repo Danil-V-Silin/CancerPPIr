@@ -2,18 +2,25 @@
 
 ## Supported versions
 
-Security fixes are provided for the latest stable CancerPPIr release.
+`1.0.0-rc.1` is supported while it undergoes release-candidate qualification.
+After the first stable release, security fixes are provided for the latest
+supported release line.
 
 ## Reporting a vulnerability
 
-Do not disclose a suspected vulnerability in a public issue. Contact the repository owner privately through the contact method associated with the GitHub profile.
+Do not disclose a suspected vulnerability in a public issue. Use GitHub
+**Private vulnerability reporting** on the repository Security page. If that
+option is temporarily unavailable, contact the repository owner privately
+through the verified contact information on the GitHub profile.
 
 Include:
 
-- affected version or commit;
-- operating system and R version;
-- reproduction steps;
+- the affected version or commit;
+- the operating system and R version;
+- reproducible steps;
 - expected and observed behavior;
-- potential impact.
+- the potential impact;
+- any known mitigation.
 
-CancerPPIr is a research workflow and must not be used as a substitute for clinical decision-support software.
+CancerPPIr is research software and must not be used as a substitute for
+clinical decision-support software.
