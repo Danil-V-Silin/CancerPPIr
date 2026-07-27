@@ -15,9 +15,12 @@ This checklist is enforced where possible by
 | Security | Private vulnerability reporting is documented and enabled | Automated/manual |
 | CI | Windows and Ubuntu jobs pass | GitHub Actions |
 | Seven cases | Complete release checkpoint passes once on final code | Release gate |
-| Duplication | Seven analytical and technical workbooks are audited | Audit tool/manual |
+| Duplication | Fourteen workbooks audited; structural `FAIL` findings are zero and all `REVIEW` findings are resolved or explicitly accepted | Audit tool/manual |
 | Clean clone | Dependencies restore and smoke run passes outside the working tree | Manual |
 | Metadata | Actual release date, tag, and pre-release are consistent | Manual |
 
 A release tag is created only after every automated check passes and every
 manual item is recorded as complete.
+
+Manual review record:
+[`workbook-duplication-review-v1.0.0.md`](workbook-duplication-review-v1.0.0.md).
