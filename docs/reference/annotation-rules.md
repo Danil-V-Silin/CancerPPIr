@@ -113,10 +113,10 @@ within the reconstructed network and supplied expression profile.
 
 ## Canonical and compatibility outputs
 
-Canonical evidence is exposed through `result$biological_evidence`, the Phase 4
+Canonical evidence is exposed through `result$biological_evidence`, the CancerPPIr
 technical sheets, the analytical workbook, and GraphML. Retired annotation
 fields are available only under `result$compatibility` for migration and audit.
 They must not drive new priority decisions.
 
-See the [Phase 4 migration guide](../development/history/output-schema-migration.md) for the legacy-to-
+See the [historical output-schema migration guide](../development/history/output-schema-migration.md) for the legacy-to-
 canonical field map.

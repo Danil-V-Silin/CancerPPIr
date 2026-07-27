@@ -1180,4 +1180,3 @@ testthat::test_that(
     )
   }
 )
-

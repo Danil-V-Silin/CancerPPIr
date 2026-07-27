@@ -242,11 +242,11 @@ testthat::test_that(
     testthat::expect_identical(
       cancerppir_schema_versions(),
       list(
-        pipeline_result = "4.7.0",
+        pipeline_result = "1.0.0",
         biological_evidence = "1.0.0",
-        analytical_workbook = "4.5.0",
-        technical_workbook = "4.4.0",
-        graphml = "4.6.0",
+        analytical_workbook = "1.0.0",
+        technical_workbook = "1.0.0",
+        graphml = "1.0.0",
         output_manifest = "1.0.0",
         output_checksums = "1.0.0"
       )

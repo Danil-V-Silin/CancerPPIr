@@ -23,7 +23,8 @@ chore/
 release/
 ```
 
-Do not use internal roadmap numbers, personal initials, or labels such as `complete`, `final-final`, or `latest`.
+Do not use internal roadmap numbers, personal initials, or labels such as
+`complete`, `final-final`, or `latest`.
 
 ## Commit and pull-request titles
 
@@ -62,7 +63,10 @@ Run from the repository root:
 
 ```bash
 Rscript scripts/run_unit_tests.R
+Rscript scripts/validate_publication_readiness.R
 Rscript cancerppir.R --help
 ```
 
-A full seven-case regression is required only when analytical behavior or a public output contract can change.
+A full seven-case regression is required when analytical behavior or a public
+output contract can change. Routine documentation and path-only changes do not
+require recomputing the seven clinical networks.

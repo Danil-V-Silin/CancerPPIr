@@ -6,7 +6,7 @@
 #
 # This module contains no patient-specific rules and performs no file I/O.
 
-CANCERPPIR_ANALYTICAL_SCHEMA_VERSION <- "4.5.0"
+CANCERPPIR_ANALYTICAL_SCHEMA_VERSION <- "1.0.0"
 
 CANCERPPIR_ANALYTICAL_SHEET_NAMES <- c(
   "Executive summary",

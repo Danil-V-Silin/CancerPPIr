@@ -1,8 +1,9 @@
 # CancerPPIr 1.0.0-rc.1
 
-Release date: 2026-07-27.
+Release date: pending.
 
-This release candidate freezes the intended CancerPPIr 1.0 public contract for independent release qualification.
+This release candidate freezes the intended CancerPPIr 1.0 public contract for
+independent release qualification.
 
 ## Included
 
@@ -14,13 +15,19 @@ This release candidate freezes the intended CancerPPIr 1.0 public contract for i
 - GraphML, manifest, provenance, and checksums;
 - reproducible `renv` environment;
 - Windows and Ubuntu CI;
-- validated seven-case release gate;
+- strict CLI and publication-readiness validation;
+- complete seven-case release qualification;
 - semantic repository layout and research-software citation metadata.
 
 ## Release-candidate status
 
-This pre-release is intended for clean-clone and independent user testing. Analytical logic and output contracts are frozen. A stable `v1.0.0` release follows successful qualification.
+The release is published only after the seven-case checkpoint, workbook review,
+duplication audit, clean-clone qualification, and final metadata review all
+pass. Analytical logic and public output contracts are then frozen for the
+release-candidate line.
 
 ## Responsible use
 
-CancerPPIr is a hypothesis-generation workflow. Its output does not establish therapeutic efficacy, druggability, tumor-cell dependency, or clinical actionability.
+CancerPPIr is a hypothesis-generation workflow. Its output does not establish
+therapeutic efficacy, druggability, tumor-cell dependency, or clinical
+actionability.

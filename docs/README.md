@@ -1,13 +1,12 @@
 # CancerPPIr documentation
 
-This directory separates user guidance, public reference material,
-and maintainer-facing development records.
+This directory separates user guidance, public reference material, and
+maintainer-facing development records.
 
 ## User guide
 
 - [Installation](user-guide/installation.md)
 - [Quick start](user-guide/quick-start.md)
-
 - [Output interpretation](user-guide/output-interpretation.md)
 - [Clinical interpretation](user-guide/clinical-interpretation.md)
 - [Reproducibility](user-guide/reproducibility.md)
@@ -16,7 +15,7 @@ and maintainer-facing development records.
 
 - [CLI contract](reference/cli.md)
 - [Output contract](reference/output-contract.md)
-
+- [Schema versioning](reference/schema-versioning.md)
 - [Annotation rules](reference/annotation-rules.md)
 - [Glossary](reference/glossary.md)
 - [Limitations](reference/limitations.md)
@@ -29,13 +28,14 @@ and maintainer-facing development records.
 
 - [Release process](development/release-process.md)
 - [Repository governance](development/repository-governance.md)
+- [Publication-readiness checklist](development/publication-readiness-checklist.md)
 - [Release candidate notes](development/release-notes-v1.0.0-rc.1.md)
 - [Release baseline](development/history/release-baseline.md)
-
 - [Target architecture](development/architecture/target-architecture.md)
 - [Output-quality specification](development/specifications/output-quality-and-biological-interpretation.md)
 - [Legacy architecture](development/history/legacy-architecture.md)
-- [Output-schema migration](development/history/output-schema-migration.md)
-- Historical architecture checkpoints are retained under `development/history/architecture-checkpoints/`.
+- [Historical output-schema migration](development/history/output-schema-migration.md)
+- Historical architecture checkpoints are retained under
+  `development/history/architecture-checkpoints/`.
 
 Return to the [repository README](../README.md).

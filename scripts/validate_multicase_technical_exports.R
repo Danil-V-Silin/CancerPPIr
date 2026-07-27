@@ -372,15 +372,15 @@ legacy_technical_sheets <- c(
 )
 
 phase4_sheet_map <- c(
-  "Phase4 module annotations" =
+  "Module annotations" =
     "module_annotations",
-  "Phase4 rule evidence" =
+  "Rule evidence" =
     "module_rule_evidence",
-  "Phase4 significant terms" =
+  "Significant terms" =
     "significant_module_terms",
-  "Phase4 node annotations" =
+  "Node annotations" =
     "node_annotations",
-  "Phase4 validation" =
+  "Validation" =
     "validation"
 )
 
@@ -1038,7 +1038,7 @@ for (case_index in seq_len(
     # absent from the exported Phase4 node-annotation sheet.
     if (identical(
       sheet_name,
-      "Phase4 node annotations"
+      "Node annotations"
     )) {
       recomputation_only_columns <- c(
         "module_rank",

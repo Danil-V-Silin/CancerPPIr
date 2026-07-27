@@ -60,16 +60,18 @@ Absolute input, cache, results, project, and output paths are excluded.
 
 | Contract | Version |
 |---|---:|
-| Pipeline result | `4.7.0` |
+| Pipeline result | `1.0.0` |
 | Biological evidence | `1.0.0` |
-| Analytical workbook | `4.5.0` |
-| Technical workbook | `4.4.0` |
-| GraphML | `4.6.0` |
+| Analytical workbook | `1.0.0` |
+| Technical workbook | `1.0.0` |
+| GraphML | `1.0.0` |
 | Output manifest | `1.0.0` |
 | Output checksums | `1.0.0` |
 
 A schema version describes structure and interpretation. A Git commit identifies
 source history. Record both when available.
+See [schema versioning](../reference/schema-versioning.md) for compatibility
+rules.
 
 ## Byte identity versus semantic identity
 
@@ -92,10 +94,10 @@ Do not use a different XLSX SHA-256 alone as evidence that the analysis changed.
 2. Restore dependencies from `renv.lock`.
 3. Provide the same input file and verify its SHA-256.
 4. Provide compatible STRING v12 cache resources.
-5. use the manifest-recorded threshold, enrichment mode, seed, FDR, and top-N;
-6. run CancerPPIr;
-7. verify the new manifest and checksums;
-8. compare semantic outputs when byte identity is not expected.
+5. Use the manifest-recorded threshold, enrichment mode, seed, FDR, and top-N.
+6. Run CancerPPIr.
+7. Verify the new manifest and checksums.
+8. Compare semantic outputs when byte identity is not expected.
 
 ## Sharing a run
 

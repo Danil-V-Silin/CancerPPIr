@@ -1,5 +1,9 @@
 # CancerPPIr
 
+[![R tests](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml/badge.svg)](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Version](https://img.shields.io/badge/version-1.0.0--rc.1-orange)
+
 CancerPPIr is an R workflow for patient-specific protein-protein interaction
 (PPI) subnetwork profiling from bulk RNA-seq-derived gene tables. It maps gene
 symbols to STRING protein identifiers, reconstructs a STRING-derived network,
@@ -14,16 +18,16 @@ actionability by itself.
 ## What the workflow does
 
 1. Reads a differential-expression table.
-2. normalizes HGNC symbols and audits identifier changes;
-3. maps genes to STRING v12 protein identifiers;
-4. reconstructs a thresholded STRING-derived PPI subnetwork;
-5. calculates node topology and a five-component exploratory candidate score;
-6. detects deterministic Louvain modules;
-7. performs offline enrichment from locally cached STRING v12 resources;
-8. assigns canonical module evidence from marker and statistically significant
-   enrichment support;
-9. filters automatic priorities by entity and module eligibility;
-10. writes analytical, technical, network, manifest, and checksum outputs.
+2. Normalizes HGNC symbols and audits identifier changes.
+3. Maps genes to STRING v12 protein identifiers.
+4. Reconstructs a thresholded STRING-derived PPI subnetwork.
+5. Calculates node topology and a five-component exploratory candidate score.
+6. Detects deterministic Louvain modules.
+7. Performs offline enrichment from locally cached STRING v12 resources.
+8. Assigns canonical module evidence from marker and statistically significant
+   enrichment support.
+9. Filters automatic priorities by entity and module eligibility.
+10. Writes analytical, technical, network, manifest, and checksum outputs.
 
 ## Requirements and installation
 
@@ -37,6 +41,8 @@ renv::restore()
 
 Run commands from the repository root. STRING resources are stored in a cache
 folder supplied at run time and are not committed to the repository.
+
+See the [installation guide](docs/user-guide/installation.md) for details.
 
 ## Input contract
 
@@ -67,7 +73,7 @@ A synthetic, non-patient example is provided in
 
 ## Command-line use
 
-Display the current CLI contract:
+Display the executable CLI contract:
 
 ```bash
 Rscript cancerppir.R --help
@@ -79,19 +85,19 @@ Run an analysis:
 Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE
 ```
 
-Arguments:
-
-| Position | Argument | Description |
+| Position | Argument | Requirement |
 |---:|---|---|
-| 1 | `input.csv` | input gene table |
-| 2 | `results_dir` | root results directory |
-| 3 | `string_cache` | local STRING cache directory |
-| 4 | `score_threshold` | optional STRING combined-score threshold; default `400` |
-| 5 | `top_n` | optional number of candidates in the evidence table; default `30` |
-| 6 | `run_enrichment` | optional local enrichment switch; default `TRUE` |
+| 1 | `input.csv` | Delimited input gene table |
+| 2 | `results_dir` | Root output directory |
+| 3 | `string_cache` | Local STRING cache directory |
+| 4 | `score_threshold` | Optional integer from `1` to `1000`; default `400` |
+| 5 | `top_n` | Optional positive integer; default `30` |
+| 6 | `run_enrichment` | Optional `TRUE` or `FALSE`; default `TRUE` |
 
 The case folder is derived from the input basename. For example,
 `examples/minimal_input.csv` is written to `results/minimal_input/`.
+
+See the complete [CLI contract](docs/reference/cli.md).
 
 ## R use
 
@@ -119,11 +125,11 @@ Every successful run writes six principal files:
 
 | File | Primary use |
 |---|---|
-| `CancerPPIr_Analytical_Report.xlsx` | concise human-readable interpretation layer |
-| `CancerPPIr_Technical_Report.xlsx` | complete mapping, metrics, enrichment, evidence, and session audit |
-| `Network_for_Cytoscape.graphml` | canonical annotated network for Cytoscape or Gephi |
-| `STRING_links.txt` | current and STRING v12-pinned inspection links |
-| `CancerPPIr_Output_Manifest.json` | machine-readable provenance and output inventory |
+| `CancerPPIr_Analytical_Report.xlsx` | Concise human-readable interpretation layer |
+| `CancerPPIr_Technical_Report.xlsx` | Complete mapping, metrics, enrichment, evidence, and session audit |
+| `Network_for_Cytoscape.graphml` | Canonical annotated network for Cytoscape or Gephi |
+| `STRING_links.txt` | Current and STRING v12-pinned inspection links |
+| `CancerPPIr_Output_Manifest.json` | Machine-readable provenance and output inventory |
 | `CancerPPIr_Output_Checksums.sha256` | SHA-256 integrity verification |
 
 The analytical workbook has exactly six sheets, in this order:
@@ -135,8 +141,17 @@ The analytical workbook has exactly six sheets, in this order:
 5. `Network overview`
 6. `Methods and limitations`
 
+The canonical biological-evidence sheets in the technical workbook are:
+
+1. `Module annotations`
+2. `Rule evidence`
+3. `Significant terms`
+4. `Node annotations`
+5. `Validation`
+
 Start with the analytical workbook. Use the technical workbook and manifest to
-audit how a result was produced.
+audit how a result was produced. See the
+[output contract](docs/reference/output-contract.md).
 
 ## Candidate and module interpretation
 
@@ -148,8 +163,8 @@ evidence` and GraphML.
 Automatic final priorities require both:
 
 - a review-ready entity classification; and
-- a biological module that passes confidence, conflict, and significant-evidence
-  checks.
+- a biological module that passes confidence, conflict, and
+  significant-evidence checks.
 
 A high candidate rank is not proof of therapeutic actionability. Read protein
 rank together with module context, eligibility, warning fields, pathology, and
@@ -164,33 +179,39 @@ sizes without re-reading multi-gigabyte resources solely to hash them.
 
 ## Reproducibility
 
-The JSON manifest records schema versions, input SHA-256, Git metadata when
-available, R and package versions, analysis parameters, run summary, and SHA-256
-values for the four principal analysis outputs. The checksum file also hashes
-the manifest.
+The JSON manifest records public schema versions, input SHA-256, Git metadata
+when available, R and package versions, analysis parameters, run summary, and
+SHA-256 values for the four principal analysis outputs. The checksum file also
+hashes the manifest.
 
-See:
+All public output schemas begin at `1.0.0` for the first public release line and
+are versioned independently. See
+[schema versioning](docs/reference/schema-versioning.md).
 
-- [Output interpretation guide](docs/user-guide/output-interpretation.md)
+Additional guidance:
+
+- [Output interpretation](docs/user-guide/output-interpretation.md)
 - [Annotation rules](docs/reference/annotation-rules.md)
-- [Clinical interpretation guide](docs/user-guide/clinical-interpretation.md)
+- [Clinical interpretation](docs/user-guide/clinical-interpretation.md)
 - [Clinical and analytical limitations](docs/reference/limitations.md)
 - [Glossary](docs/reference/glossary.md)
-- [Reproducibility guide](docs/user-guide/reproducibility.md)
-- [Phase 4 migration guide](docs/development/history/output-schema-migration.md)
+- [Reproducibility](docs/user-guide/reproducibility.md)
+- [Historical output-schema migration](docs/development/history/output-schema-migration.md)
 - [Documentation index](docs/README.md)
 
-## Project documentation and governance
+## Citation
 
-Current release-candidate metadata: `1.0.0-rc.1`.
+Citation metadata are provided in [`CITATION.cff`](CITATION.cff). GitHub renders
+these metadata through **Cite this repository**. Cite the archived software
+release used in the analysis and the associated article when available.
 
-- [Installation](docs/user-guide/installation.md)
+## Development and governance
+
+Current release-candidate version: `1.0.0-rc.1`.
+
 - [Quick start](docs/user-guide/quick-start.md)
-- [CLI contract](docs/reference/cli.md)
-- [Output contract](docs/reference/output-contract.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
-- [Citation metadata](CITATION.cff)
 - [Changelog](CHANGELOG.md)
 - [Release process](docs/development/release-process.md)
 - [Repository governance](docs/development/repository-governance.md)
