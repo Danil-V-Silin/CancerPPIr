@@ -29,7 +29,7 @@ maintainer-facing development records.
 - [Release process](development/release-process.md)
 - [Repository governance](development/repository-governance.md)
 - [Publication-readiness checklist](development/publication-readiness-checklist.md)
-- [Release candidate notes](development/release-notes-v1.0.0-rc.1.md)
+- [Stable release notes](development/release-notes-v1.0.0.md)
 - [Release baseline](development/history/release-baseline.md)
 - [Target architecture](development/architecture/target-architecture.md)
 - [Output-quality specification](development/specifications/output-quality-and-biological-interpretation.md)

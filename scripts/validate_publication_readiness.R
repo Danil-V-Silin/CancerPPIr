@@ -58,7 +58,7 @@ cancerppir_validate_publication_readiness <- function(
     "docs/development/release-process.md",
     "docs/development/repository-governance.md",
     "docs/development/publication-readiness-checklist.md",
-    "docs/development/release-notes-v1.0.0-rc.1.md"
+    "docs/development/release-notes-v1.0.0.md"
   )
 
   missing_files <- required_files[
@@ -73,65 +73,46 @@ cancerppir_validate_publication_readiness <- function(
 
   version_text <- trimws(read_utf8(file.path(project_root, "VERSION")))
   citation_text <- read_utf8(file.path(project_root, "CITATION.cff"))
-
   add_check(
-    "release_candidate_version_is_consistent",
-    identical(version_text, "1.0.0-rc.1") &&
-      grepl('version: "1.0.0-rc.1"', citation_text, fixed = TRUE),
+    "stable_release_version_is_consistent",
+    identical(version_text, "1.0.0") &&
+      grepl('version: "1.0.0"', citation_text, fixed = TRUE),
     paste0("VERSION=", version_text)
   )
 
-  git_command <- Sys.which("git")
-  tag_exists <- FALSE
-
-  if (nzchar(git_command)) {
-    tag_output <- suppressWarnings(
-      system2(
-        git_command,
-        args = c(
-          "-C",
-          shQuote(project_root),
-          "tag",
-          "--list",
-          "v1.0.0-rc.1"
-        ),
-        stdout = TRUE,
-        stderr = TRUE
-      )
-    )
-    tag_exists <- any(trimws(tag_output) == "v1.0.0-rc.1")
-  }
-
-  citation_has_date <- grepl(
-    "(?m)^date-released:",
+  release_date <- "2026-07-27"
+  citation_date_valid <- grepl(
+    paste0("date-released: ", release_date),
     citation_text,
-    perl = TRUE
+    fixed = TRUE
   )
-
   changelog_text <- read_utf8(file.path(project_root, "CHANGELOG.md"))
   notes_text <- read_utf8(file.path(
     project_root,
-    "docs/development/release-notes-v1.0.0-rc.1.md"
+    "docs/development/release-notes-v1.0.0.md"
   ))
-
-  date_state_valid <- if (tag_exists) {
-    citation_has_date &&
-      !grepl("[1.0.0-rc.1] - Unreleased", changelog_text, fixed = TRUE) &&
-      !grepl("Release date: pending.", notes_text, fixed = TRUE)
-  } else {
-    !citation_has_date &&
-      grepl("[1.0.0-rc.1] - Unreleased", changelog_text, fixed = TRUE) &&
-      grepl("Release date: pending.", notes_text, fixed = TRUE)
-  }
-
+  release_metadata_valid <- citation_date_valid &&
+    grepl(
+      paste0("## [1.0.0] - ", release_date),
+      changelog_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      paste0("Release date: ", release_date, "."),
+      notes_text,
+      fixed = TRUE
+    )
   add_check(
-    "release_date_matches_tag_state",
-    date_state_valid,
+    "stable_release_metadata_is_complete",
+    release_metadata_valid,
     paste0(
-      "tag_exists=", tag_exists,
-      "; citation_date=", citation_has_date
+      "version=", version_text,
+      "; release_date=", release_date,
+      "; citation_date=", citation_date_valid
     )
   )
+
+  git_command <- Sys.which("git")
 
   parse_files <- unique(c(
     list.files(
@@ -343,7 +324,7 @@ cancerppir_validate_publication_readiness <- function(
         "docs/development/release-process.md",
         "docs/development/repository-governance.md",
         "docs/development/publication-readiness-checklist.md",
-        "docs/development/release-notes-v1.0.0-rc.1.md"
+        "docs/development/release-notes-v1.0.0.md"
       )
     ),
     list.files(

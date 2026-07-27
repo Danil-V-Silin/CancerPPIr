@@ -2,7 +2,7 @@
 
 [![R tests](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml/badge.svg)](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.0.0--rc.1-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
 CancerPPIr is an R workflow for patient-specific protein-protein interaction
 (PPI) subnetwork profiling from bulk RNA-seq-derived gene tables. It maps gene
@@ -207,7 +207,7 @@ release used in the analysis and the associated article when available.
 
 ## Development and governance
 
-Current release-candidate version: `1.0.0-rc.1`.
+Current stable version: `1.0.0`.
 
 - [Quick start](docs/user-guide/quick-start.md)
 - [Contributing](CONTRIBUTING.md)

@@ -2,12 +2,14 @@
 
 All notable changes to CancerPPIr are documented in this file.
 
-CancerPPIr follows Semantic Versioning, including pre-release versions.
+CancerPPIr follows Semantic Versioning.
 
-## [1.0.0-rc.1] - Unreleased
+## [Unreleased]
 
+No unreleased changes.
+
+## [1.0.0] - 2026-07-27
 ### Added
-
 - Reproducible `renv` environment.
 - Modular R implementation with an explicit loader.
 - Deterministic Louvain module detection.
@@ -34,8 +36,6 @@ CancerPPIr follows Semantic Versioning, including pre-release versions.
 
 ### Compatibility
 
-The publication-readiness changes do not intentionally alter STRING mapping,
-network construction, Louvain membership, candidate scoring, biological
-evidence, or priority eligibility. Technical-workbook sheet names and public
-schema-version fields are compatibility-sensitive changes and therefore require
-a fresh seven-case release qualification before publication.
+The stable-release metadata changes do not alter STRING mapping, network
+construction, Louvain membership, candidate scoring, biological evidence,
+priority eligibility, or the qualified public output schemas.

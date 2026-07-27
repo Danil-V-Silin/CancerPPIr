@@ -2,9 +2,8 @@
 
 ## Supported versions
 
-`1.0.0-rc.1` is supported while it undergoes release-candidate qualification.
-After the first stable release, security fixes are provided for the latest
-supported release line.
+`1.0.0` is the current supported stable release. Security fixes are provided
+for the latest supported release line.
 
 ## Reporting a vulnerability
 
