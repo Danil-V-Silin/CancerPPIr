@@ -259,6 +259,7 @@ required_project_files <- file.path(
     "scripts/validate_multicase_outputs.R",
     "scripts/validate_release_contract.R",
     "scripts/validate_documentation_contract.R",
+    "scripts/validate_publication_readiness.R",
     "cancerppir.R"
   )
 )
@@ -491,6 +492,20 @@ documentation_validation <-
     project_root
   )
 
+source(
+  file.path(
+    project_root,
+    "scripts", "validate_publication_readiness.R"
+  ),
+  local = TRUE
+)
+
+publication_validation <-
+  cancerppir_validate_publication_readiness(
+    project_root = project_root,
+    include_git_diff_check = TRUE
+  )
+
 cli_output <- suppressWarnings(
   system2(
     command = rscript_command,
@@ -562,6 +577,11 @@ preflight_validation <- rbind(
     stringsAsFactors = FALSE
   ),
   data.frame(
+    section = "publication",
+    publication_validation,
+    stringsAsFactors = FALSE
+  ),
+  data.frame(
     section = "cli",
     cli_validation,
     stringsAsFactors = FALSE
@@ -578,7 +598,7 @@ preflight_failures <- preflight_validation[
 
 if (nrow(preflight_failures) > 0L) {
   cat(
-    "\nPHASE 4 RELEASE PREFLIGHT: FAILED\n\n"
+    "\nCANCERPPIR RELEASE PREFLIGHT: FAILED\n\n"
   )
 
   print(
@@ -593,7 +613,7 @@ if (nrow(preflight_failures) > 0L) {
 }
 
 message(
-  "[CancerPPIr release] Static, documentation and CLI preflight: PASS."
+  "[CancerPPIr release] Static, documentation, publication and CLI preflight: PASS."
 )
 
 multicase_arguments <- c(
@@ -1132,14 +1152,14 @@ for (case_index in seq_len(
           sample_id,
           "candidate_scores_match_technical_source",
           score_consistent,
-          "GraphML versus Phase4 node annotations."
+          "GraphML versus Node annotations."
         )
 
         add_check(
           sample_id,
           "louvain_membership_matches_technical_source",
           community_consistent,
-          "GraphML versus Phase4 node annotations."
+          "GraphML versus Node annotations."
         )
 
         final_priorities <- as.data.frame(
@@ -1439,7 +1459,7 @@ utils::write.csv(
 )
 
 cat(
-  "\nPHASE 4 RELEASE CHECKPOINT\n\n"
+  "\nCANCERPPIR RELEASE CHECKPOINT\n\n"
 )
 
 print(

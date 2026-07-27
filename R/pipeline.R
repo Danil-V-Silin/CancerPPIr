@@ -435,11 +435,11 @@ run_cancerppir <- function(
     if (isTRUE(run_online_enrichment)) {
       msg("Online enrichment validation mode enabled. Local STRING remains the primary fallback annotation layer.")
 
-      enrichment_string_online_all <- run_string_enrichment_online(string_db, 
+      enrichment_string_online_all <- run_string_enrichment_online(string_db,
         mapped_final$STRING_id,
         query_name = "all_network_genes_STRING_online"
       )
-      enrichment_string_online_top <- run_string_enrichment_online(string_db, 
+      enrichment_string_online_top <- run_string_enrichment_online(string_db,
         top_candidates$STRING_id,
         query_name = "top_candidates_STRING_online"
       )
