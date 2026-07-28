@@ -1,0 +1,11 @@
+# Repository-wide ownership
+* @Danil-V-Silin
+
+# High-impact scientific and release surfaces
+/R/ @Danil-V-Silin
+/scripts/ @Danil-V-Silin
+/tests/ @Danil-V-Silin
+/.github/ @Danil-V-Silin
+/docs/reference/ @Danil-V-Silin
+/renv.lock @Danil-V-Silin
+/CITATION.cff @Danil-V-Silin

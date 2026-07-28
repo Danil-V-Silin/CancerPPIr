@@ -39,3 +39,7 @@ maintainer-facing development records.
   `development/history/architecture-checkpoints/`.
 
 Return to the [repository README](../README.md).
+
+## Repository quality
+
+- [Repository quality policy](development/repository-quality-policy.md)

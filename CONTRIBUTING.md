@@ -70,3 +70,17 @@ Rscript cancerppir.R --help
 A full seven-case regression is required when analytical behavior or a public
 output contract can change. Routine documentation and path-only changes do not
 require recomputing the seven clinical networks.
+
+## Pull-request quality gates
+
+Before opening a pull request, run:
+
+```text
+Rscript scripts/validate_repository_quality.R
+Rscript scripts/run_unit_tests.R
+Rscript scripts/validate_publication_readiness.R
+git diff --check
+```
+
+Pull requests must state whether they affect analytical behavior, public
+schemas, dependencies, cached resources, or release qualification.
