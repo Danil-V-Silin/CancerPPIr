@@ -1,25 +1,26 @@
-## Summary
+## Purpose
 
-Describe the result of this pull request.
+Describe the problem and the exact scope of the proposed change.
 
-## Scope and compatibility
+## Change classification
 
-- Intended behavior change:
-- Public CLI impact:
-- Input-schema impact:
-- Output-schema impact:
-- Paths moved or renamed:
-- Backwards-compatibility assessment:
+- [ ] Documentation or repository metadata only
+- [ ] Test or validation change only
+- [ ] Internal refactor with no intended analytical change
+- [ ] Public input/output contract change
+- [ ] Analytical behavior change
+- [ ] Dependency or workflow change
 
 ## Validation
 
-- [ ] R files parse successfully
-- [ ] Unit and CLI tests pass
-- [ ] Relevant regression checks pass
-- [ ] Output contracts were reviewed when applicable
-- [ ] Documentation paths and commands were verified
-- [ ] `git diff --check` passes
+- [ ] `Rscript scripts/validate_repository_quality.R`
+- [ ] `Rscript scripts/run_unit_tests.R`
+- [ ] `Rscript scripts/validate_publication_readiness.R`
+- [ ] `git diff --check`
+- [ ] Public documentation was updated when required
+- [ ] No patient-identifiable or restricted clinical data were added
 
-## Evidence
+## Reproducibility impact
 
-List the commands executed and summarize their results.
+State whether this change affects inputs, outputs, schemas, dependencies,
+cached resources, deterministic behavior, or release qualification.
