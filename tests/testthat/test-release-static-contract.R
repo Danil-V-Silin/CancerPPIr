@@ -1,5 +1,5 @@
 testthat::test_that(
-  "repository satisfies the Phase 4 static release contract",
+  "repository satisfies the CancerPPIr static release contract",
   {
     project_root <- Sys.getenv(
       "CANCERPPIR_PROJECT_ROOT",
@@ -18,7 +18,7 @@ testthat::test_that(
       local = TRUE
     )
 
-    validation <- phase4_9_validate_static_release(
+    validation <- cancerppir_validate_static_release_contract(
       project_root
     )
 

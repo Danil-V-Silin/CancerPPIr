@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4.4B
+# CancerPPIr multicase technical-export validation
 # Run all seven clinical cases through the production pipeline and validate
-# that the five Phase 4 biological-evidence tables are exported faithfully
+# that the five CancerPPIr biological-evidence tables are exported faithfully
 # to every technical workbook.
 #
 # Run from the repository root:
@@ -16,7 +16,7 @@
 #
 # Defaults:
 #   ../input
-#   ../results/phase4_multicase_technical_evidence_v2
+#   ../results/multicase_technical_evidence_v2
 #   ../string_cache
 #
 # This script does not modify repository files.
@@ -74,7 +74,7 @@ output_root <- if (length(arguments) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_multicase_technical_evidence_v2"
+    "multicase_technical_evidence_v2"
   )
 }
 
@@ -88,7 +88,7 @@ cache_root <- if (length(arguments) >= 3L) {
 }
 
 
-# Phase 4.4B existing-output validation mode
+# Existing-output validation mode
 execution_mode <- if (length(arguments) >= 4L) {
   tolower(
     trimws(
@@ -276,12 +276,12 @@ if (length(missing_loaded_files) > 0L) {
 }
 
 if (!exists(
-  "phase4_bind_pipeline_evidence",
+  "bind_pipeline_evidence",
   envir = .GlobalEnv,
   inherits = FALSE
 )) {
   stop(
-    "phase4_bind_pipeline_evidence() is unavailable after module loading.",
+    "bind_pipeline_evidence() is unavailable after module loading.",
     call. = FALSE
   )
 }
@@ -353,7 +353,7 @@ if (length(missing_inputs) > 0L) {
   )
 }
 
-legacy_technical_sheets <- c(
+precanonical_technical_sheets <- c(
   "Mapping summary",
   "Gene status",
   "Alias corrections",
@@ -371,7 +371,7 @@ legacy_technical_sheets <- c(
   "Raw candidate enrichment"
 )
 
-phase4_sheet_map <- c(
+evidence_sheet_map <- c(
   "Module annotations" =
     "module_annotations",
   "Rule evidence" =
@@ -385,9 +385,9 @@ phase4_sheet_map <- c(
 )
 
 expected_technical_sheets <- c(
-  legacy_technical_sheets,
+  precanonical_technical_sheets,
   names(
-    phase4_sheet_map
+    evidence_sheet_map
   ),
   "Session info"
 )
@@ -772,7 +772,7 @@ for (case_index in seq_len(
   )
 
   message(
-    "[phase 4.4B] ",
+    "[CancerPPIr technical export validation] ",
     if (validate_existing_outputs) {
       "Validating existing outputs for "
     } else {
@@ -1007,7 +1007,7 @@ for (case_index in seq_len(
     module_enrichment$fdr
   )
 
-  expected_evidence <- phase4_bind_pipeline_evidence(
+  expected_evidence <- bind_pipeline_evidence(
     node_metrics = node_metrics,
     module_enrichment = module_enrichment,
     fdr_threshold = 0.05
@@ -1016,10 +1016,10 @@ for (case_index in seq_len(
   table_rows <- list()
 
   for (sheet_name in names(
-    phase4_sheet_map
+    evidence_sheet_map
   )) {
     result_name <- unname(
-      phase4_sheet_map[[sheet_name]]
+      evidence_sheet_map[[sheet_name]]
     )
 
     observed_table <- read_sheet(
@@ -1029,13 +1029,13 @@ for (case_index in seq_len(
 
     expected_table <- expected_evidence[[result_name]]
 
-    # Phase4 node-annotation recomputation-only columns
+    # CancerPPIr node-annotation recomputation-only columns
     #
     # These columns are already present in Raw node metrics because the
-    # legacy labeling layer is joined after the Phase4 adapter runs in
+    # pre-canonical labeling layer is joined after the CancerPPIr adapter runs in
     # production. Recomputing the adapter from Raw node metrics therefore
     # carries them into expected_evidence, although they are intentionally
-    # absent from the exported Phase4 node-annotation sheet.
+    # absent from the exported CancerPPIr node-annotation sheet.
     if (identical(
       sheet_name,
       "Node annotations"
@@ -1246,7 +1246,7 @@ for (case_index in seq_len(
   all_internal_validation[[sample_id]] <- internal_validation
 
   message(
-    "[phase 4.4B] ",
+    "[CancerPPIr technical export validation] ",
     sample_id,
     ": ",
     if (case_pass) {
@@ -1287,17 +1287,17 @@ rownames(internal_validation) <- NULL
 
 summary_file <- file.path(
   output_root,
-  "phase_4_multicase_technical_export_summary.csv"
+  "multicase_technical_export_summary.csv"
 )
 
 table_validation_file <- file.path(
   output_root,
-  "phase_4_multicase_technical_export_table_validation.csv"
+  "multicase_technical_export_table_validation.csv"
 )
 
 internal_validation_file <- file.path(
   output_root,
-  "phase_4_multicase_technical_export_internal_validation.csv"
+  "multicase_technical_export_internal_validation.csv"
 )
 
 utils::write.csv(
@@ -1322,7 +1322,7 @@ utils::write.csv(
 )
 
 cat(
-  "\nPHASE 4.4B MULTICASE TECHNICAL EVIDENCE EXPORT VALIDATION\n\n"
+  "\nCANCERPPIR MULTICASE TECHNICAL EVIDENCE EXPORT VALIDATION\n\n"
 )
 
 print(

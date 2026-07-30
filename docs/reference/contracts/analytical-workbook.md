@@ -9,7 +9,7 @@ The complete mapping, node, module, enrichment, provenance, and validation audit
 remains in `CancerPPIr_Technical_Report.xlsx`.
 
 The analytical workbook is generated from the canonical biological-evidence
-object. Legacy labeling fields are not analytical evidence.
+object. Deprecated compatibility fields are not analytical evidence.
 
 ## Exact sheet order
 

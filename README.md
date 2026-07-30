@@ -196,7 +196,7 @@ Additional guidance:
 - [Clinical and analytical limitations](docs/reference/limitations.md)
 - [Glossary](docs/reference/glossary.md)
 - [Reproducibility](docs/user-guide/reproducibility.md)
-- [Historical output-schema migration](docs/development/history/output-schema-migration.md)
+- [Historical output-schema migration](docs/reference/schema-versioning.md)
 - [Documentation index](docs/README.md)
 
 ## Citation

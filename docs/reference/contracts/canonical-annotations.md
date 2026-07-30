@@ -47,7 +47,7 @@ origin, or therapeutic recommendation.
 - Cytoscape convenience labels;
 - biological-evidence and GraphML schema versions.
 
-Legacy labeling fields are excluded. `cytoscape_module_label` equals
+Deprecated compatibility fields are excluded. `cytoscape_module_label` equals
 `module_primary_interpretation`.
 
 ## Public pipeline result
@@ -56,7 +56,7 @@ Legacy labeling fields are excluded. `cytoscape_module_label` equals
 schema registry, network, biological evidence, priorities, reports, provenance,
 mapping, file inventory, and compatibility sections.
 
-Legacy readable tables are isolated under `result$compatibility`, marked as
+Deprecated readable tables are isolated under `result$compatibility`, marked as
 deprecated compatibility objects, and must not drive analytical priorities,
 GraphML interpretation, eligibility, or the public evidence object.
 
@@ -65,5 +65,5 @@ GraphML interpretation, eligibility, or the public evidence object.
 A schema-label cleanup must not change the STRING node set, STRING edge set,
 Louvain membership, candidate scores, expression values, analytical workbook
 content, or canonical technical evidence values. Compatibility-sensitive name
-and schema changes require the full seven-case release checkpoint before
+and schema changes require the full seven-case release qualification before
 publication.

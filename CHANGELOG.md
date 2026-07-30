@@ -6,7 +6,18 @@ CancerPPIr follows Semantic Versioning.
 
 ## [Unreleased]
 
-No unreleased changes.
+### Changed
+- Replaced internal development-stage identifiers with semantic source names.
+- Renamed the release gate to `run_release_qualification.R`.
+- Removed superseded architecture records, pre-refactor executable
+  snapshots, and unverified clinical example data from the supported tree.
+- Retained the public version and all qualified analytical output schemas at
+  `1.0.0`.
+
+### Compatibility
+- No candidate-scoring formula, STRING mapping rule, Louvain configuration,
+  biological-evidence rule, workbook sheet, GraphML field, manifest schema, or
+  public output filename is changed by this repository cleanup.
 
 ## [1.0.0] - 2026-07-27
 ### Added

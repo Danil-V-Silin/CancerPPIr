@@ -1,11 +1,8 @@
 # CancerPPIr: module_labeling
 #
-# Architecture checkpoint 2.8.
 #
 # Functions below were extracted from cancerppir.R without semantic rewriting.
 
-##############################################################################
-# label_module_by_markers - extracted from cancerppir.R lines 221-254
 ##############################################################################
 label_module_by_markers <- function(genes, max_labels = 3L) {
   g <- toupper(unique(na.omit(genes)))
@@ -42,8 +39,6 @@ label_module_by_markers <- function(genes, max_labels = 3L) {
   )
 }
 
-##############################################################################
-# clean_module_label_from_terms - extracted from cancerppir.R lines 256-297
 ##############################################################################
 clean_module_label_from_terms <- function(terms, fallback_label = "unassigned_module") {
   txt <- tolower(paste(na.omit(as.character(terms)), collapse = " | "))
@@ -89,8 +84,6 @@ clean_module_label_from_terms <- function(terms, fallback_label = "unassigned_mo
 }
 
 ##############################################################################
-# max_marker_overlap_count - extracted from cancerppir.R lines 1157-1170
-##############################################################################
 max_marker_overlap_count <- function(marker_summary) {
   marker_summary <- as.character(marker_summary)
   vapply(marker_summary, function(z) {
@@ -107,14 +100,10 @@ max_marker_overlap_count <- function(marker_summary) {
 }
 
 ##############################################################################
-# has_assigned_label - extracted from cancerppir.R lines 1172-1174
-##############################################################################
 has_assigned_label <- function(x) {
   !is.na(x) & nzchar(x) & x != "unassigned_module"
 }
 
-##############################################################################
-# label_rulebook_table - extracted from cancerppir.R lines 1296-1305
 ##############################################################################
 label_rulebook_table <- function() {
   tibble(
@@ -128,8 +117,6 @@ label_rulebook_table <- function() {
 }
 
 ##############################################################################
-# matches_any_pattern - extracted from cancerppir.R lines 1307-1316
-##############################################################################
 matches_any_pattern <- function(text, patterns) {
   if (is.null(patterns) || !length(patterns)) {
     return(FALSE)
@@ -142,8 +129,6 @@ matches_any_pattern <- function(text, patterns) {
 }
 
 ##############################################################################
-# count_matching_patterns - extracted from cancerppir.R lines 1318-1327
-##############################################################################
 count_matching_patterns <- function(text, patterns) {
   if (is.null(patterns) || !length(patterns)) {
     return(0L)
@@ -155,8 +140,6 @@ count_matching_patterns <- function(text, patterns) {
   sum(vapply(patterns, function(pat) grepl(pat, txt, ignore.case = TRUE, perl = TRUE), logical(1)))
 }
 
-##############################################################################
-# extract_marker_counts - extracted from cancerppir.R lines 1329-1344
 ##############################################################################
 extract_marker_counts <- function(marker_summary) {
   z <- as.character(marker_summary)
@@ -176,8 +159,6 @@ extract_marker_counts <- function(marker_summary) {
 }
 
 ##############################################################################
-# marker_count_for_rule - extracted from cancerppir.R lines 1346-1352
-##############################################################################
 marker_count_for_rule <- function(marker_summary, marker_patterns) {
   counts <- extract_marker_counts(marker_summary)
   if (!length(counts)) {
@@ -186,8 +167,6 @@ marker_count_for_rule <- function(marker_summary, marker_patterns) {
   sum(counts[names(counts) %in% marker_patterns], na.rm = TRUE)
 }
 
-##############################################################################
-# label_evidence_score - extracted from cancerppir.R lines 1354-1369
 ##############################################################################
 label_evidence_score <- function(marker_count, term_hit_count, required_hit_count,
                                  best_fdr, module_size) {
@@ -206,8 +185,6 @@ label_evidence_score <- function(marker_count, term_hit_count, required_hit_coun
   score
 }
 
-##############################################################################
-# assign_label_confidence - extracted from cancerppir.R lines 1371-1388
 ##############################################################################
 assign_label_confidence <- function(score, marker_count, term_hit_count, best_fdr,
                                     module_size, final_label_raw) {
@@ -229,8 +206,6 @@ assign_label_confidence <- function(score, marker_count, term_hit_count, best_fd
 }
 
 ##############################################################################
-# label_source_from_counts - extracted from cancerppir.R lines 1390-1399
-##############################################################################
 label_source_from_counts <- function(marker_count, term_hit_count, best_fdr) {
   marker_ok <- is.finite(marker_count) && marker_count > 0L
   enrich_ok <- is.finite(term_hit_count) && term_hit_count > 0L && is.finite(best_fdr) && best_fdr <= 0.05
@@ -242,8 +217,6 @@ label_source_from_counts <- function(marker_count, term_hit_count, best_fdr) {
   )
 }
 
-##############################################################################
-# supporting_themes_from_evidence - extracted from cancerppir.R lines 1401-1444
 ##############################################################################
 supporting_themes_from_evidence <- function(term_text, marker_summary,
                                             selected_label_id = NA_character_,
@@ -290,8 +263,6 @@ supporting_themes_from_evidence <- function(term_text, marker_summary,
   paste(themes, collapse = "; ")
 }
 
-##############################################################################
-# assign_module_label_with_rules - extracted from cancerppir.R lines 1446-1528
 ##############################################################################
 assign_module_label_with_rules <- function(marker_label, marker_summary, term_text,
                                            best_fdr, module_size) {

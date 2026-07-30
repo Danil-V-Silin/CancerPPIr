@@ -1,5 +1,5 @@
 testthat::test_that(
-  "Phase 4.7 schema registry is complete and pinned",
+  "output-provenance schema registry is complete and pinned",
   {
     testthat::expect_identical(
       cancerppir_schema_versions(),
@@ -20,7 +20,7 @@ testthat::test_that(
   "output provenance records and verifies principal files without absolute paths",
   {
     fixture_dir <- tempfile(
-      pattern = "cancerppir_phase47_fixture_"
+      pattern = "cancerppir_provenance_fixture_"
     )
 
     dir.create(
@@ -194,7 +194,7 @@ testthat::test_that(
   "provenance validation detects post-run output modification",
   {
     fixture_dir <- tempfile(
-      pattern = "cancerppir_phase47_tamper_"
+      pattern = "cancerppir_provenance_tamper_"
     )
 
     dir.create(

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4.4A:
+# CancerPPIr focused technical-evidence export validation:
 # validate the A01 technical evidence export against the deterministic
 # pre-export baseline.
 #
@@ -13,8 +13,8 @@
 #   2. candidate results root
 #
 # Defaults:
-#   ../results/phase4_a01_deterministic_run1
-#   ../results/phase4_a01_technical_evidence_v1
+#   ../results/a01_deterministic_run1
+#   ../results/a01_technical_evidence_v1
 
 if (!requireNamespace("openxlsx", quietly = TRUE)) {
   stop("The openxlsx package is required.", call. = FALSE)
@@ -28,7 +28,7 @@ baseline_root <- if (length(args) >= 1L) {
   file.path(
     "..",
     "results",
-    "phase4_a01_deterministic_run1"
+    "a01_deterministic_run1"
   )
 }
 
@@ -38,7 +38,7 @@ candidate_root <- if (length(args) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_a01_technical_evidence_v1"
+    "a01_technical_evidence_v1"
   )
 }
 
@@ -201,7 +201,7 @@ candidate_technical_sheets <- openxlsx::getSheetNames(
   files$candidate_technical
 )
 
-new_phase4_sheets <- c(
+new_evidence_sheets <- c(
   "Module annotations",
   "Rule evidence",
   "Significant terms",
@@ -229,7 +229,7 @@ expected_candidate_technical_sheets <- c(
       session_index - 1L
     )
   ],
-  new_phase4_sheets,
+  new_evidence_sheets,
   baseline_technical_sheets[
     seq.int(
       session_index,
@@ -244,7 +244,7 @@ analytical_comparison <- compare_workbook_sheets(
   baseline_analytical_sheets
 )
 
-technical_legacy_comparison <- compare_workbook_sheets(
+technical_precanonical_comparison <- compare_workbook_sheets(
   files$baseline_technical,
   files$candidate_technical,
   baseline_technical_sheets
@@ -372,13 +372,13 @@ summary <- data.frame(
     "analytical_sheet_names_unchanged",
     "analytical_sheet_contents_unchanged",
     "technical_sheet_order_expected",
-    "legacy_technical_sheet_contents_unchanged",
+    "precanonical_technical_sheet_contents_unchanged",
     "graphml_byte_identical",
-    "phase4_module_annotations_present",
-    "phase4_rule_evidence_present",
-    "phase4_significant_terms_present",
-    "phase4_node_annotations_present",
-    "phase4_validation_present",
+    "module_annotations_present",
+    "rule_evidence_present",
+    "significant_terms_present",
+    "node_annotations_present",
+    "validation_present",
     "module_schema_complete",
     "node_schema_complete",
     "term_schema_complete",
@@ -405,7 +405,7 @@ summary <- data.frame(
       expected_candidate_technical_sheets
     ),
     all(
-      technical_legacy_comparison$identical
+      technical_precanonical_comparison$identical
     ),
     graphml_identical,
     "Module annotations" %in%
@@ -463,7 +463,7 @@ summary$status <- ifelse(
 )
 
 cat(
-  "\nPHASE 4.4A A01 TECHNICAL EVIDENCE EXPORT VALIDATION\n\n"
+  "\nCANCERPPIR A01 TECHNICAL EVIDENCE EXPORT VALIDATION\n\n"
 )
 
 print(
@@ -486,7 +486,7 @@ cat(
 )
 
 cat(
-  "\nPhase 4 table dimensions:\n"
+  "\nEvidence-table dimensions:\n"
 )
 
 print(

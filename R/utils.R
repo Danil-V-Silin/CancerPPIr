@@ -2,12 +2,9 @@
 #
 # Dependency-light validation, normalization, numeric, ranking and shared text helpers.
 #
-# Architecture checkpoint 2.4
 #
 # The function bodies below were extracted from cancerppir.R without semantic rewriting.
 
-##############################################################################
-# check_package - extracted from cancerppir.R lines 26-34
 ##############################################################################
 check_package <- function(pkg) {
   if (!requireNamespace(pkg, quietly = TRUE)) {
@@ -20,21 +17,15 @@ check_package <- function(pkg) {
 }
 
 ##############################################################################
-# parse_bool - extracted from cancerppir.R lines 48-50
-##############################################################################
 parse_bool <- function(x) {
   tolower(trimws(x)) %in% c("1", "true", "t", "yes", "y")
 }
 
 ##############################################################################
-# is_bool_like - extracted from cancerppir.R lines 52-54
-##############################################################################
 is_bool_like <- function(x) {
   tolower(trimws(x)) %in% c("1", "0", "true", "false", "t", "f", "yes", "no", "y", "n")
 }
 
-##############################################################################
-# normalize_enrichment_mode - extracted from cancerppir.R lines 56-75
 ##############################################################################
 normalize_enrichment_mode <- function(x) {
   x <- tolower(trimws(as.character(x)))
@@ -58,26 +49,18 @@ normalize_enrichment_mode <- function(x) {
 }
 
 ##############################################################################
-# normalize_path_for_compare - extracted from cancerppir.R lines 128-130
-##############################################################################
 normalize_path_for_compare <- function(x) {
   gsub("\\", "/", as.character(x), fixed = TRUE)
 }
 
 ##############################################################################
-# msg - extracted from cancerppir.R lines 175-175
-##############################################################################
 msg <- function(...) message("[CancerPPIr] ", ...)
 
-##############################################################################
-# as_number - extracted from cancerppir.R lines 191-193
 ##############################################################################
 as_number <- function(x) {
   suppressWarnings(as.numeric(gsub(",", ".", as.character(x), fixed = TRUE)))
 }
 
-##############################################################################
-# clean_names - extracted from cancerppir.R lines 195-201
 ##############################################################################
 clean_names <- function(x) {
   x <- enc2utf8(as.character(x))
@@ -88,15 +71,11 @@ clean_names <- function(x) {
 }
 
 ##############################################################################
-# find_column - extracted from cancerppir.R lines 203-206
-##############################################################################
 find_column <- function(nm, candidates) {
   hit <- which(nm %in% candidates)
   if (length(hit)) hit[[1]] else NA_integer_
 }
 
-##############################################################################
-# safe_min - extracted from cancerppir.R lines 271-274
 ##############################################################################
 safe_min <- function(x) {
   x <- x[is.finite(x)]
@@ -104,15 +83,11 @@ safe_min <- function(x) {
 }
 
 ##############################################################################
-# safe_mean - extracted from cancerppir.R lines 276-279
-##############################################################################
 safe_mean <- function(x) {
   x <- x[is.finite(x)]
   if (length(x)) mean(x) else NA_real_
 }
 
-##############################################################################
-# minmax - extracted from cancerppir.R lines 281-300
 ##############################################################################
 minmax <- function(x) {
   x <- as.numeric(x)
@@ -136,8 +111,6 @@ minmax <- function(x) {
 }
 
 ##############################################################################
-# top_genes - extracted from cancerppir.R lines 460-471
-##############################################################################
 top_genes <- function(genes, score, n = 10L) {
   keep <- !is.na(genes) & nzchar(genes)
   genes <- genes[keep]
@@ -152,8 +125,6 @@ top_genes <- function(genes, score, n = 10L) {
 }
 
 ##############################################################################
-# collapse_terms - extracted from cancerppir.R lines 473-480
-##############################################################################
 collapse_terms <- function(x, n = 3L) {
   if (is.null(x) || !nrow(x) || !("term_name" %in% names(x))) {
     return(NA_character_)
@@ -164,8 +135,6 @@ collapse_terms <- function(x, n = 3L) {
 }
 
 ##############################################################################
-# truncate_text - extracted from cancerppir.R lines 1624-1630
-##############################################################################
 truncate_text <- function(x, max_chars = 500L) {
   x <- as.character(x)
   x[is.na(x)] <- ""
@@ -175,16 +144,12 @@ truncate_text <- function(x, max_chars = 500L) {
 }
 
 ##############################################################################
-# normalize_label_text - extracted from cancerppir.R lines 1632-1636
-##############################################################################
 normalize_label_text <- function(x) {
   x <- as.character(x)
   x[is.na(x) | !nzchar(x)] <- "unassigned_module"
   x
 }
 
-##############################################################################
-# humanize_label - extracted from cancerppir.R lines 1638-1644
 ##############################################################################
 humanize_label <- function(x) {
   x <- normalize_label_text(x)
@@ -195,14 +160,10 @@ humanize_label <- function(x) {
 }
 
 ##############################################################################
-# rank_desc - extracted from cancerppir.R lines 1646-1648
-##############################################################################
 rank_desc <- function(x) {
   dplyr::min_rank(dplyr::desc(x))
 }
 
-##############################################################################
-# evidence_level - extracted from cancerppir.R lines 1650-1667
 ##############################################################################
 evidence_level <- function(x) {
   out <- rep(NA_character_, length(x))
@@ -224,14 +185,10 @@ evidence_level <- function(x) {
 }
 
 ##############################################################################
-# %||% - extracted from cancerppir.R lines 2354-2356
-##############################################################################
 `%||%` <- function(x, y) {
   if (is.null(x) || length(x) == 0L || all(is.na(x))) y else x
 }
 
-##############################################################################
-# metric_value - extracted from cancerppir.R lines 2744-2750
 ##############################################################################
 metric_value <- function(tbl, metric_name) {
   idx <- match(metric_name, tbl$metric)

@@ -8,8 +8,8 @@ source(
   local = TRUE
 )
 
-testthat::test_that("public documentation satisfies the Phase 4.8 contract", {
-  validation <- phase4_8_validate_documentation(project_root)
+testthat::test_that("public documentation satisfies the documentation contract", {
+  validation <- cancerppir_validate_documentation_contract(project_root)
 
   failures <- validation[validation$status == "FAIL", , drop = FALSE]
 

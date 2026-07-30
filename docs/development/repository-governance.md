@@ -19,7 +19,7 @@ release/
 ```
 
 Branches are deleted after merge. Historical states are preserved by commits,
-product-version tags, releases, the checkpoint registry, and verified repository
+product-version tags, releases, verified qualification records, and repository
 archives.
 
 ## Tags
@@ -33,10 +33,9 @@ v1.0.1
 v1.1.0
 ```
 
-Release tags are annotated and immutable. Pre-1.0 development checkpoint tags
-are legacy history; they may be retired only after the first public release and
-after their refs are preserved in the repository history registry and a
-verified archive.
+Release tags are annotated and immutable. Superseded pre-release tags may be
+retired only after a verified repository backup and confirmation that all
+released tags remain immutable.
 
 ## Main protection
 

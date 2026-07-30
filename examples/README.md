@@ -3,8 +3,9 @@
 ## Synthetic minimal input
 
 `minimal_input.csv` is a small synthetic table used to demonstrate the input
-contract. It contains no patient identifiers and is not intended to represent a
-real tumor profile or to produce a publication-ready biological interpretation.
+contract. It contains no patient identifiers, does not reproduce any clinical
+case, and is not intended to produce a publication-ready biological
+interpretation.
 
 Run from the repository root:
 
@@ -31,11 +32,5 @@ CancerPPIr_Output_Checksums.sha256
 
 The repository does not version generated example outputs. Binary workbooks and
 GraphML can become stale when public schemas change and should be generated from
-the current code and cache instead.
-
-## Existing larger input
-
-`input/Genes_R.csv` is retained as an existing repository example/reference
-input. Use the synthetic minimal input for schema demonstrations and quick user
-orientation. Neither file should be interpreted as clinical evidence without
-its original study context.
+the current code and local STRING resources. Clinical regression inputs are
+maintained outside the public repository.

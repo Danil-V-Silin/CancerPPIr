@@ -1,8 +1,8 @@
-# CancerPPIr Phase 4 Specification
+# CancerPPIr Specification
 ## Output quality, biological interpretation, and evidence transparency
 
 **Status:** Proposed implementation contract  
-**Target branch:** `refactor/phase-4-output-quality`  
+**Status:** Implemented in the supported 1.0.0 codebase
 **Scope:** Biological interpretation, reporting architecture, output integrity, GraphML metadata, and STRING-link output  
 **Out of scope:** Estimation of cell-type proportions from bulk RNA-seq unless a full expression matrix and a validated deconvolution reference are supplied
 
@@ -10,7 +10,7 @@
 
 ## 1. Purpose
 
-Phase 4 converts CancerPPIr outputs from a technically complete exploratory export into a concise, auditable, biologically defensible report for researchers.
+CancerPPIr converts CancerPPIr outputs from a technically complete exploratory export into a concise, auditable, biologically defensible report for researchers.
 
 The implementation must satisfy four principles:
 
@@ -62,7 +62,7 @@ A future optional deconvolution module may be designed separately. It must requi
 
 ## 3. Lessons adopted from cancer transcriptomic deconvolution literature
 
-The Phase 4 interpretation model adopts the following general principles:
+The CancerPPIr interpretation model adopts the following general principles:
 
 1. **Match the inference to the data type and study question.**
 2. **Separate cell identity from cell state and biological process.**
@@ -73,7 +73,7 @@ The Phase 4 interpretation model adopts the following general principles:
 7. **Report uncertainty, missing references, and technological mismatch explicitly.**
 8. **Prefer exact evidence tables over opaque narrative labels.**
 
-DeMixSC is an instructive example of this discipline. It uses matched bulk and single-cell/single-nucleus benchmark data, identifies genes affected by inter-platform discrepancy, aligns data sets, and estimates proportions using weighted non-negative least squares. CancerPPIr does not currently have the required inputs for this type of inference; Phase 4 therefore borrows the transparency and benchmarking principles, not the cell-fraction output claim.
+DeMixSC is an instructive example of this discipline. It uses matched bulk and single-cell/single-nucleus benchmark data, identifies genes affected by inter-platform discrepancy, aligns data sets, and estimates proportions using weighted non-negative least squares. CancerPPIr does not currently have the required inputs for this type of inference; CancerPPIr therefore borrows the transparency and benchmarking principles, not the cell-fraction output claim.
 
 ---
 
@@ -678,7 +678,7 @@ Automated checks must verify:
 
 ---
 
-## 19. Implementation checkpoints
+## 19. Implementation gates
 
 ### 4.1 — Freeze the output and interpretation contract
 
@@ -750,7 +750,7 @@ Automated checks must verify:
 
 ## 21. Decision record
 
-Phase 4 will not convert CancerPPIr into a cell-fraction deconvolution method.
+CancerPPIr will not convert CancerPPIr into a cell-fraction deconvolution method.
 
 It will make CancerPPIr substantially more biologically specific by producing:
 

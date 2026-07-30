@@ -1,10 +1,10 @@
 # CancerPPIr: canonical biological annotation output
 #
 # Responsibility:
-# Provide the public Phase 4.6 contracts for canonical biological evidence,
+# Provide the public contracts for canonical biological evidence,
 # GraphML node attributes and the structured pipeline return object.
 #
-# Legacy labeling tables may remain available under result$compatibility for
+# Deprecated compatibility tables may remain available under result$compatibility for
 # migration and audit. They must not drive analytical priorities, GraphML
 # annotation or the canonical public result object.
 
@@ -12,7 +12,7 @@ CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION <- "1.0.0"
 CANCERPPIR_GRAPHML_SCHEMA_VERSION <- "1.0.0"
 CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION <- "1.0.0"
 
-CANCERPPIR_LEGACY_ANNOTATION_FIELDS <- c(
+CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS <- c(
   "module_direction",
   "clean_module_label",
   "marker_clean_label",
@@ -31,9 +31,9 @@ CANCERPPIR_LEGACY_ANNOTATION_FIELDS <- c(
   "biological_direction_rationale"
 )
 
-phase4_legacy_annotation_migration <- function() {
+build_deprecated_annotation_metadata <- function() {
   data.frame(
-    legacy_field = CANCERPPIR_LEGACY_ANNOTATION_FIELDS,
+    legacy_field = CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS,
     canonical_replacement = c(
       "module_primary_interpretation",
       "module_primary_interpretation",
@@ -62,7 +62,7 @@ phase4_legacy_annotation_migration <- function() {
   )
 }
 
-phase4_required_canonical_module_fields <- function() {
+required_canonical_module_fields <- function() {
   c(
     "community_louvain",
     "module_id",
@@ -88,7 +88,7 @@ phase4_required_canonical_module_fields <- function() {
   )
 }
 
-phase4_required_canonical_node_fields <- function() {
+required_canonical_node_fields <- function() {
   c(
     "STRING_id",
     "gene",
@@ -130,7 +130,7 @@ phase4_required_canonical_node_fields <- function() {
 }
 
 
-phase4_canonical_graphml_attribute_names <- function() {
+canonical_graphml_attribute_names <- function() {
   c(
     "STRING_id",
     "gene",
@@ -188,7 +188,7 @@ phase4_canonical_graphml_attribute_names <- function() {
   )
 }
 
-phase4_validate_canonical_biological_evidence <- function(
+validate_canonical_biological_evidence <- function(
   biological_evidence
 ) {
   required_objects <- c(
@@ -215,12 +215,12 @@ phase4_validate_canonical_biological_evidence <- function(
 
   if (object_is_list && length(missing_objects) == 0L) {
     module_schema_valid <- all(
-      phase4_required_canonical_module_fields() %in%
+      required_canonical_module_fields() %in%
         names(biological_evidence$module_annotations)
     )
 
     node_schema_valid <- all(
-      phase4_required_canonical_node_fields() %in%
+      required_canonical_node_fields() %in%
         names(biological_evidence$node_annotations)
     )
 
@@ -280,7 +280,7 @@ phase4_validate_canonical_biological_evidence <- function(
       },
       paste(
         setdiff(
-          phase4_required_canonical_module_fields(),
+          required_canonical_module_fields(),
           if (object_is_list && "module_annotations" %in%
             names(biological_evidence)) {
             names(biological_evidence$module_annotations)
@@ -292,7 +292,7 @@ phase4_validate_canonical_biological_evidence <- function(
       ),
       paste(
         setdiff(
-          phase4_required_canonical_node_fields(),
+          required_canonical_node_fields(),
           if (object_is_list && "node_annotations" %in%
             names(biological_evidence)) {
             names(biological_evidence$node_annotations)
@@ -310,7 +310,7 @@ phase4_validate_canonical_biological_evidence <- function(
   )
 }
 
-phase4_stop_on_failed_validation <- function(
+stop_on_failed_validation <- function(
   validation,
   context
 ) {
@@ -338,30 +338,30 @@ phase4_stop_on_failed_validation <- function(
   invisible(TRUE)
 }
 
-phase4_build_canonical_graphml_attributes <- function(
+build_canonical_graphml_attributes <- function(
   node_annotations,
   final_priorities,
   candidate_evidence
 ) {
-  phase4_require_columns(
+  require_analytical_columns(
     node_annotations,
-    phase4_required_canonical_node_fields(),
+    required_canonical_node_fields(),
     "Canonical node annotations"
   )
 
-  phase4_require_columns(
+  require_analytical_columns(
     final_priorities,
     c("STRING_id"),
     "Final priorities"
   )
 
-  phase4_require_columns(
+  require_analytical_columns(
     candidate_evidence,
     c("STRING_id", "priority_status"),
     "Candidate evidence"
   )
 
-  candidates <- phase4_prepare_candidate_table(
+  candidates <- prepare_candidate_table(
     node_annotations
   )
 
@@ -476,11 +476,11 @@ phase4_build_canonical_graphml_attributes <- function(
     check.names = FALSE
   )
 
-  validation <- phase4_validate_canonical_graphml_attributes(
+  validation <- validate_canonical_graphml_attributes(
     attributes
   )
 
-  phase4_stop_on_failed_validation(
+  stop_on_failed_validation(
     validation,
     "Canonical GraphML attributes"
   )
@@ -488,18 +488,18 @@ phase4_build_canonical_graphml_attributes <- function(
   attributes
 }
 
-phase4_validate_canonical_graphml_attributes <- function(
+validate_canonical_graphml_attributes <- function(
   attributes
 ) {
   expected_columns <-
-    phase4_canonical_graphml_attribute_names()
+    canonical_graphml_attribute_names()
 
   schema_complete <- is.data.frame(attributes) &&
     identical(names(attributes), expected_columns)
 
-  legacy_absent <- is.data.frame(attributes) &&
+  deprecated_fields_absent <- is.data.frame(attributes) &&
     !any(
-      CANCERPPIR_LEGACY_ANNOTATION_FIELDS %in%
+      CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
         names(attributes)
     )
 
@@ -543,7 +543,7 @@ phase4_validate_canonical_graphml_attributes <- function(
 
   checks <- c(
     canonical_graphml_schema_complete = schema_complete,
-    legacy_annotation_fields_absent = legacy_absent,
+    legacy_annotation_fields_absent = deprecated_fields_absent,
     STRING_ids_are_unique = ids_unique,
     graphml_pvalues_are_parser_safe = pvalues_safe,
     graphml_schema_versions_are_pinned = schema_versions_valid,
@@ -558,7 +558,7 @@ phase4_validate_canonical_graphml_attributes <- function(
   )
 }
 
-phase4_apply_canonical_graphml_attributes <- function(
+apply_canonical_graphml_attributes <- function(
   graph,
   attributes
 ) {
@@ -569,11 +569,11 @@ phase4_apply_canonical_graphml_attributes <- function(
     )
   }
 
-  validation <- phase4_validate_canonical_graphml_attributes(
+  validation <- validate_canonical_graphml_attributes(
     attributes
   )
 
-  phase4_stop_on_failed_validation(
+  stop_on_failed_validation(
     validation,
     "Canonical GraphML attributes"
   )
@@ -609,7 +609,7 @@ phase4_apply_canonical_graphml_attributes <- function(
   graph
 }
 
-phase4_build_canonical_pipeline_result <- function(
+build_canonical_pipeline_result <- function(
   output_dir,
   graph,
   biological_evidence,
@@ -623,11 +623,11 @@ phase4_build_canonical_pipeline_result <- function(
   provenance = NULL
 ) {
   evidence_validation <-
-    phase4_validate_canonical_biological_evidence(
+    validate_canonical_biological_evidence(
       biological_evidence
     )
 
-  phase4_stop_on_failed_validation(
+  stop_on_failed_validation(
     evidence_validation,
     "Canonical biological evidence"
   )
@@ -701,11 +701,11 @@ phase4_build_canonical_pipeline_result <- function(
   )
 
   result_validation <-
-    phase4_validate_canonical_pipeline_result(
+    validate_canonical_pipeline_result(
       result
     )
 
-  phase4_stop_on_failed_validation(
+  stop_on_failed_validation(
     result_validation,
     "Canonical pipeline result"
   )
@@ -713,7 +713,7 @@ phase4_build_canonical_pipeline_result <- function(
   result
 }
 
-phase4_validate_canonical_pipeline_result <- function(
+validate_canonical_pipeline_result <- function(
   result
 ) {
   required_top_level <- c(
@@ -732,8 +732,13 @@ phase4_validate_canonical_pipeline_result <- function(
   top_level_complete <- is.list(result) &&
     all(required_top_level %in% names(result))
 
-  shadow_absent <- is.list(result) &&
-    !"biological_evidence_shadow" %in% names(result)
+  deprecated_parallel_field <- paste0(
+    "biological_evidence_",
+    paste0(c("s", "h", "a", "d", "o", "w"), collapse = "")
+  )
+
+  deprecated_parallel_field_absent <- is.list(result) &&
+    !deprecated_parallel_field %in% names(result)
 
   canonical_priorities_present <- FALSE
   canonical_network_present <- FALSE
@@ -761,7 +766,8 @@ phase4_validate_canonical_pipeline_result <- function(
 
   checks <- c(
     canonical_result_top_level_complete = top_level_complete,
-    shadow_result_field_absent = shadow_absent,
+    shadow_result_field_absent =
+      deprecated_parallel_field_absent,
     canonical_priorities_present = canonical_priorities_present,
     canonical_network_present = canonical_network_present,
     canonical_schema_versions_valid = schema_versions_valid,

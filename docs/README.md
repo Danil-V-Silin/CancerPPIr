@@ -1,7 +1,9 @@
 # CancerPPIr documentation
 
-This directory separates user guidance, public reference material, and
-maintainer-facing development records.
+This directory separates user guidance, public reference material, and current
+maintainer documentation. Historical refactoring records and superseded
+architecture snapshots are intentionally excluded from the supported source
+tree; released states remain available through Git history and immutable tags.
 
 ## User guide
 
@@ -24,22 +26,14 @@ maintainer-facing development records.
 - [Output provenance contract](reference/contracts/output-provenance.md)
 - [Release-validation contract](reference/contracts/release-validation.md)
 
-## Development records
+## Maintainer documentation
 
 - [Release process](development/release-process.md)
 - [Repository governance](development/repository-governance.md)
+- [Repository quality policy](development/repository-quality-policy.md)
 - [Publication-readiness checklist](development/publication-readiness-checklist.md)
 - [Stable release notes](development/release-notes-v1.0.0.md)
-- [Release baseline](development/history/release-baseline.md)
-- [Target architecture](development/architecture/target-architecture.md)
 - [Output-quality specification](development/specifications/output-quality-and-biological-interpretation.md)
-- [Legacy architecture](development/history/legacy-architecture.md)
-- [Historical output-schema migration](development/history/output-schema-migration.md)
-- Historical architecture checkpoints are retained under
-  `development/history/architecture-checkpoints/`.
+- [Workbook-duplication review](development/workbook-duplication-review-v1.0.0.md)
 
 Return to the [repository README](../README.md).
-
-## Repository quality
-
-- [Repository quality policy](development/repository-quality-policy.md)

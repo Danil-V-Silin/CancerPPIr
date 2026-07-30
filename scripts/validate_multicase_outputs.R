@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4.5 multicase checkpoint v2
+# CancerPPIr multicase regression validator
 #
-# One consolidated regression checkpoint with source-aware mapping validation:
+# One consolidated regression qualification with source-aware mapping validation:
 #   1. runs the complete unit-test suite once;
 #   2. runs or revalidates the existing seven-case technical-export validator;
 #   3. validates the new six-sheet analytical workbook for all seven cases;
@@ -19,7 +19,7 @@
 #
 # Defaults:
 #   ../input
-#   ../results/phase4_5_multicase_checkpoint_v1
+#   ../results/multicase_regression_v1
 #   ../string_cache
 #   run-pipeline
 #   run-unit-tests
@@ -29,7 +29,7 @@
 #
 #   Rscript scripts/validate_multicase_outputs.R \
 #     "..\input" \
-#     "..\results\phase4_5_multicase_checkpoint_v1" \
+#     "..\results\multicase_regression_v1" \
 #     "..\string_cache" \
 #     validate-existing
 
@@ -86,7 +86,7 @@ output_root <- if (length(arguments) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_5_multicase_checkpoint_v1"
+    "multicase_regression_v1"
   )
 }
 
@@ -376,12 +376,12 @@ tail_log <- function(
 }
 
 unit_test_log_temporary <- tempfile(
-  pattern = "phase4_5_multicase_unit_tests_",
+  pattern = "multicase_unit_tests_",
   fileext = ".log"
 )
 
 technical_validator_log_temporary <- tempfile(
-  pattern = "phase4_5_multicase_technical_validator_",
+  pattern = "multicase_technical_validator_",
   fileext = ".log"
 )
 
@@ -397,7 +397,7 @@ on.exit(
 
 if (run_unit_tests) {
   message(
-    "[Phase 4.5 multicase] Running unit tests once."
+    "[CancerPPIr multicase regression] Running unit tests once."
   )
 
   unit_test_status <- system2(
@@ -429,17 +429,17 @@ if (run_unit_tests) {
   }
 
   message(
-    "[Phase 4.5 multicase] Unit tests: PASS."
+    "[CancerPPIr multicase regression] Unit tests: PASS."
   )
 } else {
   writeLines(
-    "Unit tests skipped because they were already completed by the parent release checkpoint.",
+    "Unit tests skipped because they were already completed by the parent release qualification.",
     unit_test_log_temporary,
     useBytes = TRUE
   )
 
   message(
-    "[Phase 4.5 multicase] Unit tests: SKIPPED (completed by parent checkpoint)."
+    "[CancerPPIr multicase regression] Unit tests: SKIPPED (completed by parent qualification run)."
   )
 }
 
@@ -466,7 +466,7 @@ if (validate_existing) {
 }
 
 message(
-  "[Phase 4.5 multicase] ",
+  "[CancerPPIr multicase regression] ",
   if (validate_existing) {
     "Revalidating existing seven-case outputs."
   } else {
@@ -512,7 +512,7 @@ invisible(
     unit_test_log_temporary,
   file.path(
     output_root,
-    "phase4_5_unit_tests.log"
+    "multicase_unit_tests.log"
   ),
     overwrite = TRUE
   )
@@ -523,7 +523,7 @@ invisible(
     technical_validator_log_temporary,
   file.path(
     output_root,
-    "phase4_5_technical_validator.log"
+    "multicase_technical_validator.log"
   ),
     overwrite = TRUE
   )
@@ -539,7 +539,7 @@ load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-expected_columns <- phase4_expected_analytical_columns()
+expected_columns <- expected_analytical_columns()
 
 read_sheet <- function(
   workbook,
@@ -786,7 +786,7 @@ for (case_index in seq_len(
   sample_id <- case_map$sample_id[[case_index]]
 
   message(
-    "[Phase 4.5 multicase] Validating analytical workbook for ",
+    "[CancerPPIr multicase regression] Validating analytical workbook for ",
     sample_id,
     "."
   )
@@ -930,7 +930,7 @@ for (case_index in seq_len(
         "Significant terms"
       )
 
-      phase4_validation <- read_sheet(
+      analytical_validation <- read_sheet(
         technical_workbook,
         "Validation"
       )
@@ -945,7 +945,7 @@ for (case_index in seq_len(
         "Genes used table"
       )
 
-      phase4_require_columns(
+      require_analytical_columns(
         mapping_summary,
         c(
           "metric",
@@ -1010,16 +1010,16 @@ for (case_index in seq_len(
         graph
       )$no
 
-      candidate_audit <- phase4_prepare_candidate_table(
+      candidate_audit <- prepare_candidate_table(
         node_annotations
       )
 
       in_memory_validation <- tryCatch(
-        validate_phase4_analytical_workbook(
+        validate_analytical_workbook(
           sheets = sheets,
           candidate_audit = candidate_audit,
           significant_terms = significant_terms,
-          phase4_validation = phase4_validation,
+          analytical_validation = analytical_validation,
           fdr_threshold = 0.05
         ),
         error = function(error) {
@@ -1050,20 +1050,20 @@ for (case_index in seq_len(
       )
 
       expected_final_priorities <-
-        phase4_build_final_priorities(
+        build_final_priorities(
           candidates = candidate_audit,
           maximum_rows = 10L
         )
 
       expected_module_priorities <-
-        phase4_build_module_priorities(
+        build_module_priorities(
           module_annotations = module_annotations,
           network_nodes = graph_nodes,
           maximum_rows = 5L
         )
 
       expected_candidate_evidence <-
-        phase4_build_candidate_evidence(
+        build_candidate_evidence(
           candidates = candidate_audit,
           final_priorities =
             expected_final_priorities,
@@ -1071,7 +1071,7 @@ for (case_index in seq_len(
         )
 
       expected_methods <-
-        phase4_build_methods_and_limitations()
+        build_methods_and_limitations()
 
       final_comparison <- compare_frames(
         sheets[[
@@ -1103,21 +1103,21 @@ for (case_index in seq_len(
 
       add_check(
         sample_id,
-        "final_priorities_match_phase4_source",
+        "final_priorities_match_source",
         final_comparison$pass,
         final_comparison$details
       )
 
       add_check(
         sample_id,
-        "module_priorities_match_phase4_source",
+        "module_priorities_match_source",
         module_comparison$pass,
         module_comparison$details
       )
 
       add_check(
         sample_id,
-        "candidate_evidence_matches_phase4_source",
+        "candidate_evidence_matches_source",
         candidate_comparison$pass,
         candidate_comparison$details
       )
@@ -1484,7 +1484,7 @@ for (case_index in seq_len(
       )
 
       expected_nonmetric_overview <-
-        phase4_build_network_overview(
+        build_network_overview(
           graph_summary = dummy_graph_summary,
           candidates = candidate_audit,
           degree_distribution =
@@ -1670,7 +1670,7 @@ for (case_index in seq_len(
   }
 
   message(
-    "[Phase 4.5 multicase] ",
+    "[CancerPPIr multicase regression] ",
     sample_id,
     ": ",
     if (isTRUE(
@@ -1743,12 +1743,12 @@ case_summary$case_pass <- (
 
 summary_file <- file.path(
   output_root,
-  "phase4_5_multicase_analytical_summary.csv"
+  "multicase_analytical_summary.csv"
 )
 
 validation_file <- file.path(
   output_root,
-  "phase4_5_multicase_analytical_validation.csv"
+  "multicase_analytical_validation.csv"
 )
 
 utils::write.csv(
@@ -1766,7 +1766,7 @@ utils::write.csv(
 )
 
 cat(
-  "\nPHASE 4.5 MULTICASE IMPLEMENTATION CHECKPOINT\n\n"
+  "\nCANCERPPIR MULTICASE REGRESSION QUALIFICATION\n\n"
 )
 
 print(
@@ -1801,12 +1801,12 @@ cat(
   "\n- ",
   file.path(
     output_root,
-    "phase4_5_unit_tests.log"
+    "multicase_unit_tests.log"
   ),
   "\n- ",
   file.path(
     output_root,
-    "phase4_5_technical_validator.log"
+    "multicase_technical_validator.log"
   ),
   "\n",
   sep = ""
@@ -1825,7 +1825,7 @@ overall_pass <- (
 
 if (!overall_pass) {
   cat(
-    "\nPHASE 4.5 MULTICASE IMPLEMENTATION CHECKPOINT: FAILED\n"
+    "\nCANCERPPIR MULTICASE REGRESSION QUALIFICATION: FAILED\n"
   )
 
   quit(
@@ -1835,5 +1835,5 @@ if (!overall_pass) {
 }
 
 cat(
-  "\nPHASE 4.5 MULTICASE IMPLEMENTATION CHECKPOINT: PASSED\n"
+  "\nCANCERPPIR MULTICASE REGRESSION QUALIFICATION: PASSED\n"
 )

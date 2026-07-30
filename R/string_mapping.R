@@ -2,12 +2,9 @@
 #
 # HGNC symbol handling, STRING identifier mapping, alias correction and STRING interaction retrieval.
 #
-# Architecture checkpoint 2.6
 #
 # The function bodies below were extracted from cancerppir.R without semantic rewriting.
 
-##############################################################################
-# classify_symbol_pattern - extracted from cancerppir.R lines 195-227
 ##############################################################################
 classify_symbol_pattern <- function(sym) {
   s <- toupper(trimws(sym))
@@ -44,8 +41,6 @@ classify_symbol_pattern <- function(sym) {
 }
 
 ##############################################################################
-# status_from_mapping - extracted from cancerppir.R lines 229-249
-##############################################################################
 status_from_mapping <- function(mapped_initially, mapped_after_alias, symbol_class) {
   if (isTRUE(mapped_initially)) {
     return("mapped_to_STRING")
@@ -69,8 +64,6 @@ status_from_mapping <- function(mapped_initially, mapped_after_alias, symbol_cla
 }
 
 ##############################################################################
-# pick_string_id_col - extracted from cancerppir.R lines 597-613
-##############################################################################
 pick_string_id_col <- function(x) {
   nm <- names(x)
   hit <- nm[grepl("STRING_id|string.*id|protein.*id|external.*id", nm, ignore.case = TRUE)]
@@ -90,8 +83,6 @@ pick_string_id_col <- function(x) {
 }
 
 ##############################################################################
-# pick_alias_col - extracted from cancerppir.R lines 615-629
-##############################################################################
 pick_alias_col <- function(x, id_col) {
   nm <- setdiff(names(x), id_col)
   hit <- nm[grepl("alias|synonym", nm, ignore.case = TRUE)]
@@ -109,8 +100,6 @@ pick_alias_col <- function(x, id_col) {
 }
 
 ##############################################################################
-# pick_preferred_name_col - extracted from cancerppir.R lines 631-640
-##############################################################################
 pick_preferred_name_col <- function(x) {
   nm <- names(x)
   hit <- nm[grepl("preferred_name|^gene$|symbol", nm, ignore.case = TRUE)]
@@ -122,8 +111,6 @@ pick_preferred_name_col <- function(x) {
   stop("Could not identify a preferred gene/protein name column.", call. = FALSE)
 }
 
-##############################################################################
-# make_string_links - extracted from cancerppir.R lines 642-657
 ##############################################################################
 make_string_links <- function(string_ids, score_threshold) {
   ids <- head(unique(string_ids), 300L)
@@ -142,8 +129,6 @@ make_string_links <- function(string_ids, score_threshold) {
   )
 }
 
-##############################################################################
-# map_to_string - extracted from cancerppir.R lines 673-726
 ##############################################################################
 map_to_string <- function(db, data, gene_col = "gene", removeUnmappedRows = FALSE) {
   df <- as.data.frame(data, stringsAsFactors = FALSE)
@@ -201,7 +186,7 @@ map_to_string <- function(db, data, gene_col = "gene", removeUnmappedRows = FALS
 }
 
 
-# Phase 4.4B: strict offline STRINGdb initialization
+# CancerPPIr technical export validation: strict offline STRINGdb initialization
 # -----------------------------------------------------------------------------
 
 .cancerppir_offline_stringdb_state <- new.env(

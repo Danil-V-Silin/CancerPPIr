@@ -1,11 +1,8 @@
 # CancerPPIr: reporting
 #
-# Architecture checkpoint 2.9.
 #
 # Functions below were extracted from cancerppir.R without semantic rewriting.
 
-##############################################################################
-# write_excel - extracted from cancerppir.R lines 237-249
 ##############################################################################
 write_excel <- function(path, sheets) {
   if (!requireNamespace("openxlsx", quietly = TRUE)) {
@@ -29,15 +26,11 @@ write_excel <- function(path, sheets) {
 }
 
 ##############################################################################
-# sanitize_sheet_name - extracted from cancerppir.R lines 983-986
-##############################################################################
 sanitize_sheet_name <- function(x) {
   x <- gsub("[\\[\\]\\*\\?/\\\\:]", "_", x)
   substr(x, 1L, 31L)
 }
 
-##############################################################################
-# as_output_table - extracted from cancerppir.R lines 988-997
 ##############################################################################
 as_output_table <- function(x) {
   if (is.null(x)) {
@@ -50,7 +43,6 @@ as_output_table <- function(x) {
   tibble::as_tibble(x)
 }
 
-##############################################################################
 ##############################################################################
 # prepare_graphml_pvalue_export
 ##############################################################################
@@ -105,7 +97,6 @@ prepare_graphml_pvalue_export <- function(pvalue) {
   )
 }
 
-# write_readable_xlsx - extracted from cancerppir.R lines 1214-1269
 ##############################################################################
 write_readable_xlsx <- function(path, sheets) {
   if (!requireNamespace("openxlsx", quietly = TRUE)) {

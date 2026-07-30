@@ -2,14 +2,14 @@
 
 ## Purpose
 
-The release checkpoint is the single production qualification gate for a
+The release qualification is the single production qualification gate for a
 CancerPPIr release candidate. It runs repository preflight checks, one complete
 unit-test suite, and one seven-case production regression.
 
 ## Command
 
 ```text
-Rscript scripts/run_release_checkpoint.R INPUT_DIR OUTPUT_DIR STRING_CACHE run-pipeline run-tests
+Rscript scripts/run_release_qualification.R INPUT_DIR OUTPUT_DIR STRING_CACHE run-pipeline run-tests
 ```
 
 `OUTPUT_DIR` must be new or empty in `run-pipeline` mode. Existing validated
@@ -27,6 +27,8 @@ The fixed release set contains:
 - P02 (`Genes_P02.csv`)
 - R01 (`Genes_R.csv`)
 
+Clinical regression inputs are maintained outside the public repository.
+
 ## Required case outputs
 
 Each case must contain:
@@ -40,8 +42,9 @@ Each case must contain:
 
 ## Repository preflight
 
-The checkpoint requires all static release, documentation, publication
-readiness, and CLI checks to pass before the seven-case run begins.
+The qualification requires all static release, documentation, publication
+readiness, repository-quality, and CLI checks to pass before the seven-case run
+begins.
 
 ## Release evidence
 
@@ -57,7 +60,7 @@ The output root contains:
 The successful terminal result is:
 
 ```text
-CANCERPPIR RELEASE CHECKPOINT: PASSED
+CANCERPPIR RELEASE QUALIFICATION: PASSED
 ```
 
 ## Acceptance rule

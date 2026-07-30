@@ -36,7 +36,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    observed <- phase4_significant_specific_terms(
+    observed <- significant_specific_terms(
       enrichment
     )
 
@@ -81,7 +81,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 2
@@ -162,7 +162,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 8
@@ -199,7 +199,7 @@ testthat::test_that(
       "DDX3Y", "UTY", "USP9Y"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 4
@@ -251,7 +251,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 99,
@@ -288,13 +288,13 @@ testthat::test_that(
 
     classes <- vapply(
       genes,
-      phase4_classify_entity,
+      classify_evidence_entity,
       FUN.VALUE = character(1)
     )
 
     eligibility <- vapply(
       classes,
-      phase4_candidate_eligibility,
+      determine_candidate_eligibility,
       FUN.VALUE = character(1)
     )
 
@@ -346,7 +346,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 200
@@ -405,7 +405,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 201
@@ -441,7 +441,7 @@ testthat::test_that(
       "ASCL1", "INSM1", "SOX2", "ELAVL4", "STMN2"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 202
@@ -493,7 +493,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 203
@@ -540,7 +540,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 204
@@ -584,7 +584,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 205
@@ -633,7 +633,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 206
@@ -673,7 +673,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    retained <- phase4_significant_specific_terms(
+    retained <- significant_specific_terms(
       enrichment
     )
 
@@ -708,7 +708,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 300
@@ -740,7 +740,7 @@ testthat::test_that(
       "SOX18", "APLNR", "CLEC14A", "RAMP3"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 301
@@ -772,7 +772,7 @@ testthat::test_that(
       "RASAL3", "GIMAP8", "GIMAP1", "SNX20"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 302
@@ -815,7 +815,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 303
@@ -852,7 +852,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 304
@@ -899,7 +899,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 305
@@ -942,7 +942,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 306
@@ -963,7 +963,7 @@ testthat::test_that(
       "RIBC2", "MNS1", "TUBA3C", "TUBB8B"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 307
@@ -990,7 +990,7 @@ testthat::test_that(
       "KRT79", "KRT73", "KRT71", "DMKN"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 308
@@ -1015,7 +1015,7 @@ testthat::test_that(
       "IRX2", "IRX4", "MESP1"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 309
@@ -1040,7 +1040,7 @@ testthat::test_that(
       "CPA5", "CPA4", "CEL"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 310
@@ -1065,7 +1065,7 @@ testthat::test_that(
       "TPSB2", "CEBPE", "TPSD1"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 311
@@ -1107,7 +1107,7 @@ testthat::test_that(
       "PCDH17", "CALY", "EPHA10"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 312
@@ -1142,7 +1142,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = enrichment,
       module_id = 313
@@ -1168,7 +1168,7 @@ testthat::test_that(
       "MRPL12", "KCNK9"
     )
 
-    result <- phase4_annotate_module_evidence(
+    result <- annotate_module_evidence(
       genes = genes,
       enrichment = NULL,
       module_id = 314

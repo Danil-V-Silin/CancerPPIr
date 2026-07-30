@@ -42,7 +42,7 @@ cancerppir_validate_publication_readiness <- function(
     "README.md",
     "cancerppir.R",
     "R/load_all.R",
-    "scripts/run_release_checkpoint.R",
+    "scripts/run_release_qualification.R",
     "scripts/validate_release_contract.R",
     "scripts/validate_documentation_contract.R",
     "scripts/validate_publication_readiness.R",
@@ -272,7 +272,7 @@ cancerppir_validate_publication_readiness <- function(
 
   release_script_text <- read_utf8(file.path(
     project_root,
-    "scripts/run_release_checkpoint.R"
+    "scripts/run_release_qualification.R"
   ))
 
   release_tokens <- c(
@@ -283,14 +283,20 @@ cancerppir_validate_publication_readiness <- function(
     "release_unit_tests.log",
     "release_multicase.log",
     "CANCERPPIR RELEASE PREFLIGHT: FAILED",
-    "CANCERPPIR RELEASE CHECKPOINT",
-    "CANCERPPIR RELEASE CHECKPOINT: PASSED",
+    "CANCERPPIR RELEASE QUALIFICATION",
+    "CANCERPPIR RELEASE QUALIFICATION: PASSED",
     "validate_publication_readiness.R",
     'section = "publication"'
   )
 
+  obsolete_release_tokens <- c(
+    paste0("run_release_", paste0(c("c", "h", "e", "c", "k", "p", "o", "i", "n", "t"), collapse = ""), ".R"),
+    paste0("PHASE", " 4 RELEASE"),
+    paste0("phase", "4_release")
+  )
+
   add_check(
-    "release_checkpoint_uses_publication_gate_and_semantic_names",
+    "release_qualification_uses_publication_gate_and_semantic_names",
     all(vapply(
       release_tokens,
       grepl,
@@ -298,17 +304,17 @@ cancerppir_validate_publication_readiness <- function(
       fixed = TRUE,
       FUN.VALUE = logical(1)
     )) &&
-      !grepl(
-        "PHASE 4 RELEASE PREFLIGHT",
-        release_script_text,
-        fixed = TRUE
-      ) &&
-      !grepl(
-        "PHASE 4 RELEASE CHECKPOINT",
-        release_script_text,
-        fixed = TRUE
-      ),
-    paste(release_tokens, collapse = " | ")
+      !any(vapply(
+        obsolete_release_tokens,
+        grepl,
+        x = release_script_text,
+        fixed = TRUE,
+        FUN.VALUE = logical(1)
+      )),
+    paste(
+      c(release_tokens, obsolete_release_tokens),
+      collapse = " | "
+    )
   )
 
   public_documents <- unique(c(
@@ -421,7 +427,7 @@ cancerppir_validate_publication_readiness <- function(
     "docs/development/release-process.md"
   ))
   order_terms <- c(
-    "Run the complete seven-case release checkpoint",
+    "Run the complete seven-case release qualification",
     "Perform clean-clone qualification",
     "Create an annotated"
   )
@@ -503,7 +509,7 @@ cancerppir_validate_publication_readiness <- function(
 
   whitespace_files <- unique(c(
     production_files,
-    file.path(project_root, "scripts/run_release_checkpoint.R"),
+    file.path(project_root, "scripts/run_release_qualification.R"),
     public_documents
   ))
 

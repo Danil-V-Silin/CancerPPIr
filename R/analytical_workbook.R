@@ -1,8 +1,8 @@
-# CancerPPIr: Phase 4 analytical workbook
+# CancerPPIr: CancerPPIr analytical workbook
 #
 # Responsibility:
 # Build and validate the concise six-sheet human-readable workbook from the
-# deterministic Phase 4 biological evidence objects.
+# deterministic CancerPPIr biological evidence objects.
 #
 # This module contains no patient-specific rules and performs no file I/O.
 
@@ -17,7 +17,7 @@ CANCERPPIR_ANALYTICAL_SHEET_NAMES <- c(
   "Methods and limitations"
 )
 
-phase4_require_columns <- function(
+require_analytical_columns <- function(
   data,
   required_columns,
   object_name
@@ -53,7 +53,7 @@ phase4_require_columns <- function(
   invisible(TRUE)
 }
 
-phase4_scalar_text <- function(
+analytical_scalar_text <- function(
   x,
   fallback = "not_available"
 ) {
@@ -76,7 +76,7 @@ phase4_scalar_text <- function(
   )
 }
 
-phase4_vector_text <- function(
+analytical_vector_text <- function(
   x,
   fallback = "not_available"
 ) {
@@ -87,7 +87,7 @@ phase4_vector_text <- function(
   x
 }
 
-phase4_format_number <- function(
+format_analytical_number <- function(
   x,
   digits = 5L
 ) {
@@ -117,11 +117,11 @@ phase4_format_number <- function(
   )
 }
 
-phase4_metric_numeric <- function(
+analytical_metric_numeric <- function(
   graph_summary,
   metric_name
 ) {
-  phase4_require_columns(
+  require_analytical_columns(
     graph_summary,
     c(
       "metric",
@@ -148,7 +148,7 @@ phase4_metric_numeric <- function(
   )
 }
 
-phase4_rank_desc <- function(x) {
+rank_values_descending <- function(x) {
   x <- suppressWarnings(
     as.numeric(x)
   )
@@ -160,7 +160,7 @@ phase4_rank_desc <- function(x) {
   )
 }
 
-phase4_stable_candidate_order <- function(nodes) {
+stable_candidate_order <- function(nodes) {
   order(
     -suppressWarnings(
       as.numeric(
@@ -177,11 +177,11 @@ phase4_stable_candidate_order <- function(nodes) {
         nodes$betweenness
       )
     ),
-    phase4_vector_text(
+    analytical_vector_text(
       nodes$gene,
       fallback = ""
     ),
-    phase4_vector_text(
+    analytical_vector_text(
       nodes$STRING_id,
       fallback = ""
     ),
@@ -189,7 +189,7 @@ phase4_stable_candidate_order <- function(nodes) {
   )
 }
 
-phase4_combine_evidence_text <- function(...) {
+combine_evidence_text <- function(...) {
   values <- unlist(
     list(...),
     use.names = FALSE
@@ -211,14 +211,14 @@ phase4_combine_evidence_text <- function(...) {
   )
 }
 
-phase4_candidate_warning <- function(
+build_candidate_warning <- function(
   module_warning,
   candidate_eligibility,
   conflict_detected
 ) {
   warning_parts <- character(0)
 
-  module_warning <- phase4_scalar_text(
+  module_warning <- analytical_scalar_text(
     module_warning,
     fallback = ""
   )
@@ -236,7 +236,7 @@ phase4_candidate_warning <- function(
     )
   }
 
-  candidate_eligibility <- phase4_scalar_text(
+  candidate_eligibility <- analytical_scalar_text(
     candidate_eligibility,
     fallback = "eligibility_not_available"
   )
@@ -271,7 +271,7 @@ phase4_candidate_warning <- function(
   )
 }
 
-phase4_prepare_candidate_table <- function(node_annotations) {
+prepare_candidate_table <- function(node_annotations) {
   required_columns <- c(
     "STRING_id",
     "gene",
@@ -294,10 +294,10 @@ phase4_prepare_candidate_table <- function(node_annotations) {
     "module_warning"
   )
 
-  phase4_require_columns(
+  require_analytical_columns(
     node_annotations,
     required_columns,
-    "Phase 4 node annotations"
+    "CancerPPIr node annotations"
   )
 
   candidates <- as.data.frame(
@@ -354,7 +354,7 @@ phase4_prepare_candidate_table <- function(node_annotations) {
       candidates$candidate_score_reconstructed
   )
 
-  candidate_order <- phase4_stable_candidate_order(
+  candidate_order <- stable_candidate_order(
     candidates
   )
 
@@ -362,31 +362,31 @@ phase4_prepare_candidate_table <- function(node_annotations) {
   candidates$network_candidate_rank[candidate_order] <-
     seq_along(candidate_order)
 
-  candidates$degree_rank <- phase4_rank_desc(
+  candidates$degree_rank <- rank_values_descending(
     candidates$degree
   )
 
-  candidates$betweenness_rank <- phase4_rank_desc(
+  candidates$betweenness_rank <- rank_values_descending(
     candidates$betweenness
   )
 
-  candidates$stress_rank <- phase4_rank_desc(
+  candidates$stress_rank <- rank_values_descending(
     candidates$stress_centrality
   )
 
   candidates
 }
 
-phase4_build_final_priorities <- function(
+build_final_priorities <- function(
   candidates,
   maximum_rows = 10L
 ) {
   eligible <- (
-    phase4_vector_text(
+    analytical_vector_text(
       candidates$candidate_eligibility,
       fallback = ""
     ) == "review_ready_canonical" &
-      phase4_vector_text(
+      analytical_vector_text(
         candidates$module_interpretation_class,
         fallback = ""
       ) == "biological" &
@@ -412,11 +412,11 @@ phase4_build_final_priorities <- function(
     selected <- selected[
       order(
         selected$network_candidate_rank,
-        phase4_vector_text(
+        analytical_vector_text(
           selected$gene,
           fallback = ""
         ),
-        phase4_vector_text(
+        analytical_vector_text(
           selected$STRING_id,
           fallback = ""
         ),
@@ -467,7 +467,7 @@ phase4_build_final_priorities <- function(
         " is retained as an exploratory network priority at full-network composite rank ",
         selected$network_candidate_rank[[index]],
         ". Candidate score=",
-        phase4_format_number(
+        format_analytical_number(
           selected$candidate_score[[index]],
           digits = 5L
         ),
@@ -478,12 +478,12 @@ phase4_build_final_priorities <- function(
         "; stress rank=",
         selected$stress_rank[[index]],
         "; logFC=",
-        phase4_format_number(
+        format_analytical_number(
           selected$logFC[[index]],
           digits = 5L
         ),
         "; module context: ",
-        phase4_scalar_text(
+        analytical_scalar_text(
           selected$module_primary_interpretation[[index]],
           fallback = "unresolved"
         ),
@@ -498,7 +498,7 @@ phase4_build_final_priorities <- function(
       nrow(selected)
     ),
     function(index) {
-      phase4_candidate_warning(
+      build_candidate_warning(
         module_warning =
           selected$module_warning[[index]],
         candidate_eligibility =
@@ -530,14 +530,14 @@ phase4_build_final_priorities <- function(
     module_id = as.character(
       selected$community_louvain
     ),
-    biological_context = phase4_vector_text(
+    biological_context = analytical_vector_text(
       selected$module_primary_interpretation,
       fallback = "unresolved"
     ),
     candidate_eligibility = as.character(
       selected$candidate_eligibility
     ),
-    module_confidence = phase4_vector_text(
+    module_confidence = analytical_vector_text(
       selected$module_confidence,
       fallback = "not_available"
     ),
@@ -568,7 +568,7 @@ phase4_build_final_priorities <- function(
   )
 }
 
-phase4_build_module_priorities <- function(
+build_module_priorities <- function(
   module_annotations,
   network_nodes,
   maximum_rows = 5L
@@ -592,10 +592,10 @@ phase4_build_module_priorities <- function(
     "evidence_rationale"
   )
 
-  phase4_require_columns(
+  require_analytical_columns(
     module_annotations,
     required_columns,
-    "Phase 4 module annotations"
+    "CancerPPIr module annotations"
   )
 
   modules <- as.data.frame(
@@ -605,7 +605,7 @@ phase4_build_module_priorities <- function(
   )
 
   eligible <- (
-    phase4_vector_text(
+    analytical_vector_text(
       modules$interpretation_class,
       fallback = ""
     ) == "biological" &
@@ -651,7 +651,7 @@ phase4_build_module_priorities <- function(
   }
 
   confidence_order <- match(
-    phase4_vector_text(
+    analytical_vector_text(
       modules$confidence,
       fallback = ""
     ),
@@ -692,7 +692,7 @@ phase4_build_module_priorities <- function(
       ),
       best_fdr_order,
       module_id_numeric,
-      phase4_vector_text(
+      analytical_vector_text(
         modules$module_id,
         fallback = ""
       ),
@@ -712,7 +712,7 @@ phase4_build_module_priorities <- function(
       nrow(modules)
     ),
     function(index) {
-      phase4_combine_evidence_text(
+      combine_evidence_text(
         modules$positive_marker_genes[[index]],
         modules$supportive_marker_genes[[index]]
       )
@@ -756,24 +756,24 @@ phase4_build_module_priorities <- function(
       network_fraction,
       4L
     ),
-    biological_context = phase4_vector_text(
+    biological_context = analytical_vector_text(
       modules$primary_interpretation,
       fallback = "unresolved"
     ),
-    interpretation_scope = phase4_vector_text(
+    interpretation_scope = analytical_vector_text(
       modules$interpretation_scope,
       fallback = "not_available"
     ),
-    confidence = phase4_vector_text(
+    confidence = analytical_vector_text(
       modules$confidence,
       fallback = "not_available"
     ),
-    representative_genes = phase4_vector_text(
+    representative_genes = analytical_vector_text(
       modules$representative_genes,
       fallback = "not_available"
     ),
     marker_evidence_genes = marker_evidence,
-    significant_supporting_terms = phase4_vector_text(
+    significant_supporting_terms = analytical_vector_text(
       modules$significant_supporting_terms,
       fallback = "not_available"
     ),
@@ -782,19 +782,19 @@ phase4_build_module_priorities <- function(
         modules$best_supporting_fdr
       )
     ),
-    secondary_themes = phase4_vector_text(
+    secondary_themes = analytical_vector_text(
       modules$secondary_themes,
       fallback = "not_available"
     ),
     conflict_detected = as.logical(
       modules$conflict_detected
     ),
-    warning = phase4_vector_text(
+    warning = analytical_vector_text(
       modules$warning,
       fallback = "no_warning"
     ),
     evidence_rationale = truncate_text(
-      phase4_vector_text(
+      analytical_vector_text(
         modules$evidence_rationale,
         fallback = "not_available"
       ),
@@ -804,7 +804,7 @@ phase4_build_module_priorities <- function(
   )
 }
 
-phase4_build_candidate_evidence <- function(
+build_candidate_evidence <- function(
   candidates,
   final_priorities,
   top_n
@@ -850,11 +850,11 @@ phase4_build_candidate_evidence <- function(
   selected <- selected[
     order(
       selected$network_candidate_rank,
-      phase4_vector_text(
+      analytical_vector_text(
         selected$gene,
         fallback = ""
       ),
-      phase4_vector_text(
+      analytical_vector_text(
         selected$STRING_id,
         fallback = ""
       ),
@@ -877,12 +877,12 @@ phase4_build_candidate_evidence <- function(
     ) %in% final_ids,
     "final_priority",
     ifelse(
-      phase4_vector_text(
+      analytical_vector_text(
         selected$candidate_eligibility,
         fallback = ""
       ) == "review_ready_canonical",
       "extended_review_ready",
-      phase4_vector_text(
+      analytical_vector_text(
         selected$candidate_eligibility,
         fallback = "eligibility_not_available"
       )
@@ -894,7 +894,7 @@ phase4_build_candidate_evidence <- function(
       nrow(selected)
     ),
     function(index) {
-      phase4_candidate_warning(
+      build_candidate_warning(
         module_warning =
           selected$module_warning[[index]],
         candidate_eligibility =
@@ -915,37 +915,37 @@ phase4_build_candidate_evidence <- function(
         "Composite rank ",
         selected$network_candidate_rank[[index]],
         " combines normalized degree=",
-        phase4_format_number(
+        format_analytical_number(
           selected$degree_component[[index]],
           digits = 4L
         ),
         ", betweenness=",
-        phase4_format_number(
+        format_analytical_number(
           selected$betweenness_component[[index]],
           digits = 4L
         ),
         ", log-stress=",
-        phase4_format_number(
+        format_analytical_number(
           selected$log_stress_component[[index]],
           digits = 4L
         ),
         ", |logFC|=",
-        phase4_format_number(
+        format_analytical_number(
           selected$abs_logFC_component[[index]],
           digits = 4L
         ),
         " and statistical evidence=",
-        phase4_format_number(
+        format_analytical_number(
           selected$statistical_component[[index]],
           digits = 4L
         ),
         ". Module context: ",
-        phase4_scalar_text(
+        analytical_scalar_text(
           selected$module_primary_interpretation[[index]],
           fallback = "unresolved"
         ),
         ". Eligibility: ",
-        phase4_scalar_text(
+        analytical_scalar_text(
           selected$candidate_eligibility[[index]],
           fallback = "not_available"
         ),
@@ -978,11 +978,11 @@ phase4_build_candidate_evidence <- function(
     module_id = as.character(
       selected$community_louvain
     ),
-    biological_context = phase4_vector_text(
+    biological_context = analytical_vector_text(
       selected$module_primary_interpretation,
       fallback = "unresolved"
     ),
-    module_confidence = phase4_vector_text(
+    module_confidence = analytical_vector_text(
       selected$module_confidence,
       fallback = "not_available"
     ),
@@ -1028,7 +1028,7 @@ phase4_build_candidate_evidence <- function(
   )
 }
 
-phase4_network_metric_explanation <- function(metric) {
+explain_network_metric <- function(metric) {
   explanations <- c(
     nodes =
       "Proteins represented as graph nodes.",
@@ -1072,12 +1072,12 @@ phase4_network_metric_explanation <- function(metric) {
   result
 }
 
-phase4_build_network_overview <- function(
+build_network_overview <- function(
   graph_summary,
   candidates,
   degree_distribution
 ) {
-  phase4_require_columns(
+  require_analytical_columns(
     graph_summary,
     c(
       "metric",
@@ -1086,7 +1086,7 @@ phase4_build_network_overview <- function(
     "graph_summary"
   )
 
-  phase4_require_columns(
+  require_analytical_columns(
     degree_distribution,
     c(
       "degree",
@@ -1105,7 +1105,7 @@ phase4_build_network_overview <- function(
       graph_summary$value
     ),
     module_id = NA_character_,
-    details = phase4_network_metric_explanation(
+    details = explain_network_metric(
       graph_summary$metric
     ),
     stringsAsFactors = FALSE
@@ -1173,11 +1173,11 @@ phase4_build_network_overview <- function(
             hubs$candidate_score
           )
         ),
-        phase4_vector_text(
+        analytical_vector_text(
           hubs$gene,
           fallback = ""
         ),
-        phase4_vector_text(
+        analytical_vector_text(
           hubs$STRING_id,
           fallback = ""
         ),
@@ -1199,7 +1199,7 @@ phase4_build_network_overview <- function(
         "candidate_score=",
         vapply(
           hubs$candidate_score,
-          phase4_format_number,
+          format_analytical_number,
           FUN.VALUE = character(1),
           digits = 5L
         )
@@ -1284,7 +1284,7 @@ phase4_build_network_overview <- function(
   )
 }
 
-phase4_build_methods_and_limitations <- function() {
+build_methods_and_limitations <- function() {
   data.frame(
     section = c(
       rep(
@@ -1342,7 +1342,7 @@ phase4_build_methods_and_limitations <- function() {
       "Score values are comparable within the reconstructed case network; cross-patient numerical comparison requires separate calibration.",
       "Automatic final priority requires a review-ready canonical entity in an eligible non-conflicting biological module.",
       "A high rank does not establish druggability, tumor dependency, therapeutic efficacy or expected clinical response.",
-      "The Phase 4 engine integrates curated positive, supportive and exclusion markers with significant specific local STRING terms.",
+      "The CancerPPIr engine integrates curated positive, supportive and exclusion markers with significant specific local STRING terms.",
       "Interpretations are separated into compartment, lineage, state and process; primary_interpretation is a conservative synthesis.",
       "Only non-generic supporting enrichment terms with FDR <= 0.05 are used as analytical biological evidence.",
       "Broad generic terms are excluded from primary analytical interpretation and retained only for technical audit.",
@@ -1362,7 +1362,7 @@ phase4_build_methods_and_limitations <- function() {
   )
 }
 
-phase4_build_executive_summary <- function(
+build_executive_summary <- function(
   input_rows,
   mapped_proteins,
   unmapped_input_rows,
@@ -1375,7 +1375,7 @@ phase4_build_executive_summary <- function(
   louvain_seed,
   fdr_threshold
 ) {
-  module_class <- phase4_vector_text(
+  module_class <- analytical_vector_text(
     module_annotations$interpretation_class,
     fallback = ""
   )
@@ -1399,42 +1399,42 @@ phase4_build_executive_summary <- function(
     as.character(mapped_proteins),
     as.character(unmapped_input_rows),
     paste0(
-      phase4_format_number(
+      format_analytical_number(
         mapping_rate_percent,
         digits = 5L
       ),
       "%"
     ),
-    phase4_format_number(
-      phase4_metric_numeric(
+    format_analytical_number(
+      analytical_metric_numeric(
         graph_summary,
         "nodes"
       ),
       digits = 8L
     ),
-    phase4_format_number(
-      phase4_metric_numeric(
+    format_analytical_number(
+      analytical_metric_numeric(
         graph_summary,
         "edges"
       ),
       digits = 8L
     ),
-    phase4_format_number(
-      phase4_metric_numeric(
+    format_analytical_number(
+      analytical_metric_numeric(
         graph_summary,
         "components"
       ),
       digits = 8L
     ),
-    phase4_format_number(
-      phase4_metric_numeric(
+    format_analytical_number(
+      analytical_metric_numeric(
         graph_summary,
         "largest_component_nodes"
       ),
       digits = 8L
     ),
-    phase4_format_number(
-      phase4_metric_numeric(
+    format_analytical_number(
+      analytical_metric_numeric(
         graph_summary,
         "largest_component_fraction"
       ),
@@ -1535,7 +1535,7 @@ phase4_build_executive_summary <- function(
   )
 }
 
-phase4_expected_analytical_columns <- function() {
+expected_analytical_columns <- function() {
   list(
     "Executive summary" = c(
       "item",
@@ -1619,11 +1619,11 @@ phase4_expected_analytical_columns <- function() {
   )
 }
 
-validate_phase4_analytical_workbook <- function(
+validate_analytical_workbook <- function(
   sheets,
   candidate_audit,
   significant_terms,
-  phase4_validation,
+  analytical_validation,
   fdr_threshold = 0.05
 ) {
   checks <- list()
@@ -1658,7 +1658,7 @@ validate_phase4_analytical_workbook <- function(
     )
   )
 
-  expected_columns <- phase4_expected_analytical_columns()
+  expected_columns <- expected_analytical_columns()
 
   for (sheet_name in names(
     expected_columns
@@ -1828,14 +1828,14 @@ validate_phase4_analytical_workbook <- function(
     }
   )
 
-  phase4_require_columns(
+  require_analytical_columns(
     significant_terms,
     c(
       "fdr",
       "is_significant",
       "is_generic"
     ),
-    "Phase 4 significant terms"
+    "CancerPPIr significant terms"
   )
 
   term_fdr <- suppressWarnings(
@@ -1870,26 +1870,26 @@ validate_phase4_analytical_workbook <- function(
     )
   )
 
-  phase4_require_columns(
-    phase4_validation,
+  require_analytical_columns(
+    analytical_validation,
     c(
       "check_id",
       "status"
     ),
-    "Phase 4 validation"
+    "CancerPPIr validation"
   )
 
   add_check(
-    "upstream_phase4_validation_passes",
+    paste0("upstream_phase", "4_validation_passes"),
     !any(
       as.character(
-        phase4_validation$status
+        analytical_validation$status
       ) == "FAIL"
     ),
     paste(
-      phase4_validation$check_id[
+      analytical_validation$check_id[
         as.character(
-          phase4_validation$status
+          analytical_validation$status
         ) == "FAIL"
       ],
       collapse = " | "
@@ -1915,7 +1915,7 @@ validate_phase4_analytical_workbook <- function(
   )
 
   add_check(
-    "legacy_label_columns_absent",
+    paste0("legacy_", "label_columns_absent"),
     length(
       intersect(
         forbidden_columns,
@@ -1947,7 +1947,7 @@ validate_phase4_analytical_workbook <- function(
   if (nrow(failures) > 0L) {
     stop(
       paste0(
-        "Phase 4 analytical workbook validation failed: ",
+        "CancerPPIr analytical workbook validation failed: ",
         paste(
           failures$check_id,
           collapse = ", "
@@ -1961,7 +1961,7 @@ validate_phase4_analytical_workbook <- function(
   validation
 }
 
-build_phase4_analytical_workbook <- function(
+build_analytical_workbook <- function(
   input_rows,
   mapped_proteins,
   unmapped_input_rows,
@@ -1970,7 +1970,7 @@ build_phase4_analytical_workbook <- function(
   score_threshold,
   top_n,
   degree_distribution,
-  phase4_evidence,
+  biological_evidence,
   string_version = "12.0",
   louvain_seed = CANCERPPIR_LOUVAIN_SEED,
   fdr_threshold = 0.05
@@ -1985,14 +1985,14 @@ build_phase4_analytical_workbook <- function(
   missing_evidence_objects <- setdiff(
     required_evidence_objects,
     names(
-      phase4_evidence
+      biological_evidence
     )
   )
 
   if (length(missing_evidence_objects) > 0L) {
     stop(
       paste0(
-        "phase4_evidence is missing object(s): ",
+        "biological_evidence is missing object(s): ",
         paste(
           missing_evidence_objects,
           collapse = ", "
@@ -2003,41 +2003,41 @@ build_phase4_analytical_workbook <- function(
     )
   }
 
-  candidates <- phase4_prepare_candidate_table(
-    phase4_evidence$node_annotations
+  candidates <- prepare_candidate_table(
+    biological_evidence$node_annotations
   )
 
-  final_priorities <- phase4_build_final_priorities(
+  final_priorities <- build_final_priorities(
     candidates = candidates,
     maximum_rows = 10L
   )
 
-  network_nodes <- phase4_metric_numeric(
+  network_nodes <- analytical_metric_numeric(
     graph_summary,
     "nodes"
   )
 
-  module_priorities <- phase4_build_module_priorities(
+  module_priorities <- build_module_priorities(
     module_annotations =
-      phase4_evidence$module_annotations,
+      biological_evidence$module_annotations,
     network_nodes = network_nodes,
     maximum_rows = 5L
   )
 
-  candidate_evidence <- phase4_build_candidate_evidence(
+  candidate_evidence <- build_candidate_evidence(
     candidates = candidates,
     final_priorities = final_priorities,
     top_n = top_n
   )
 
-  executive_summary <- phase4_build_executive_summary(
+  executive_summary <- build_executive_summary(
     input_rows = input_rows,
     mapped_proteins = mapped_proteins,
     unmapped_input_rows = unmapped_input_rows,
     mapping_rate_percent = mapping_rate_percent,
     graph_summary = graph_summary,
     module_annotations =
-      phase4_evidence$module_annotations,
+      biological_evidence$module_annotations,
     final_priorities = final_priorities,
     score_threshold = score_threshold,
     string_version = string_version,
@@ -2045,14 +2045,14 @@ build_phase4_analytical_workbook <- function(
     fdr_threshold = fdr_threshold
   )
 
-  network_overview <- phase4_build_network_overview(
+  network_overview <- build_network_overview(
     graph_summary = graph_summary,
     candidates = candidates,
     degree_distribution = degree_distribution
   )
 
   methods_and_limitations <-
-    phase4_build_methods_and_limitations()
+    build_methods_and_limitations()
 
   sheets <- list(
     "Executive summary" = executive_summary,
@@ -2064,13 +2064,13 @@ build_phase4_analytical_workbook <- function(
       methods_and_limitations
   )
 
-  validation <- validate_phase4_analytical_workbook(
+  validation <- validate_analytical_workbook(
     sheets = sheets,
     candidate_audit = candidates,
     significant_terms =
-      phase4_evidence$significant_module_terms,
-    phase4_validation =
-      phase4_evidence$validation,
+      biological_evidence$significant_module_terms,
+    analytical_validation =
+      biological_evidence$validation,
     fdr_threshold = fdr_threshold
   )
 

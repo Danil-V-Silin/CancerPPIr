@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4: universal seven-case biological dry run
+# CancerPPIr universal seven-case biological-evidence validation
 #
 # This script applies one common biological evidence engine to:
 #   A01, K01, L01, M01, P01, P02 and R01.
@@ -24,7 +24,7 @@
 #     ../results/phase2_architecture_final
 #
 #   output_directory:
-#     ../results/phase4_multicase_biological_dry_run
+#     ../results/multicase_biological_validation
 
 required_packages <- c(
   "openxlsx"
@@ -100,7 +100,7 @@ output_directory <- if (length(arguments) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_multicase_biological_dry_run"
+    "multicase_biological_validation"
   )
 }
 
@@ -463,7 +463,7 @@ for (case_index in seq_len(nrow(case_map))) {
   }
 
   message(
-    "[phase 4 multicase] Processing ",
+    "[CancerPPIr multicase] Processing ",
     sample_id,
     " from ",
     case_map$folder[[case_index]],
@@ -665,7 +665,7 @@ for (case_index in seq_len(nrow(case_map))) {
       drop = FALSE
     ]
 
-    module_genes <- phase4_normalize_genes(
+    module_genes <- normalize_evidence_genes(
       module_nodes[[node_gene_column]]
     )
 
@@ -682,7 +682,7 @@ for (case_index in seq_len(nrow(case_map))) {
       drop = FALSE
     ]
 
-    evidence <- phase4_annotate_module_evidence(
+    evidence <- annotate_module_evidence(
       genes = module_genes,
       enrichment = module_terms,
       module_id = module_id,
@@ -896,13 +896,13 @@ for (case_index in seq_len(nrow(case_map))) {
 
   candidate_audit$entity_class <- vapply(
     candidate_audit$gene,
-    phase4_classify_entity,
+    classify_evidence_entity,
     FUN.VALUE = character(1)
   )
 
   candidate_audit$candidate_eligibility <- vapply(
     candidate_audit$entity_class,
-    phase4_candidate_eligibility,
+    determine_candidate_eligibility,
     FUN.VALUE = character(1)
   )
 
@@ -1325,7 +1325,7 @@ write_csv_safe(
   overall_summary,
   file.path(
     output_directory,
-    "phase_4_multicase_overall_summary.csv"
+    "multicase_overall_summary.csv"
   )
 )
 
@@ -1333,7 +1333,7 @@ write_csv_safe(
   case_summary,
   file.path(
     output_directory,
-    "phase_4_multicase_case_summary.csv"
+    "multicase_case_summary.csv"
   )
 )
 
@@ -1341,7 +1341,7 @@ write_csv_safe(
   module_comparison,
   file.path(
     output_directory,
-    "phase_4_multicase_module_comparison.csv"
+    "multicase_module_comparison.csv"
   )
 )
 
@@ -1349,7 +1349,7 @@ write_csv_safe(
   rule_evidence,
   file.path(
     output_directory,
-    "phase_4_multicase_rule_evidence.csv"
+    "multicase_rule_evidence.csv"
   )
 )
 
@@ -1357,7 +1357,7 @@ write_csv_safe(
   significant_terms,
   file.path(
     output_directory,
-    "phase_4_multicase_significant_terms.csv"
+    "multicase_significant_terms.csv"
   )
 )
 
@@ -1365,7 +1365,7 @@ write_csv_safe(
   candidate_audit,
   file.path(
     output_directory,
-    "phase_4_multicase_candidate_entity_audit.csv"
+    "multicase_candidate_entity_audit.csv"
   )
 )
 
@@ -1373,12 +1373,12 @@ write_csv_safe(
   validation_table,
   file.path(
     output_directory,
-    "phase_4_multicase_validation.csv"
+    "multicase_validation.csv"
   )
 )
 
 workbook <- openxlsx::createWorkbook(
-  creator = "CancerPPIr Phase 4"
+  creator = "CancerPPIr"
 )
 
 workbook_tables <- list(
@@ -1484,7 +1484,7 @@ for (sheet_name in names(workbook_tables)) {
 
 workbook_file <- file.path(
   output_directory,
-  "Phase4_Multicase_Biological_Dry_Run.xlsx"
+  "Multicase_Biological_Validation.xlsx"
 )
 
 openxlsx::saveWorkbook(
@@ -1508,7 +1508,7 @@ if (!identical(
 }
 
 report_lines <- c(
-  "# CancerPPIr Phase 4 — universal seven-case biological dry run",
+  "# CancerPPIr — universal seven-case biological-evidence validation",
   "",
   paste0(
     "**Status:** ",
@@ -1607,7 +1607,7 @@ report_lines <- c(
   "",
   "## Interpretation",
   "",
-  "The primary purpose of this dry run is to identify recurring rulebook gaps across diseases. Corrections should be implemented as universal biological rules and tested across all seven cases before production integration.",
+  "The primary purpose of this validation is to identify recurring rulebook gaps across diseases. Corrections should be implemented as universal biological rules and tested across all seven cases before production integration.",
   ""
 )
 
@@ -1615,13 +1615,13 @@ writeLines(
   report_lines,
   con = file.path(
     output_directory,
-    "phase_4_multicase_biological_dry_run_report.md"
+    "multicase_biological_validation_report.md"
   ),
   useBytes = TRUE
 )
 
 cat(
-  "\nPHASE 4 MULTICASE BIOLOGICAL DRY RUN COMPLETED\n"
+  "\nCANCERPPIR MULTICASE BIOLOGICAL VALIDATION COMPLETED\n"
 )
 
 print(

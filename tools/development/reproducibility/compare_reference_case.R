@@ -1,19 +1,18 @@
 #!/usr/bin/env Rscript
 
-# Compare one CancerPPIr architecture checkpoint against a preserved
-# pre-refactor run produced in the same renv environment.
+# Compare one CancerPPIr result directory against a qualified reference run.
 #
 # Usage:
-#   Rscript tools/development/architecture/compare_architecture_checkpoint_case.R \
-#     <baseline_root> <candidate_root> <case_id> <case_directory> <checkpoint>
+#   Rscript tools/development/reproducibility/compare_reference_case.R \
+#     <baseline_root> <candidate_root> <case_id> <case_directory> <comparison_id>
 #
 # Example:
-#   Rscript tools/development/architecture/compare_architecture_checkpoint_case.R \
-#     ../results/renv_phase1_full \
-#     ../results/phase2_utils_pilot_R01 \
+#   Rscript tools/development/reproducibility/compare_reference_case.R \
+#     ../results/reference_baseline_v1 \
+#     ../results/r01_smoke_validation \
 #     R01 \
 #     Genes_R \
-#     checkpoint_2_4_utils_R01
+#     r01_smoke_validation
 
 if (!requireNamespace("openxlsx", quietly = TRUE)) {
   stop(
@@ -34,7 +33,7 @@ if (length(arguments) != 5L) {
       "2. candidate root\n",
       "3. case ID\n",
       "4. case output directory\n",
-      "5. checkpoint identifier"
+      "5. comparison identifier"
     ),
     call. = FALSE
   )
@@ -44,24 +43,24 @@ baseline_root <- arguments[[1L]]
 candidate_root <- arguments[[2L]]
 case_id <- arguments[[3L]]
 case_directory <- arguments[[4L]]
-checkpoint_id <- arguments[[5L]]
+comparison_id <- arguments[[5L]]
 
-safe_checkpoint_id <- gsub(
+safe_comparison_id <- gsub(
   "[^A-Za-z0-9_.-]+",
   "_",
-  checkpoint_id
+  comparison_id
 )
 
 output_directory <- file.path(
-  "docs",
-  "architecture"
+  candidate_root,
+  "comparison"
 )
 
 scope_path <- file.path(
   "tests",
   "reference",
-  "environment",
-  "legacy_regression_scope.csv"
+  "resources",
+  "regression_scope.csv"
 )
 
 required_directories <- c(
@@ -845,7 +844,7 @@ strict_regression_core_match <- all(
 )
 
 summary_table <- data.frame(
-  checkpoint = checkpoint_id,
+  comparison = comparison_id,
   case_id = case_id,
   baseline_completed = baseline_completed,
   candidate_completed = candidate_completed,
@@ -882,7 +881,7 @@ summary_table <- data.frame(
 summary_path <- file.path(
   output_directory,
   paste0(
-    safe_checkpoint_id,
+    safe_comparison_id,
     "_summary.csv"
   )
 )
@@ -890,7 +889,7 @@ summary_path <- file.path(
 strict_path <- file.path(
   output_directory,
   paste0(
-    safe_checkpoint_id,
+    safe_comparison_id,
     "_strict_sheets.csv"
   )
 )
@@ -898,7 +897,7 @@ strict_path <- file.path(
 schema_path <- file.path(
   output_directory,
   paste0(
-    safe_checkpoint_id,
+    safe_comparison_id,
     "_schema.csv"
   )
 )
@@ -945,7 +944,7 @@ if (!strict_regression_core_match) {
 
   if (nrow(failed_strict_sheets) > 0L) {
     message(
-      "[checkpoint comparison] Non-identical strict sheets:"
+      "[reference comparison] Non-identical strict sheets:"
     )
 
     print(
@@ -956,8 +955,8 @@ if (!strict_regression_core_match) {
 
   stop(
     paste0(
-      "Architecture checkpoint ",
-      checkpoint_id,
+      "Reference comparison ",
+      comparison_id,
       " failed the strict regression comparison."
     ),
     call. = FALSE
@@ -965,17 +964,17 @@ if (!strict_regression_core_match) {
 }
 
 message(
-  "[checkpoint comparison] Checkpoint: ",
-  checkpoint_id
+  "[reference comparison] Comparison: ",
+  comparison_id
 )
 
 message(
-  "[checkpoint comparison] Case: ",
+  "[reference comparison] Case: ",
   case_id
 )
 
 message(
-  "[checkpoint comparison] Strict sheets: ",
+  "[reference comparison] Strict sheets: ",
   strict_sheets_identical,
   "/",
   strict_sheets_compared,
@@ -983,5 +982,5 @@ message(
 )
 
 message(
-  "[checkpoint comparison] Strict regression core passed."
+  "[reference comparison] Strict regression core passed."
 )

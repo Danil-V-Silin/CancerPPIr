@@ -15,7 +15,7 @@ CancerPPIr versions each public output contract independently.
 | Output checksums | `1.0.0` |
 
 The first public release line starts every public schema at `1.0.0`. Earlier
-development-checkpoint numbers are preserved only in historical records and
+superseded development identifiers remain available only through Git history and
 are not public schema versions.
 
 ## Change rules

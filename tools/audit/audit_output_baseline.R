@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4: baseline audit of current A01 output files
+# CancerPPIr baseline audit of current A01 output files
 #
 # This script performs a read-only characterization audit of:
 #   1. the analytical workbook;
@@ -30,7 +30,7 @@
 #     "..\results\phase2_architecture_final\Genes_A\CancerPPIr_Technical_Report.xlsx" ^
 #     "..\results\phase2_architecture_final\Genes_A\Network_for_Cytoscape.graphml" ^
 #     "..\results\phase2_architecture_final\Genes_A\STRING_links.txt" ^
-#     "..\results\phase4_a01_baseline_audit" ^
+#     "..\results\a01_baseline_audit" ^
 #     "A01"
 
 required_packages <- c(
@@ -111,7 +111,7 @@ audit_output_dir <- if (length(arguments) >= 5L) {
   file.path(
     "..",
     "results",
-    "phase4_a01_baseline_audit"
+    "a01_baseline_audit"
   )
 }
 
@@ -382,7 +382,7 @@ resolve_relationship_target <- function(
 audit_xlsx_relationships <- function(path, workbook_name) {
   extraction_directory <- tempfile(
     pattern = paste0(
-      "phase4_",
+      "baseline_audit_",
       workbook_name,
       "_"
     )
@@ -2079,7 +2079,7 @@ write_csv_safe(
   summary_table,
   file.path(
     audit_output_dir,
-    "phase_4_a01_baseline_audit_summary.csv"
+    "a01_baseline_audit_summary.csv"
   )
 )
 
@@ -2087,7 +2087,7 @@ write_csv_safe(
   issues_table,
   file.path(
     audit_output_dir,
-    "phase_4_a01_baseline_audit_issues.csv"
+    "a01_baseline_audit_issues.csv"
   )
 )
 
@@ -2095,7 +2095,7 @@ write_csv_safe(
   sheet_inventory,
   file.path(
     audit_output_dir,
-    "phase_4_a01_sheet_inventory.csv"
+    "a01_sheet_inventory.csv"
   )
 )
 
@@ -2103,7 +2103,7 @@ write_csv_safe(
   duplicate_comparisons,
   file.path(
     audit_output_dir,
-    "phase_4_a01_duplicate_comparisons.csv"
+    "a01_duplicate_comparisons.csv"
   )
 )
 
@@ -2114,7 +2114,7 @@ write_csv_safe(
   ),
   file.path(
     audit_output_dir,
-    "phase_4_a01_xlsx_relationship_audit.csv"
+    "a01_xlsx_relationship_audit.csv"
   )
 )
 
@@ -2122,12 +2122,12 @@ write_csv_safe(
   graphml_attribute_table,
   file.path(
     audit_output_dir,
-    "phase_4_a01_graphml_attribute_audit.csv"
+    "a01_graphml_attribute_audit.csv"
   )
 )
 
 report_lines <- c(
-  "# CancerPPIr Phase 4 — A01 baseline output audit",
+  "# CancerPPIr — A01 baseline output audit",
   "",
   paste0(
     "**Sample:** ",
@@ -2251,7 +2251,7 @@ report_lines <- c(
   report_lines,
   "## Interpretation",
   "",
-  "This is a characterization baseline. The script intentionally records known defects without modifying output files or returning a non-zero exit code. After each Phase 4 checkpoint, the same audit should be rerun to demonstrate which findings were resolved and which remain.",
+  "This is a characterization baseline. The script intentionally records known defects without modifying output files or returning a non-zero exit code. After each output-contract change, the same audit should be rerun to demonstrate which findings were resolved and which remain.",
   ""
 )
 
@@ -2259,13 +2259,13 @@ writeLines(
   report_lines,
   con = file.path(
     audit_output_dir,
-    "phase_4_a01_baseline_audit_report.md"
+    "a01_baseline_audit_report.md"
   ),
   useBytes = TRUE
 )
 
 cat(
-  "\nPHASE 4 BASELINE OUTPUT AUDIT COMPLETED\n"
+  "\nCANCERPPIR BASELINE OUTPUT AUDIT COMPLETED\n"
 )
 
 print(

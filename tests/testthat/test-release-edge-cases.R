@@ -81,11 +81,11 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    candidates <- phase4_prepare_candidate_table(
+    candidates <- prepare_candidate_table(
       node_annotations
     )
 
-    final_priorities <- phase4_build_final_priorities(
+    final_priorities <- build_final_priorities(
       candidates = candidates,
       maximum_rows = 10L
     )
@@ -97,7 +97,7 @@ testthat::test_that(
 
     testthat::expect_identical(
       names(final_priorities),
-      phase4_expected_analytical_columns()[[
+      expected_analytical_columns()[[
         "Final priorities"
       ]]
     )
@@ -175,7 +175,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    module_priorities <- phase4_build_module_priorities(
+    module_priorities <- build_module_priorities(
       module_annotations = module_annotations,
       network_nodes = 7L,
       maximum_rows = 5L
@@ -188,7 +188,7 @@ testthat::test_that(
 
     testthat::expect_identical(
       names(module_priorities),
-      phase4_expected_analytical_columns()[[
+      expected_analytical_columns()[[
         "Module priorities"
       ]]
     )
@@ -253,18 +253,18 @@ testthat::test_that(
     )
 
     canonical_fields <-
-      phase4_canonical_graphml_attribute_names()
+      canonical_graphml_attribute_names()
 
     testthat::expect_true(
       all(
-        phase4_required_canonical_node_fields() %in%
+        required_canonical_node_fields() %in%
           canonical_fields
       )
     )
 
     testthat::expect_false(
       any(
-        CANCERPPIR_LEGACY_ANNOTATION_FIELDS %in%
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
           canonical_fields
       )
     )

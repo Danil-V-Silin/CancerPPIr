@@ -6,12 +6,12 @@ testthat::test_that(
       "read_gene_table",
       "run_local_string_enrichment",
       "label_module_by_markers",
-      "phase4_annotate_module_evidence",
-      "phase4_bind_pipeline_evidence",
-      "build_phase4_analytical_workbook",
-      "validate_phase4_analytical_workbook",
-      "phase4_build_canonical_graphml_attributes",
-      "phase4_build_canonical_pipeline_result",
+      "annotate_module_evidence",
+      "bind_pipeline_evidence",
+      "build_analytical_workbook",
+      "validate_analytical_workbook",
+      "build_canonical_graphml_attributes",
+      "build_canonical_pipeline_result",
       "cancerppir_write_output_provenance",
       "cancerppir_validate_output_provenance",
       "run_network_analysis",
@@ -94,7 +94,7 @@ testthat::test_that(
 
     testthat::expect_true(
       exists(
-        "phase4_annotate_module_evidence",
+        "annotate_module_evidence",
         envir = isolated_environment,
         inherits = FALSE
       )
@@ -102,7 +102,7 @@ testthat::test_that(
 
     testthat::expect_true(
       exists(
-        "build_phase4_analytical_workbook",
+        "build_analytical_workbook",
         envir = isolated_environment,
         inherits = FALSE
       )
@@ -110,7 +110,7 @@ testthat::test_that(
 
     testthat::expect_true(
       exists(
-        "phase4_build_canonical_graphml_attributes",
+        "build_canonical_graphml_attributes",
         envir = isolated_environment,
         inherits = FALSE
       )

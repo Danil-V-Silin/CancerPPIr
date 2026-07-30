@@ -19,7 +19,7 @@ CancerPPIr 1.0.0 is the first stable public release of the workflow.
 
 ## Release qualification
 
-- the final seven-case release checkpoint passed on the accepted code;
+- the final seven-case release qualification passed on the accepted code;
 - all fourteen analytical and technical workbooks were audited for exact
   duplication, with zero `FAIL` findings;
 - dependency restoration, the unit and CLI suite, and a minimal smoke run

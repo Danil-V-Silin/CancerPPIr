@@ -1,13 +1,13 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4.3C:
-# seven-case shadow validation of the production biological-evidence adapter.
+# CancerPPIr multicase annotation-adapter validation:
+# seven-case adapter validation of the production biological-evidence adapter.
 #
 # Purpose:
 #   1. Read the existing Phase 2 technical workbooks for all seven cases.
 #   2. Pass their node metrics and local STRING module enrichment through
-#      phase4_bind_pipeline_evidence().
-#   3. Compare the adapter output against the frozen Phase 4 v5 dry-run result.
+#      bind_pipeline_evidence().
+#   3. Compare the adapter output against the frozen CancerPPIr v5 validation result.
 #   4. Fail on any module-level biological interpretation mismatch.
 #
 # This script does not modify production code or existing reports.
@@ -19,14 +19,14 @@
 # Optional positional arguments:
 #
 #   1. Phase 2 results root
-#   2. Frozen v5 dry-run directory
-#   3. New shadow-validation output directory
+#   2. Frozen v5 validation directory
+#   3. New adapter-validation output directory
 #
 # Defaults:
 #
 #   ../results/phase2_architecture_final
-#   ../results/phase4_multicase_biological_dry_run_v5
-#   ../results/phase4_multicase_adapter_shadow_v1
+#   ../results/multicase_biological_validation_v5
+#   ../results/multicase_adapter_validation_v1
 
 required_packages <- c(
   "openxlsx"
@@ -98,12 +98,12 @@ if (!expected_adapter_file %in% basename(loaded_files)) {
 }
 
 if (!exists(
-  "phase4_bind_pipeline_evidence",
+  "bind_pipeline_evidence",
   envir = .GlobalEnv,
   inherits = FALSE
 )) {
   stop(
-    "phase4_bind_pipeline_evidence is unavailable after standard loading.",
+    "bind_pipeline_evidence is unavailable after standard loading.",
     call. = FALSE
   )
 }
@@ -128,7 +128,7 @@ reference_directory <- if (length(arguments) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_multicase_biological_dry_run_v5"
+    "multicase_biological_validation_v5"
   )
 }
 
@@ -138,7 +138,7 @@ output_directory <- if (length(arguments) >= 3L) {
   file.path(
     "..",
     "results",
-    "phase4_multicase_adapter_shadow_v1"
+    "multicase_adapter_validation_v1"
   )
 }
 
@@ -168,12 +168,12 @@ technical_filename <- "CancerPPIr_Technical_Report.xlsx"
 
 reference_module_file <- file.path(
   reference_directory,
-  "phase_4_multicase_module_comparison.csv"
+  "multicase_module_comparison.csv"
 )
 
 reference_overall_file <- file.path(
   reference_directory,
-  "phase_4_multicase_overall_summary.csv"
+  "multicase_overall_summary.csv"
 )
 
 required_paths <- c(
@@ -454,7 +454,7 @@ for (case_index in seq_len(nrow(case_map))) {
   }
 
   message(
-    "[phase 4 adapter shadow] Processing ",
+    "[CancerPPIr adapter validation] Processing ",
     sample_id,
     " from ",
     case_map$folder[[case_index]],
@@ -580,7 +580,7 @@ for (case_index in seq_len(nrow(case_map))) {
     module_enrichment$fdr
   )
 
-  adapter_result <- phase4_bind_pipeline_evidence(
+  adapter_result <- bind_pipeline_evidence(
     node_metrics = node_metrics,
     module_enrichment = module_enrichment,
     fdr_threshold = 0.05
@@ -1047,7 +1047,7 @@ overall_comparison$match <-
   overall_comparison$reference_value ==
   overall_comparison$adapter_value
 
-shadow_validation <- data.frame(
+adapter_validation <- data.frame(
   check_id = c(
     "all_reference_modules_present",
     "all_adapter_modules_present",
@@ -1121,21 +1121,21 @@ shadow_validation <- data.frame(
   stringsAsFactors = FALSE
 )
 
-shadow_status <- if (
-  any(shadow_validation$status == "FAIL")
+adapter_validation_status <- if (
+  any(adapter_validation$status == "FAIL")
 ) {
-  "ADAPTER_SHADOW_VALIDATION_FAILED"
+  "ADAPTER_VALIDATION_FAILED"
 } else {
-  "ADAPTER_SHADOW_VALIDATION_PASSED"
+  "ADAPTER_VALIDATION_PASSED"
 }
 
-overall_summary$shadow_status <- shadow_status
+overall_summary$adapter_validation_status <- adapter_validation_status
 
 write_csv_safe(
   overall_summary,
   file.path(
     output_directory,
-    "phase_4_adapter_shadow_overall_summary.csv"
+    "adapter_validation_overall_summary.csv"
   )
 )
 
@@ -1143,7 +1143,7 @@ write_csv_safe(
   case_summary,
   file.path(
     output_directory,
-    "phase_4_adapter_shadow_case_summary.csv"
+    "adapter_validation_case_summary.csv"
   )
 )
 
@@ -1151,7 +1151,7 @@ write_csv_safe(
   module_concordance,
   file.path(
     output_directory,
-    "phase_4_adapter_shadow_module_concordance.csv"
+    "adapter_validation_module_concordance.csv"
   )
 )
 
@@ -1159,7 +1159,7 @@ write_csv_safe(
   overall_comparison,
   file.path(
     output_directory,
-    "phase_4_adapter_shadow_overall_concordance.csv"
+    "adapter_validation_overall_concordance.csv"
   )
 )
 
@@ -1167,26 +1167,26 @@ write_csv_safe(
   adapter_validation,
   file.path(
     output_directory,
-    "phase_4_adapter_shadow_internal_validation.csv"
+    "adapter_validation_internal_validation.csv"
   )
 )
 
 write_csv_safe(
-  shadow_validation,
+  adapter_validation,
   file.path(
     output_directory,
-    "phase_4_adapter_shadow_validation_gates.csv"
+    "adapter_validation_validation_gates.csv"
   )
 )
 
 workbook <- openxlsx::createWorkbook(
-  creator = "CancerPPIr Phase 4"
+  creator = "CancerPPIr"
 )
 
 workbook_tables <- list(
   "Overall summary" = overall_summary,
   "Case summary" = case_summary,
-  "Validation gates" = shadow_validation,
+  "Validation gates" = adapter_validation,
   "Overall concordance" = overall_comparison,
   "Module concordance" = module_concordance,
   "Internal validation" = adapter_validation
@@ -1281,7 +1281,7 @@ for (sheet_name in names(workbook_tables)) {
 
 workbook_file <- file.path(
   output_directory,
-  "Phase4_Multicase_Adapter_Shadow_Validation.xlsx"
+  "Multicase_Adapter_Validation.xlsx"
 )
 
 openxlsx::saveWorkbook(
@@ -1299,13 +1299,13 @@ if (!identical(
   names(workbook_tables)
 )) {
   stop(
-    "Shadow-validation workbook read-back failed: sheet order mismatch.",
+    "Adapter-validation workbook read-back failed: sheet order mismatch.",
     call. = FALSE
   )
 }
 
 cat(
-  "\nPHASE 4 MULTICASE ADAPTER SHADOW VALIDATION COMPLETED\n"
+  "\nCANCERPPIR MULTICASE ADAPTER VALIDATION COMPLETED\n"
 )
 
 print(
@@ -1318,7 +1318,7 @@ cat(
 )
 
 print(
-  shadow_validation,
+  adapter_validation,
   row.names = FALSE
 )
 
@@ -1338,8 +1338,8 @@ cat(
 )
 
 if (identical(
-  shadow_status,
-  "ADAPTER_SHADOW_VALIDATION_FAILED"
+  adapter_validation_status,
+  "ADAPTER_VALIDATION_FAILED"
 )) {
   quit(
     save = "no",

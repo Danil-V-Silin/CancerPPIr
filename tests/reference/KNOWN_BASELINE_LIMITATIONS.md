@@ -1,4 +1,4 @@
-# Known legacy baseline issues
+# Known reference-baseline limitations
 
 The following limitations were observed before refactoring:
 

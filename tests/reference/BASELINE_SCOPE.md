@@ -1,7 +1,6 @@
-# CancerPPIr legacy regression baseline
+# CancerPPIr reference regression baseline
 
-This directory records the behavior of the preserved CancerPPIr
-implementation before architectural refactoring.
+This directory records the behavior of the CancerPPIr pre-refactor reference implementation.
 
 ## Reference cases
 
@@ -48,7 +47,7 @@ They must not be treated as strict checksum invariants.
 ## Stochastic or module-dependent outputs
 
 Louvain community detection is not executed with an explicit random
-seed in the preserved legacy implementation.
+seed in the preserved pre-refactor reference implementation.
 
 The following sheets changed in all seven cases:
 
@@ -81,7 +80,7 @@ The strict regression core requires:
 - presence of all required workbook sheets and columns.
 
 Exact Louvain module identifiers and module-dependent labels are not
-strict invariants of the legacy implementation.
+strict invariants of the pre-refactor reference implementation.
 
 ## GraphML limitation
 
