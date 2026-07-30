@@ -46,18 +46,20 @@ See the [installation guide](docs/user-guide/installation.md) for details.
 
 ## Input contract
 
-The input is a delimited text file with three required variables:
+CancerPPIr applies a strict scientific contract before network construction:
 
-| Canonical variable | Meaning |
+| Canonical variable | Required meaning |
 |---|---|
 | `gene` | HGNC gene symbol |
-| `logFC` | log-fold change |
-| `pvalue` | p-value, adjusted p-value, or FDR supplied by the user |
+| `logFC` | Base-2 log fold change for tumor specimen / reference condition |
+| `pvalue` | Raw differential-expression p-value for the same model and contrast |
 
-Recognized alternatives include `gene_symbol`, `symbol`, `log2FC`,
-`log2FoldChange`, `pval`, `padj`, `adj_pvalue`, and `fdr`. When no recognized
-headers are found, CancerPPIr treats the first three columns as `pvalue`,
-`logFC`, and `gene`, in that order.
+Positive `logFC` means higher expression in the tumor specimen than in the
+reference condition. Recognized aliases include `gene_symbol`, `symbol`,
+`hgnc_symbol`, `log2FC`, `log2FoldChange`, `pval`, `raw_pvalue`, and
+`raw_pval`. Positional fallback is disabled. Missing, non-finite, out-of-range
+or duplicate values fail before HGNC normalization. Adjusted p-values, FDR and
+q-values are not accepted as substitutes for the canonical raw `pvalue`.
 
 Minimal example:
 
@@ -69,7 +71,9 @@ pvalue,logFC,gene
 ```
 
 A synthetic, non-patient example is provided in
-[`examples/minimal_input.csv`](examples/minimal_input.csv).
+[`examples/minimal_input.csv`](examples/minimal_input.csv). See the
+[scientific input contract](docs/reference/input-contract.md) for the complete
+validation and provenance rules.
 
 ## Command-line use
 

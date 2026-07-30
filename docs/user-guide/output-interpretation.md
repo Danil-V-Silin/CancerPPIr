@@ -180,7 +180,7 @@ The GraphML schema is version `1.0.0`. It contains:
   confidence, conflict, warnings, and evidence rationale;
 - Cytoscape convenience labels.
 
-Very small positive `pvalue` values may be floored only for safe GraphML numeric
+Zero or extremely small positive `pvalue` values may be floored only for safe GraphML numeric
 serialization. The original statistical evidence remains represented by
 `neg_log10_pvalue`, and the GraphML flag records whether flooring occurred.
 
@@ -188,8 +188,9 @@ serialization. The original statistical evidence remains represented by
 
 The output manifest schema is version `1.0.0`. It records the input basename and
 SHA-256, software/runtime metadata, public schema versions, analysis
-configuration, run summary, and hashes of the four principal analysis outputs.
-It intentionally excludes absolute user paths.
+configuration, the versioned scientific input contract, run summary, and hashes
+of the four principal analysis outputs. It intentionally excludes absolute user
+paths.
 
 The checksum file schema is version `1.0.0`. It hashes the four principal
 outputs and the manifest. It does not hash itself.

@@ -25,7 +25,11 @@ The analytical workbook contains exactly six sheets in this order:
 ## Technical workbook
 
 The technical workbook retains complete mapping, topology, enrichment,
-biological-evidence, validation, and runtime audit tables. The five canonical
+biological-evidence, validation, and runtime audit tables. The `Mapping summary`
+sheet also records the scientific input-contract schema, selected source
+headers, logFC and p-value semantics, validation policies and zero-p-value
+count. The same contract is serialized under `analysis.input_contract` in the
+JSON manifest. The five canonical
 biological-evidence sheets use these descriptive names:
 
 1. `Module annotations`

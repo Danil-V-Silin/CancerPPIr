@@ -5,7 +5,10 @@
 `minimal_input.csv` is a small synthetic table used to demonstrate the input
 contract. It contains no patient identifiers, does not reproduce any clinical
 case, and is not intended to produce a publication-ready biological
-interpretation.
+interpretation. It follows the strict scientific input contract: `pvalue` is
+a raw differential-expression p-value, `logFC` is a base-2 tumor-versus-
+reference fold change, all values are complete and finite, and each gene symbol
+is unique.
 
 Run from the repository root:
 

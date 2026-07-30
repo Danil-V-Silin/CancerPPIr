@@ -5,8 +5,8 @@
 | PPI subnetwork | The subset of STRING associations reconstructed from proteins mapped from the input table at the selected threshold. |
 | Node | A mapped protein retained in the reconstructed network. |
 | Edge | A retained STRING association. It is not a patient-specific physical interaction measurement. |
-| `logFC` | User-supplied log-fold change. The absolute value contributes to candidate scoring. |
-| `pvalue` | User-supplied p-value, adjusted p-value, or FDR. CancerPPIr does not infer which statistical definition was supplied. |
+| `logFC` | Base-2 log fold change for tumor specimen relative to the upstream reference condition. Positive values indicate higher expression in tumor. The absolute value contributes to candidate scoring. |
+| `pvalue` | Raw differential-expression p-value from the same upstream model and contrast as `logFC`. Adjusted p-values, FDR and q-values are not accepted as substitutes. |
 | `neg_log10_pvalue` | Transformed statistical-evidence value used in the candidate score and safe serialization. |
 | `degree` | Number of retained edges incident to a node. |
 | `betweenness` | Fraction or count-based shortest-path centrality used to identify bridge-like nodes. |
@@ -14,7 +14,7 @@
 | `harmonic_closeness` | Closeness variant suitable for disconnected graphs. |
 | `local_clustering` | Connectivity among a node's neighbours. |
 | `candidate_score` | Exploratory within-network composite of normalized degree, betweenness, log-stress, absolute logFC, and statistical evidence. |
-| Candidate-score component | One of the five normalized inputs reported separately for audit. |
+| Candidate-score component | One of the five normalized inputs used in the equal-weight score. All five components must be finite for every ranked network node. |
 | Louvain module | Deterministically detected community of densely connected nodes. |
 | `module_id` | Stable identifier used to refer to a Louvain module within a run. |
 | `interpretation_class` | Module category: biological, mixed biological, technical/covariate, or unresolved. |

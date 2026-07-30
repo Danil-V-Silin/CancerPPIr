@@ -3,6 +3,15 @@
 The `scripts/` directory contains supported project-level commands. Run them
 from the repository root.
 
+## Scientific input preflight
+
+```bash
+Rscript scripts/validate_input_contract.R input1.csv [input2.csv ...]
+```
+
+This fast gate validates the strict scientific input contract without loading
+STRING resources or running network analysis.
+
 ## Routine validation
 
 - `run_unit_tests.R` — complete unit and CLI test suite.

@@ -62,8 +62,9 @@ The workbook exposes the five normalized score components:
 - absolute `logFC`;
 - `-log10(pvalue)`.
 
-Their row mean must reconstruct `candidate_score` within floating-point
-tolerance.
+All five components must be finite. Their equal-weight row mean must reconstruct
+`candidate_score` within floating-point tolerance; variable-denominator scoring
+is not permitted.
 
 ## Biological-evidence policy
 

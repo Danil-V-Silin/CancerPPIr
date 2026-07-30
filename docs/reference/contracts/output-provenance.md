@@ -39,9 +39,10 @@ identity is recorded separately.
 - `software`: software version and best-effort Git metadata.
 - `runtime`: R, platform, operating system, and package versions.
 - `schemas`: all public schema versions.
-- `input`: input basename, size, SHA-256, and non-path summary.
-- `analysis`: STRING version, threshold, offline enrichment, seed, FDR, top-N,
-  and cache basenames and sizes.
+- `input`: input basename, size, SHA-256, validated-row summary, and zero-p-value count.
+- `analysis`: versioned scientific input contract, selected source headers,
+  STRING version, threshold, offline enrichment, seed, FDR, top-N, and cache
+  basenames and sizes.
 - `summary`: network, module, and priority counts.
 - `outputs`: role, schema version, size, and SHA-256 for each principal output.
 - `privacy`: path-handling and cache-hashing policies.

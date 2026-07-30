@@ -15,6 +15,7 @@ tree; released states remain available through Git history and immutable tags.
 
 ## Reference
 
+- [Scientific input contract](reference/input-contract.md)
 - [CLI contract](reference/cli.md)
 - [Output contract](reference/output-contract.md)
 - [Schema versioning](reference/schema-versioning.md)

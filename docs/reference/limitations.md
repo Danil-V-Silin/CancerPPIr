@@ -7,15 +7,20 @@ interpretation.
 
 ## Input semantics
 
-The workflow accepts a column named `pvalue`, but that column may contain a raw
-p-value, adjusted p-value, or FDR supplied by the user. CancerPPIr preserves and
-uses the supplied values but cannot recover the upstream statistical definition.
-Comparisons across runs require consistent upstream differential-expression
-methods and column semantics.
+CancerPPIr now enforces raw differential-expression `pvalue` and base-2
+`tumor specimen / reference condition` logFC semantics. Positional column
+fallback, incomplete numeric rows and duplicate input symbols are rejected.
+The selected headers and contract policies are written to output provenance.
 
-Duplicate identifiers, HGNC normalization, alias correction, and STRING mapping
-can change row counts. Input rows, mapped input rows, unique mapped proteins, and
-final graph nodes are distinct quantities.
+This validation does not recover the biological composition of the reference
+condition, the upstream normalization, design formula, covariates, filtering or
+multiple-testing method. Those study-level details must remain with the source
+differential-expression analysis. Comparisons across runs require the same
+upstream model, contrast and selection procedure.
+
+HGNC normalization, alias correction and STRING mapping can still change row
+counts. Input rows, mapped input rows, unique mapped proteins and final graph
+nodes are distinct quantities.
 
 ## Bulk RNA-seq mixture
 
