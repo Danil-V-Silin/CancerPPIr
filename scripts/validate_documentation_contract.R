@@ -29,6 +29,7 @@ cancerppir_validate_documentation_contract <- function(
     "README.md",
     "docs/README.md",
     "docs/user-guide/output-interpretation.md",
+    "docs/reference/input-contract.md",
     "docs/reference/annotation-rules.md",
     "docs/user-guide/clinical-interpretation.md",
     "docs/reference/glossary.md",
@@ -37,6 +38,7 @@ cancerppir_validate_documentation_contract <- function(
     "docs/user-guide/reproducibility.md",
     "examples/minimal_input.csv",
     "examples/README.md",
+    "scripts/validate_input_contract.R",
     "scripts/validate_documentation_contract.R",
     "tests/testthat/test-documentation-contract.R"
   )
@@ -78,6 +80,7 @@ cancerppir_validate_documentation_contract <- function(
     "README.md",
     "docs/README.md",
     "docs/user-guide/output-interpretation.md",
+    "docs/reference/input-contract.md",
     "docs/reference/annotation-rules.md",
     "docs/user-guide/clinical-interpretation.md",
     "docs/reference/glossary.md",
@@ -113,6 +116,16 @@ cancerppir_validate_documentation_contract <- function(
       fixed = TRUE,
       FUN.VALUE = logical(1)
     )], collapse = " | ")
+  )
+
+  input_contract_text <- read_utf8("docs/reference/input-contract.md")
+  add_check(
+    "scientific_input_contract_is_explicit",
+    grepl("raw differential-expression p-value", input_contract_text, fixed = TRUE) &&
+      grepl("Base-2 log fold change", input_contract_text, fixed = TRUE) &&
+      grepl("positional column fallback is disabled", input_contract_text, fixed = TRUE) &&
+      grepl("All five components must be finite", input_contract_text, fixed = TRUE),
+    "Input semantics and complete candidate-score components must be documented."
   )
 
   expected_sheets <- c(

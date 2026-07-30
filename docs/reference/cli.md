@@ -14,6 +14,15 @@ Rscript cancerppir.R --help
 | 5 | `top_n` | Optional positive integer; default `30` |
 | 6 | `run_enrichment` | Optional `TRUE` or `FALSE`; default `TRUE` |
 
+## Input preflight
+
+The first positional argument must satisfy the
+[scientific input contract](input-contract.md). Column identity is determined
+from explicit recognized headers; positional fallback is not available. Raw
+`pvalue`, base-2 tumor-versus-reference `logFC`, complete finite numeric values
+and unique gene symbols are required. Input-contract failures return a non-zero
+exit status before STRING initialization.
+
 Exactly three to six positional arguments are accepted. Additional arguments
 are rejected rather than ignored. Invalid integers, fractional values,
 out-of-range thresholds, and unrecognized Boolean values produce a non-zero

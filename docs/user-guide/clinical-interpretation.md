@@ -8,7 +8,7 @@ independent translational validation.
 
 Interpret results from lower to higher evidentiary levels:
 
-1. **Input evidence** — the supplied gene, logFC, and statistical values.
+1. **Input evidence** — HGNC symbols, base-2 tumor-versus-reference logFC and raw differential-expression p-values.
 2. **Mapping evidence** — successful, corrected, and failed gene-to-STRING
    mappings.
 3. **Network evidence** — retained nodes, edges, topology, components, and
@@ -32,7 +32,7 @@ A candidate should be described using all of the following:
 
 - network candidate rank and candidate score;
 - topology ranks and the five score components;
-- logFC and the supplied statistical value;
+- logFC and the raw differential-expression p-value;
 - entity class and candidate eligibility;
 - module interpretation, confidence, conflict, warning, and rationale;
 - evidence that remains absent from the workflow.

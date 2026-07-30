@@ -7,6 +7,15 @@ CancerPPIr follows Semantic Versioning.
 ## [Unreleased]
 
 ### Changed
+- Enforced a versioned scientific input contract: explicit headers, raw
+  differential-expression p-values, base-2 tumor-versus-reference logFC,
+  complete finite values, bounded p-values, unique gene symbols and no
+  positional fallback.
+- Required all five candidate-score components to be finite; incomplete
+  component rows now fail instead of being averaged with a variable
+  denominator.
+- Recorded input semantics, source headers and validation policies in the
+  technical mapping summary and JSON manifest.
 - Replaced internal development-stage identifiers with semantic source names.
 - Renamed the release gate to `run_release_qualification.R`.
 - Removed superseded architecture records, pre-refactor executable
@@ -15,9 +24,11 @@ CancerPPIr follows Semantic Versioning.
   `1.0.0`.
 
 ### Compatibility
-- No candidate-scoring formula, STRING mapping rule, Louvain configuration,
-  biological-evidence rule, workbook sheet, GraphML field, manifest schema, or
-  public output filename is changed by this repository cleanup.
+- The five-component candidate-score formula and equal weighting are unchanged,
+  but incomplete component rows are no longer permitted.
+- STRING mapping rules, Louvain configuration, biological-evidence rules,
+  workbook sheet names, GraphML fields, manifest schema versions and public
+  output filenames remain unchanged.
 
 ## [1.0.0] - 2026-07-27
 ### Added

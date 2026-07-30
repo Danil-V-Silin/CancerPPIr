@@ -212,6 +212,72 @@ cancerppir_validate_static_release_contract <- function(
     deprecated_parallel_hits
   )
 
+  input_text <- production_text[["R/input.R"]]
+  network_analysis_text <- production_text[["R/network_analysis.R"]]
+
+  strict_input_contract_present <-
+    !is.null(input_text) &&
+    grepl(
+      "CANCERPPIR_INPUT_CONTRACT_SCHEMA_VERSION",
+      input_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "positional_column_fallback = FALSE",
+      input_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "pvalue must lie in the closed interval [0, 1]",
+      input_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "Duplicate gene symbols are not permitted",
+      input_text,
+      fixed = TRUE
+    ) &&
+    !grepl(
+      "assuming order: pvalue, logFC, gene",
+      input_text,
+      fixed = TRUE
+    )
+
+  add_check(
+    "strict_scientific_input_contract_is_enforced",
+    strict_input_contract_present,
+    "Explicit headers, complete finite values, bounded raw p-values, unique genes and no positional fallback are required."
+  )
+
+  complete_candidate_score_present <-
+    !is.null(network_analysis_text) &&
+    grepl(
+      "calculate_candidate_score <- function",
+      network_analysis_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "requires all five finite components",
+      network_analysis_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "node_metrics$candidate_score <- calculate_candidate_score",
+      network_analysis_text,
+      fixed = TRUE
+    ) &&
+    !grepl(
+      "candidate_score = rowMeans",
+      network_analysis_text,
+      fixed = TRUE
+    )
+
+  add_check(
+    "candidate_score_requires_complete_five_component_evidence",
+    complete_candidate_score_present,
+    "Variable-denominator candidate scoring is not permitted."
+  )
+
   patient_id_pattern <-
     "\\b(A01|K01|L01|M01|P01|P02|R01)\\b"
 

@@ -122,8 +122,20 @@ run_cancerppir <- function(
   }
 
 
-  msg("Reading input table.")
+  msg("Reading and validating input table.")
   input_tbl <- read_gene_table(input_file)
+  input_contract <- attr(
+    input_tbl,
+    "cancerppir_input_contract",
+    exact = TRUE
+  )
+
+  if (!is.list(input_contract)) {
+    stop(
+      "Internal error: validated input contract metadata are missing.",
+      call. = FALSE
+    )
+  }
 
   msg("Checking gene symbols.")
   hgnc_map <- HGNChelper::checkGeneSymbols(
@@ -324,7 +336,10 @@ run_cancerppir <- function(
   module_summary <- network_analysis$module_summary
   major_module_ids <- network_analysis$major_module_ids
   graph_summary <- network_analysis$graph_summary
-  mapping_summary <- network_analysis$mapping_summary
+  mapping_summary <- bind_rows(
+    network_analysis$mapping_summary,
+    input_contract_mapping_rows(input_contract)
+  )
   gene_status <- network_analysis$gene_status
   still_unmapped <- network_analysis$still_unmapped
 
@@ -1325,9 +1340,11 @@ run_cancerppir <- function(
       successful_alias_corrections = sum(
         alias_corrections$mapped_after,
         na.rm = TRUE
-      )
+      ),
+      zero_pvalue_rows = input_contract$zero_pvalue_rows
     ),
     analysis_configuration = list(
+      input_contract = input_contract,
       species_taxonomy_id = 9606L,
       STRING_version = "12.0",
       STRING_score_threshold = as.integer(score_threshold),

@@ -103,6 +103,57 @@ run_louvain_deterministic <- function(
   )
 }
 
+calculate_candidate_score <- function(
+  degree,
+  betweenness,
+  stress_centrality,
+  abs_logFC,
+  neg_log10_pvalue
+) {
+  component_lengths <- lengths(
+    list(
+      degree,
+      betweenness,
+      stress_centrality,
+      abs_logFC,
+      neg_log10_pvalue
+    )
+  )
+
+  if (length(unique(component_lengths)) != 1L) {
+    stop(
+      "Candidate-score component vectors must have identical lengths.",
+      call. = FALSE
+    )
+  }
+
+  components <- cbind(
+    degree = minmax(degree),
+    betweenness = minmax(betweenness),
+    log_stress = minmax(log1p(stress_centrality)),
+    absolute_logFC = minmax(abs_logFC),
+    negative_log10_pvalue = minmax(neg_log10_pvalue)
+  )
+
+  incomplete_rows <- which(
+    rowSums(is.finite(components)) != ncol(components)
+  )
+
+  if (length(incomplete_rows) > 0L) {
+    stop(
+      paste0(
+        "Candidate score requires all five finite components for every ",
+        "network node. Incomplete node row(s): ",
+        format_input_rows(incomplete_rows),
+        "."
+      ),
+      call. = FALSE
+    )
+  }
+
+  rowMeans(components)
+}
+
 run_network_analysis <- function(
   string_db,
   mapped_final,
@@ -219,19 +270,17 @@ run_network_analysis <- function(
     component = as.integer(comp$membership),
     in_largest_component = node_ids %in% lcc_nodes,
     community_louvain = as.integer(membership(louvain))
-  ) %>%
-    mutate(
-      candidate_score = rowMeans(
-        cbind(
-          minmax(degree),
-          minmax(betweenness),
-          minmax(log1p(stress_centrality)),
-          minmax(abs_logFC),
-          minmax(neg_log10_pvalue)
-        ),
-        na.rm = TRUE
-      )
-    ) %>%
+  )
+
+  node_metrics$candidate_score <- calculate_candidate_score(
+    degree = node_metrics$degree,
+    betweenness = node_metrics$betweenness,
+    stress_centrality = node_metrics$stress_centrality,
+    abs_logFC = node_metrics$abs_logFC,
+    neg_log10_pvalue = node_metrics$neg_log10_pvalue
+  )
+
+  node_metrics <- node_metrics %>%
     arrange(desc(candidate_score), desc(degree), desc(betweenness))
 
   top_n <- min(top_n, nrow(node_metrics))

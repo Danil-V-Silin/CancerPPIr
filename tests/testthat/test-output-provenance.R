@@ -100,6 +100,15 @@ testthat::test_that(
         successful_alias_corrections = 0L
       ),
       analysis_configuration = list(
+        input_contract = cancerppir_input_contract(
+          source_columns = list(
+            gene = "gene",
+            logFC = "logFC",
+            pvalue = "pvalue"
+          ),
+          input_rows = 1L,
+          zero_pvalue_rows = 0L
+        ),
         species_taxonomy_id = 9606L,
         STRING_version = "12.0",
         STRING_score_threshold = 400L,
@@ -147,6 +156,16 @@ testthat::test_that(
     testthat::expect_identical(
       manifest$input$sha256,
       cancerppir_sha256_file(input_file)
+    )
+
+    testthat::expect_identical(
+      manifest$analysis$input_contract$pvalue_type,
+      "raw_differential_expression_p_value"
+    )
+
+    testthat::expect_identical(
+      manifest$analysis$input_contract$logFC_scale,
+      "log2_fold_change"
     )
 
     testthat::expect_setequal(
@@ -317,6 +336,14 @@ testthat::test_that(
     testthat::expect_true(
       grepl(
         "provenance = output_provenance",
+        pipeline_body,
+        fixed = TRUE
+      )
+    )
+
+    testthat::expect_true(
+      grepl(
+        "input_contract = input_contract",
         pipeline_body,
         fixed = TRUE
       )

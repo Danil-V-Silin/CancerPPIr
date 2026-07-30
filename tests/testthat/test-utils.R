@@ -63,3 +63,54 @@ testthat::test_that("ranking and text helpers retain qualified behavior", {
   testthat::expect_identical(NULL %||% "fallback", "fallback")
   testthat::expect_identical("value" %||% "fallback", "value")
 })
+
+testthat::test_that("candidate score requires five complete finite components", {
+  degree <- c(1, 2, 4)
+  betweenness <- c(0.1, 0.2, 0.5)
+  stress <- c(0, 3, 8)
+  abs_logFC <- c(0.5, 1.0, 2.0)
+  neg_log10_pvalue <- c(1, 2, 4)
+
+  expected <- rowMeans(
+    cbind(
+      minmax(degree),
+      minmax(betweenness),
+      minmax(log1p(stress)),
+      minmax(abs_logFC),
+      minmax(neg_log10_pvalue)
+    )
+  )
+
+  testthat::expect_equal(
+    calculate_candidate_score(
+      degree = degree,
+      betweenness = betweenness,
+      stress_centrality = stress,
+      abs_logFC = abs_logFC,
+      neg_log10_pvalue = neg_log10_pvalue
+    ),
+    expected
+  )
+
+  testthat::expect_error(
+    calculate_candidate_score(
+      degree = degree,
+      betweenness = betweenness,
+      stress_centrality = c(0, NA_real_, 8),
+      abs_logFC = abs_logFC,
+      neg_log10_pvalue = neg_log10_pvalue
+    ),
+    "requires all five finite components.*2"
+  )
+
+  testthat::expect_error(
+    calculate_candidate_score(
+      degree = degree,
+      betweenness = betweenness[-1],
+      stress_centrality = stress,
+      abs_logFC = abs_logFC,
+      neg_log10_pvalue = neg_log10_pvalue
+    ),
+    "identical lengths"
+  )
+})

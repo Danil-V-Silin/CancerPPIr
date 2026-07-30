@@ -9,6 +9,7 @@ This checklist is enforced where possible by
 | Release date | Absent before tag; exact date added immediately before release | Automated/manual |
 | Public schemas | All initial public schemas are `1.0.0` | Automated |
 | CLI | Strict argument count, integer ranges, and Boolean parsing | Automated |
+| Scientific input | Explicit headers, raw p-value semantics, log2 contrast direction, complete finite values, unique genes, and no positional fallback | Automated |
 | Workbooks | Semantic sheet names and contract tests | Automated |
 | Provenance | Manifest and checksum contracts remain valid | Automated |
 | Documentation | Required files and local links resolve | Automated |
