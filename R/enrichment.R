@@ -1,11 +1,8 @@
 # CancerPPIr: enrichment
 #
-# Architecture checkpoint 2.7.
 #
 # Functions below were extracted from cancerppir.R without semantic rewriting.
 
-##############################################################################
-# clean_enrichment_table - extracted from cancerppir.R lines 301-319
 ##############################################################################
 clean_enrichment_table <- function(x) {
   if (is.null(x) || !nrow(x)) {
@@ -27,8 +24,6 @@ clean_enrichment_table <- function(x) {
   x
 }
 
-##############################################################################
-# run_gprofiler - extracted from cancerppir.R lines 321-353
 ##############################################################################
 run_gprofiler <- function(genes, query_name, organism = "hsapiens") {
   genes <- unique(na.omit(as.character(genes)))
@@ -65,8 +60,6 @@ run_gprofiler <- function(genes, query_name, organism = "hsapiens") {
 }
 
 ##############################################################################
-# string_enrichment_terms_candidates - extracted from cancerppir.R lines 356-364
-##############################################################################
 string_enrichment_terms_candidates <- function(cache_dir) {
   file.path(
     cache_dir,
@@ -78,8 +71,6 @@ string_enrichment_terms_candidates <- function(cache_dir) {
 }
 
 ##############################################################################
-# find_string_enrichment_terms - extracted from cancerppir.R lines 366-373
-##############################################################################
 find_string_enrichment_terms <- function(cache_dir) {
   candidates <- string_enrichment_terms_candidates(cache_dir)
   candidates <- candidates[file.exists(candidates) & file.info(candidates)$size > 0]
@@ -89,8 +80,6 @@ find_string_enrichment_terms <- function(cache_dir) {
   NA_character_
 }
 
-##############################################################################
-# download_string_enrichment_terms - extracted from cancerppir.R lines 375-398
 ##############################################################################
 download_string_enrichment_terms <- function(cache_dir) {
   local_path <- find_string_enrichment_terms(cache_dir)
@@ -117,8 +106,6 @@ download_string_enrichment_terms <- function(cache_dir) {
   }
 }
 
-##############################################################################
-# read_string_enrichment_terms - extracted from cancerppir.R lines 400-459
 ##############################################################################
 read_string_enrichment_terms <- function(cache_dir) {
   path <- download_string_enrichment_terms(cache_dir)
@@ -181,8 +168,6 @@ read_string_enrichment_terms <- function(cache_dir) {
     distinct(string_protein_id, category, term, description)
 }
 
-##############################################################################
-# run_local_string_enrichment - extracted from cancerppir.R lines 461-541
 ##############################################################################
 run_local_string_enrichment <- function(
   query_ids,
@@ -267,8 +252,6 @@ run_local_string_enrichment <- function(
 }
 
 ##############################################################################
-# run_string_enrichment_online - extracted from cancerppir.R lines 1036-1057
-##############################################################################
 run_string_enrichment_online <- function(string_db, ids, query_name = "STRING_online_query") {
   ids <- unique(na.omit(as.character(ids)))
   ids <- ids[nzchar(ids)]
@@ -293,8 +276,6 @@ run_string_enrichment_online <- function(string_db, ids, query_name = "STRING_on
 }
 
 ##############################################################################
-# is_generic_enrichment_term - extracted from cancerppir.R lines 1405-1420
-##############################################################################
 is_generic_enrichment_term <- function(description) {
   d <- tolower(trimws(as.character(description)))
   d[is.na(d)] <- ""
@@ -312,8 +293,6 @@ is_generic_enrichment_term <- function(description) {
   exact_generic | broad_regulation | broad_response
 }
 
-##############################################################################
-# add_enrichment_priority - extracted from cancerppir.R lines 1422-1438
 ##############################################################################
 add_enrichment_priority <- function(tbl) {
   if (!nrow(tbl)) {
@@ -333,8 +312,6 @@ add_enrichment_priority <- function(tbl) {
     )
 }
 
-##############################################################################
-# select_top_enrichment - extracted from cancerppir.R lines 1440-1487
 ##############################################################################
 select_top_enrichment <- function(tbl, group_cols = character(0), n_per_group = 10L,
                                   specific_only = TRUE) {
@@ -385,8 +362,6 @@ select_top_enrichment <- function(tbl, group_cols = character(0), n_per_group = 
     )))
 }
 
-##############################################################################
-# collapse_module_enrichment - extracted from cancerppir.R lines 1489-1555
 ##############################################################################
 collapse_module_enrichment <- function(tbl, n_terms = 6L) {
   if (!nrow(tbl) || !("community_louvain" %in% names(tbl))) {
@@ -457,8 +432,6 @@ collapse_module_enrichment <- function(tbl, n_terms = 6L) {
 }
 
 ##############################################################################
-# collapse_gprofiler_module_enrichment - extracted from cancerppir.R lines 1558-1584
-##############################################################################
 collapse_gprofiler_module_enrichment <- function(tbl, n_terms = 6L) {
   if (!nrow(tbl) || !("community_louvain" %in% names(tbl))) {
     return(tibble(
@@ -487,8 +460,6 @@ collapse_gprofiler_module_enrichment <- function(tbl, n_terms = 6L) {
     )
 }
 
-##############################################################################
-# collapse_string_online_module_enrichment - extracted from cancerppir.R lines 1586-1630
 ##############################################################################
 collapse_string_online_module_enrichment <- function(tbl, n_terms = 6L) {
   if (!nrow(tbl) || !("community_louvain" %in% names(tbl))) {
@@ -536,8 +507,6 @@ collapse_string_online_module_enrichment <- function(tbl, n_terms = 6L) {
     )
 }
 
-##############################################################################
-# online_concordance_status - extracted from cancerppir.R lines 1632-1646
 ##############################################################################
 online_concordance_status <- function(specific_label_candidate, online_text) {
   if (is.na(online_text) || !nzchar(online_text) || online_text == "not_available") {

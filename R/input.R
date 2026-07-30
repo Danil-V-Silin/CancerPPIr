@@ -2,12 +2,9 @@
 #
 # Input delimiter detection, gene-table reading and input-column normalization.
 #
-# Architecture checkpoint 2.5
 #
 # The function bodies below were extracted from cancerppir.R without semantic rewriting.
 
-##############################################################################
-# guess_separator - extracted from cancerppir.R lines 187-199
 ##############################################################################
 guess_separator <- function(file) {
   x <- readLines(file, n = 1, warn = FALSE)
@@ -23,8 +20,6 @@ guess_separator <- function(file) {
   switch(sep, semicolon = ";", tab = "\t", comma = ",")
 }
 
-##############################################################################
-# read_gene_table - extracted from cancerppir.R lines 204-265
 ##############################################################################
 read_gene_table <- function(file) {
   sep <- guess_separator(file)

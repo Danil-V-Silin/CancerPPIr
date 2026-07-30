@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr Phase 4: summarize universal rulebook gaps
+# CancerPPIr multicase rulebook-gap summary
 #
-# This script reads the seven-case biological dry-run outputs and reduces the
+# This script reads the seven-case biological validation outputs and reduces the
 # result to the large unresolved modules that most likely represent missing or
 # overly strict universal biological rules.
 #
@@ -19,8 +19,8 @@
 #
 # Defaults:
 #
-#   ../results/phase4_multicase_biological_dry_run
-#   ../results/phase4_multicase_rulebook_gap_review
+#   ../results/multicase_biological_validation
+#   ../results/multicase_rulebook_gap_review
 
 required_packages <- c(
   "openxlsx"
@@ -59,7 +59,7 @@ input_directory <- if (length(arguments) >= 1L) {
   file.path(
     "..",
     "results",
-    "phase4_multicase_biological_dry_run"
+    "multicase_biological_validation"
   )
 }
 
@@ -69,22 +69,22 @@ output_directory <- if (length(arguments) >= 2L) {
   file.path(
     "..",
     "results",
-    "phase4_multicase_rulebook_gap_review"
+    "multicase_rulebook_gap_review"
   )
 }
 
 required_files <- c(
   module_comparison = file.path(
     input_directory,
-    "phase_4_multicase_module_comparison.csv"
+    "multicase_module_comparison.csv"
   ),
   rule_evidence = file.path(
     input_directory,
-    "phase_4_multicase_rule_evidence.csv"
+    "multicase_rule_evidence.csv"
   ),
   significant_terms = file.path(
     input_directory,
-    "phase_4_multicase_significant_terms.csv"
+    "multicase_significant_terms.csv"
   )
 )
 
@@ -95,7 +95,7 @@ missing_files <- required_files[
 if (length(missing_files) > 0L) {
   stop(
     paste0(
-      "Required multicase dry-run file(s) are missing:\n",
+      "Required multicase validation file(s) are missing:\n",
       paste0(
         "- ",
         names(missing_files),
@@ -296,7 +296,7 @@ if (
 ) {
   stop(
     paste0(
-      "Unexpected multicase dry-run schema.\n",
+      "Unexpected multicase validation schema.\n",
       if (length(missing_module_columns) > 0L) {
         paste0(
           "Missing module columns: ",
@@ -714,7 +714,7 @@ for (row_index in seq_len(nrow(gaps))) {
       gap$member_genes[[1L]],
     previous_label =
       gap$old_label[[1L]],
-    current_phase4_interpretation =
+    current_interpretation =
       gap$new_primary_interpretation[[1L]],
     current_warning =
       gap$new_warning[[1L]],
@@ -1031,7 +1031,7 @@ write_csv_safe(
   overall_summary,
   file.path(
     output_directory,
-    "phase_4_rulebook_gap_overall_summary.csv"
+    "rulebook_gap_overall_summary.csv"
   )
 )
 
@@ -1039,7 +1039,7 @@ write_csv_safe(
   case_gap_summary,
   file.path(
     output_directory,
-    "phase_4_rulebook_gap_case_summary.csv"
+    "rulebook_gap_case_summary.csv"
   )
 )
 
@@ -1047,7 +1047,7 @@ write_csv_safe(
   reason_summary,
   file.path(
     output_directory,
-    "phase_4_rulebook_gap_reason_summary.csv"
+    "rulebook_gap_reason_summary.csv"
   )
 )
 
@@ -1055,7 +1055,7 @@ write_csv_safe(
   near_miss_summary,
   file.path(
     output_directory,
-    "phase_4_rulebook_gap_near_miss_summary.csv"
+    "rulebook_gap_near_miss_summary.csv"
   )
 )
 
@@ -1063,12 +1063,12 @@ write_csv_safe(
   gap_review,
   file.path(
     output_directory,
-    "phase_4_priority_rulebook_gaps.csv"
+    "priority_rulebook_gaps.csv"
   )
 )
 
 workbook <- openxlsx::createWorkbook(
-  creator = "CancerPPIr Phase 4"
+  creator = "CancerPPIr"
 )
 
 tables <- list(
@@ -1167,7 +1167,7 @@ for (sheet_name in names(tables)) {
 
 workbook_path <- file.path(
   output_directory,
-  "Phase4_Multicase_Rulebook_Gap_Review.xlsx"
+  "Multicase_Rulebook_Gap_Review.xlsx"
 )
 
 openxlsx::saveWorkbook(
@@ -1191,7 +1191,7 @@ if (!identical(
 }
 
 cat(
-  "\nPHASE 4 MULTICASE RULEBOOK GAP SUMMARY COMPLETED\n"
+  "\nCANCERPPIR MULTICASE RULEBOOK GAP SUMMARY COMPLETED\n"
 )
 
 print(

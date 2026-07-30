@@ -11,16 +11,17 @@ from the repository root.
 - `validate_release_contract.R` — static release contract.
 - `validate_publication_readiness.R` — publication metadata and public-contract
   audit.
+- `validate_repository_quality.R` — repository and CI hygiene gate.
 
 ## Release qualification
 
-- `run_release_checkpoint.R` — final seven-case release gate.
+- `run_release_qualification.R` — final seven-case release gate.
 - `validate_multicase_outputs.R` — multicase output validation.
 - `validate_multicase_annotation_adapter.R` — annotation-adapter validation.
 - `validate_multicase_biological_evidence.R` — biological-evidence validation.
 - `validate_multicase_technical_exports.R` — technical-export validation.
 - `validate_a01_technical_evidence_export.R` — focused A01 export validation.
 
-The seven-case release checkpoint is intentionally not part of routine unit
-testing. Maintainer-only migration and historical utilities are under
+The seven-case release qualification is intentionally not part of routine unit
+testing. Non-routine audit and reproducibility utilities are under
 [`tools/`](../tools/README.md).

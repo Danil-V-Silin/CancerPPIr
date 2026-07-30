@@ -44,7 +44,7 @@ testthat::test_that(
       )
     )
 
-    result <- phase4_bind_pipeline_evidence(
+    result <- bind_pipeline_evidence(
       node_metrics = node_metrics,
       module_enrichment = module_enrichment,
       fdr_threshold = 0.05
@@ -117,7 +117,7 @@ testthat::test_that(
     )
 
     testthat::expect_error(
-      phase4_bind_pipeline_evidence(
+      bind_pipeline_evidence(
         node_metrics = incomplete_nodes
       ),
       "community_louvain",

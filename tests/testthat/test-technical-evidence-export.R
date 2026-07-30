@@ -1,4 +1,4 @@
-phase4_read_pipeline_source <- function() {
+read_pipeline_source <- function() {
   project_root <- Sys.getenv(
     "CANCERPPIR_PROJECT_ROOT",
     unset = ""
@@ -29,9 +29,9 @@ phase4_read_pipeline_source <- function() {
 }
 
 testthat::test_that(
-  "technical workbook exports all Phase 4 evidence tables",
+  "technical workbook exports all CancerPPIr evidence tables",
   {
-    pipeline_source <- phase4_read_pipeline_source()
+    pipeline_source <- read_pipeline_source()
 
     technical_start <- regexpr(
       "technical_sheets <- list(",
@@ -113,13 +113,13 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "analytical workbook is built from the Phase 4 evidence contract",
+  "analytical workbook is built from the CancerPPIr evidence contract",
   {
-    pipeline_source <- phase4_read_pipeline_source()
+    pipeline_source <- read_pipeline_source()
 
     testthat::expect_true(
       grepl(
-        "phase4_analytical_report <- build_phase4_analytical_workbook(",
+        "analytical_report <- build_analytical_workbook(",
         pipeline_source,
         fixed = TRUE
       )
@@ -127,7 +127,7 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "phase4_evidence = biological_evidence",
+        "biological_evidence = biological_evidence",
         pipeline_source,
         fixed = TRUE
       )
@@ -135,13 +135,13 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "analytical_sheets <- phase4_analytical_report$sheets",
+        "analytical_sheets <- analytical_report$sheets",
         pipeline_source,
         fixed = TRUE
       )
     )
 
-    legacy_sheet_names <- c(
+    deprecated_sheet_names <- c(
       "\"Major module priorities\"",
       "\"Candidate rationale\"",
       "\"Top candidates\"",
@@ -181,14 +181,14 @@ testthat::test_that(
       analytical_write_end - 1L
     )
 
-    for (legacy_sheet in legacy_sheet_names) {
+    for (deprecated_sheet in deprecated_sheet_names) {
       testthat::expect_false(
         grepl(
-          legacy_sheet,
+          deprecated_sheet,
           analytical_write_block,
           fixed = TRUE
         ),
-        info = legacy_sheet
+        info = deprecated_sheet
       )
     }
   }
@@ -197,7 +197,7 @@ testthat::test_that(
 testthat::test_that(
   "GraphML export uses the canonical biological annotation contract",
   {
-    pipeline_source <- phase4_read_pipeline_source()
+    pipeline_source <- read_pipeline_source()
 
     testthat::expect_true(
       grepl(
@@ -209,7 +209,7 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "phase4_build_canonical_graphml_attributes(",
+        "build_canonical_graphml_attributes(",
         pipeline_source,
         fixed = TRUE
       )

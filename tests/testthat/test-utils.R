@@ -48,7 +48,7 @@ testthat::test_that("shared normalization and numeric helpers are deterministic"
   )
 })
 
-testthat::test_that("ranking and text helpers retain legacy behavior", {
+testthat::test_that("ranking and text helpers retain qualified behavior", {
   testthat::expect_identical(
     top_genes(c("B", "A", "A", "C"), c(1, 4, 3, 2), n = 3L),
     "A;C"

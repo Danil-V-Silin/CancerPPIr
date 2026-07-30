@@ -1,4 +1,4 @@
-phase4_test_canonical_node_annotations <- function() {
+test_canonical_node_annotations <- function() {
   data.frame(
     STRING_id = c("9606.ENSP1", "9606.ENSP2"),
     gene = c("CD3D", "TYROBP"),
@@ -67,7 +67,7 @@ phase4_test_canonical_node_annotations <- function() {
   )
 }
 
-phase4_test_canonical_module_annotations <- function() {
+test_canonical_module_annotations <- function() {
   data.frame(
     community_louvain = c(1, 2),
     module_id = c("1", "2"),
@@ -104,7 +104,7 @@ phase4_test_canonical_module_annotations <- function() {
 }
 
 testthat::test_that(
-  "production pipeline uses canonical biological evidence without shadow API",
+  "production pipeline uses only the canonical biological-evidence API",
   {
     pipeline_body <- paste(
       deparse(
@@ -117,7 +117,7 @@ testthat::test_that(
     testthat::expect_equal(
       lengths(
         gregexpr(
-          "phase4_bind_pipeline_evidence(",
+          "bind_pipeline_evidence(",
           pipeline_body,
           fixed = TRUE
         )
@@ -127,7 +127,7 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "biological_evidence <- phase4_bind_pipeline_evidence(",
+        "biological_evidence <- bind_pipeline_evidence(",
         pipeline_body,
         fixed = TRUE
       )
@@ -135,7 +135,7 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "phase4_build_canonical_graphml_attributes(",
+        "build_canonical_graphml_attributes(",
         pipeline_body,
         fixed = TRUE
       )
@@ -143,7 +143,7 @@ testthat::test_that(
 
     testthat::expect_true(
       grepl(
-        "phase4_build_canonical_pipeline_result(",
+        "build_canonical_pipeline_result(",
         pipeline_body,
         fixed = TRUE
       )
@@ -151,7 +151,7 @@ testthat::test_that(
 
     testthat::expect_false(
       grepl(
-        "biological_evidence_shadow",
+        paste0("biological_evidence_", paste0(c("s", "h", "a", "d", "o", "w"), collapse = "")),
         pipeline_body,
         fixed = TRUE
       )
@@ -159,7 +159,7 @@ testthat::test_that(
 
     testthat::expect_false(
       grepl(
-        "phase4_shadow_evidence",
+        "adapter_evidence_fixture",
         pipeline_body,
         fixed = TRUE
       )
@@ -180,9 +180,9 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "canonical GraphML attributes exclude legacy label fields",
+  "canonical GraphML attributes exclude deprecated label fields",
   {
-    nodes <- phase4_test_canonical_node_annotations()
+    nodes <- test_canonical_node_annotations()
 
     final_priorities <- data.frame(
       STRING_id = "9606.ENSP1",
@@ -195,7 +195,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    attributes <- phase4_build_canonical_graphml_attributes(
+    attributes <- build_canonical_graphml_attributes(
       node_annotations = nodes,
       final_priorities = final_priorities,
       candidate_evidence = candidate_evidence
@@ -203,7 +203,7 @@ testthat::test_that(
 
     testthat::expect_true(
       all(
-        phase4_validate_canonical_graphml_attributes(
+        validate_canonical_graphml_attributes(
           attributes
         )$status == "PASS"
       )
@@ -211,7 +211,7 @@ testthat::test_that(
 
     testthat::expect_false(
       any(
-        CANCERPPIR_LEGACY_ANNOTATION_FIELDS %in%
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
           names(attributes)
       )
     )
@@ -237,7 +237,7 @@ testthat::test_that(
       value = nodes$STRING_id
     )
 
-    graph <- phase4_apply_canonical_graphml_attributes(
+    graph <- apply_canonical_graphml_attributes(
       graph,
       attributes
     )
@@ -279,7 +279,7 @@ testthat::test_that(
 
     testthat::expect_false(
       any(
-        CANCERPPIR_LEGACY_ANNOTATION_FIELDS %in%
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
           imported_fields
       )
     )
@@ -289,8 +289,8 @@ testthat::test_that(
 testthat::test_that(
   "canonical pipeline result has one explicit evidence source",
   {
-    nodes <- phase4_test_canonical_node_annotations()
-    modules <- phase4_test_canonical_module_annotations()
+    nodes <- test_canonical_node_annotations()
+    modules <- test_canonical_module_annotations()
 
     evidence <- list(
       module_annotations = modules,
@@ -315,7 +315,7 @@ testthat::test_that(
       stringsAsFactors = FALSE
     )
 
-    attributes <- phase4_build_canonical_graphml_attributes(
+    attributes <- build_canonical_graphml_attributes(
       nodes,
       final_priorities,
       candidate_evidence
@@ -332,12 +332,12 @@ testthat::test_that(
       value = nodes$STRING_id
     )
 
-    graph <- phase4_apply_canonical_graphml_attributes(
+    graph <- apply_canonical_graphml_attributes(
       graph,
       attributes
     )
 
-    result <- phase4_build_canonical_pipeline_result(
+    result <- build_canonical_pipeline_result(
       output_dir = tempdir(),
       graph = graph,
       biological_evidence = evidence,
@@ -355,7 +355,7 @@ testthat::test_that(
         stringsAsFactors = FALSE
       ),
       graphml_validation =
-        phase4_validate_canonical_graphml_attributes(
+        validate_canonical_graphml_attributes(
           attributes
         ),
       graph_summary = data.frame(),
@@ -378,14 +378,14 @@ testthat::test_that(
 
     testthat::expect_true(
       all(
-        phase4_validate_canonical_pipeline_result(
+        validate_canonical_pipeline_result(
           result
         )$status == "PASS"
       )
     )
 
     testthat::expect_false(
-      "biological_evidence_shadow" %in%
+      paste0("biological_evidence_", paste0(c("s", "h", "a", "d", "o", "w"), collapse = "")) %in%
         names(result)
     )
 

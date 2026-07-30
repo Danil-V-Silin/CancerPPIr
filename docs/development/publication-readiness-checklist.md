@@ -14,7 +14,7 @@ This checklist is enforced where possible by
 | Documentation | Required files and local links resolve | Automated |
 | Security | Private vulnerability reporting is documented and enabled | Automated/manual |
 | CI | Windows and Ubuntu jobs pass | GitHub Actions |
-| Seven cases | Complete release checkpoint passes once on final code | Release gate |
+| Seven cases | Complete release qualification passes once on final code | Release gate |
 | Duplication | Fourteen workbooks audited; structural `FAIL` findings are zero and all `REVIEW` findings are resolved or explicitly accepted | Audit tool/manual |
 | Clean clone | Dependencies restore and smoke run passes outside the working tree | Manual |
 | Metadata | Actual release date, tag, and pre-release are consistent | Manual |

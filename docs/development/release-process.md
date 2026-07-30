@@ -4,7 +4,7 @@
 
 1. Merge only reviewed publication-readiness changes into `main`.
 2. Confirm successful Windows and Ubuntu CI.
-3. Run the complete seven-case release checkpoint from a new output directory.
+3. Run the complete seven-case release qualification from a new output directory.
 4. Review all seven analytical and technical workbooks, including the
    workbook-duplication audit.
 5. Perform clean-clone qualification outside the development working tree.

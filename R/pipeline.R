@@ -2,15 +2,12 @@
 #
 # Responsibility: End-to-end CancerPPIr workflow coordination with explicit inputs and returned analysis objects.
 #
-# Architecture checkpoint 2.3
 #
-# This module intentionally contains no extracted legacy functions at this checkpoint.
 # Function definitions will be moved here incrementally without semantic rewriting.
 
 
 # -----------------------------------------------------------------------------
 # End-to-end CancerPPIr workflow
-# Architecture checkpoint 2.12
 # -----------------------------------------------------------------------------
 
 run_cancerppir <- function(
@@ -123,36 +120,6 @@ run_cancerppir <- function(
     Sys.setenv(CURL_CA_BUNDLE = ca_bundle)
     Sys.setenv(SSL_CERT_FILE = ca_bundle)
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   msg("Reading input table.")
@@ -621,29 +588,11 @@ run_cancerppir <- function(
   # -----------------------------------------------------------------------------
 
 
-
-
-
-
-
-
   # ---- Enrichment term filtering and evidence scoring --------------------------
 
 
   # Categories below are useful for technical audit, but should not drive the main
   # biological direction label in the human-readable report.
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   # ---- Rule-based module label assignment --------------------------------------
@@ -654,27 +603,14 @@ run_cancerppir <- function(
   # more precise biological label.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   # Canonical biological evidence layer -----------------------------------
   # This calculation uses the production node table and reproducible local
   # STRING module enrichment. Its result is retained in memory for validation
   # for canonical analytical reporting, GraphML annotation and the public result object.
-  # Legacy readable tables are retained only under an explicit compatibility boundary.
+  # Deprecated readable tables are retained only under an explicit compatibility boundary.
   msg("Running canonical biological evidence annotation.")
 
-  biological_evidence <- phase4_bind_pipeline_evidence(
+  biological_evidence <- bind_pipeline_evidence(
     node_metrics = node_metrics,
     module_enrichment = module_enrichment_string_local,
     fdr_threshold = 0.05
@@ -1236,9 +1172,9 @@ run_cancerppir <- function(
   )
 
   # Main analytical workbook ------------------------------------------------------
-  # The concise six-sheet workbook is built only from the deterministic Phase 4
-  # evidence objects. Complete legacy/raw tables remain in the technical workbook.
-  phase4_analytical_report <- build_phase4_analytical_workbook(
+  # The concise six-sheet workbook is built only from the deterministic CancerPPIr
+  # evidence objects. Complete pre-canonical/raw tables remain in the technical workbook.
+  analytical_report <- build_analytical_workbook(
     input_rows = nrow(input_tbl),
     mapped_proteins = nrow(mapped_final),
     unmapped_input_rows = after_unmapped,
@@ -1247,13 +1183,13 @@ run_cancerppir <- function(
     score_threshold = score_threshold,
     top_n = top_n,
     degree_distribution = degree_distribution,
-    phase4_evidence = biological_evidence,
+    biological_evidence = biological_evidence,
     string_version = "12.0",
     louvain_seed = CANCERPPIR_LOUVAIN_SEED,
     fdr_threshold = 0.05
   )
 
-  analytical_sheets <- phase4_analytical_report$sheets
+  analytical_sheets <- analytical_report$sheets
 
   write_readable_xlsx(
     file.path(output_dir, "CancerPPIr_Analytical_Report.xlsx"),
@@ -1304,11 +1240,11 @@ run_cancerppir <- function(
   )
 
   # Cytoscape/Gephi network -------------------------------------------------------
-  # GraphML uses the explicit canonical Phase 4 evidence schema. Legacy label
+  # GraphML uses the explicit canonical CancerPPIr evidence schema. Deprecated label
   # fields remain available only in compatibility tables and are deliberately
   # excluded from the graph contract.
   canonical_graphml_attributes <-
-    phase4_build_canonical_graphml_attributes(
+    build_canonical_graphml_attributes(
       node_annotations = biological_evidence$node_annotations,
       final_priorities = analytical_sheets[[
         "Final priorities"
@@ -1319,16 +1255,16 @@ run_cancerppir <- function(
     )
 
   canonical_graphml_validation <-
-    phase4_validate_canonical_graphml_attributes(
+    validate_canonical_graphml_attributes(
       canonical_graphml_attributes
     )
 
-  phase4_stop_on_failed_validation(
+  stop_on_failed_validation(
     canonical_graphml_validation,
     "Canonical GraphML attributes"
   )
 
-  ppi <- phase4_apply_canonical_graphml_attributes(
+  ppi <- apply_canonical_graphml_attributes(
     graph = ppi,
     attributes = canonical_graphml_attributes
   )
@@ -1444,7 +1380,7 @@ run_cancerppir <- function(
 
   compatibility_outputs <- list(
     status = "deprecated_compatibility_only",
-    migration = phase4_legacy_annotation_migration(),
+    migration = build_deprecated_annotation_metadata(),
     legacy_module_summary = module_summary_readable,
     legacy_candidate_evidence_matrix = candidate_evidence_matrix,
     legacy_priority_directions = priority_directions,
@@ -1452,13 +1388,13 @@ run_cancerppir <- function(
   )
 
   invisible(
-    phase4_build_canonical_pipeline_result(
+    build_canonical_pipeline_result(
       output_dir = output_dir,
       graph = ppi,
       biological_evidence = biological_evidence,
       analytical_report_tables = analytical_sheets,
       analytical_report_validation =
-        phase4_analytical_report$validation,
+        analytical_report$validation,
       graphml_validation = canonical_graphml_validation,
       graph_summary = graph_summary,
       mapping_summary = mapping_summary,

@@ -1,19 +1,19 @@
-# CancerPPIr Phase 4: biological evidence engine
+# CancerPPIr: biological evidence engine
 #
 # This module provides the canonical transparent, hierarchical biological
 # evidence model used by the production pipeline, analytical report and GraphML
-# export. It remains independent of legacy compatibility labeling functions.
+# export. It remains independent of deprecated compatibility labeling functions.
 #
 # The engine does not estimate cell fractions and must not be described as
 # transcriptomic deconvolution.
 
-phase4_normalize_genes <- function(genes) {
+normalize_evidence_genes <- function(genes) {
   genes <- toupper(trimws(as.character(genes)))
   genes <- genes[!is.na(genes) & nzchar(genes)]
   unique(genes)
 }
 
-phase4_find_column <- function(data, candidates) {
+find_evidence_column <- function(data, candidates) {
   if (is.null(data) || !ncol(data)) {
     return(NA_character_)
   }
@@ -35,7 +35,7 @@ phase4_find_column <- function(data, candidates) {
   names(data)[index[[1L]]]
 }
 
-phase4_split_gene_text <- function(x) {
+split_gene_text <- function(x) {
   if (is.null(x) || !length(x)) {
     return(character())
   }
@@ -49,10 +49,10 @@ phase4_split_gene_text <- function(x) {
     use.names = FALSE
   )
 
-  phase4_normalize_genes(tokens)
+  normalize_evidence_genes(tokens)
 }
 
-phase4_is_generic_term <- function(term) {
+is_generic_evidence_term <- function(term) {
   term <- tolower(trimws(as.character(term)))
 
   if (!nzchar(term)) {
@@ -89,7 +89,7 @@ phase4_is_generic_term <- function(term) {
   ))
 }
 
-phase4_prepare_enrichment_evidence <- function(
+prepare_enrichment_evidence <- function(
   enrichment,
   fdr_threshold = 0.05
 ) {
@@ -112,7 +112,7 @@ phase4_prepare_enrichment_evidence <- function(
     return(empty)
   }
 
-  description_column <- phase4_find_column(
+  description_column <- find_evidence_column(
     enrichment,
     c(
       "description",
@@ -122,7 +122,7 @@ phase4_prepare_enrichment_evidence <- function(
     )
   )
 
-  fdr_column <- phase4_find_column(
+  fdr_column <- find_evidence_column(
     enrichment,
     c(
       "fdr",
@@ -133,7 +133,7 @@ phase4_prepare_enrichment_evidence <- function(
     )
   )
 
-  source_column <- phase4_find_column(
+  source_column <- find_evidence_column(
     enrichment,
     c(
       "category",
@@ -142,7 +142,7 @@ phase4_prepare_enrichment_evidence <- function(
     )
   )
 
-  term_id_column <- phase4_find_column(
+  term_id_column <- find_evidence_column(
     enrichment,
     c(
       "term_id",
@@ -151,7 +151,7 @@ phase4_prepare_enrichment_evidence <- function(
     )
   )
 
-  genes_column <- phase4_find_column(
+  genes_column <- find_evidence_column(
     enrichment,
     c(
       "inputGenes",
@@ -208,7 +208,7 @@ phase4_prepare_enrichment_evidence <- function(
       enrichment[[genes_column]],
       function(value) {
         paste(
-          phase4_split_gene_text(value),
+          split_gene_text(value),
           collapse = ";"
         )
       },
@@ -229,18 +229,18 @@ phase4_prepare_enrichment_evidence <- function(
     is_significant = is_significant,
     is_generic = vapply(
       description,
-      phase4_is_generic_term,
+      is_generic_evidence_term,
       FUN.VALUE = logical(1)
     ),
     stringsAsFactors = FALSE
   )
 }
 
-phase4_significant_specific_terms <- function(
+significant_specific_terms <- function(
   enrichment,
   fdr_threshold = 0.05
 ) {
-  prepared <- phase4_prepare_enrichment_evidence(
+  prepared <- prepare_enrichment_evidence(
     enrichment = enrichment,
     fdr_threshold = fdr_threshold
   )
@@ -254,7 +254,7 @@ phase4_significant_specific_terms <- function(
   ]
 }
 
-phase4_default_evidence_rules <- function() {
+default_evidence_rules <- function() {
   list(
     list(
       rule_id = "plasma_cell_associated",
@@ -1476,7 +1476,7 @@ phase4_default_evidence_rules <- function() {
   )
 }
 
-phase4_match_terms <- function(terms, patterns) {
+match_evidence_terms <- function(terms, patterns) {
   if (
     is.null(terms) ||
     !nrow(terms) ||
@@ -1512,40 +1512,40 @@ phase4_match_terms <- function(terms, patterns) {
   )
 }
 
-phase4_evaluate_evidence_rule <- function(
+evaluate_evidence_rule <- function(
   genes,
   significant_terms,
   rule
 ) {
-  genes <- phase4_normalize_genes(genes)
+  genes <- normalize_evidence_genes(genes)
 
   positive_hits <- intersect(
     genes,
-    phase4_normalize_genes(
+    normalize_evidence_genes(
       rule$positive_markers
     )
   )
 
   supportive_hits <- intersect(
     genes,
-    phase4_normalize_genes(
+    normalize_evidence_genes(
       rule$supportive_markers
     )
   )
 
   exclusion_hits <- intersect(
     genes,
-    phase4_normalize_genes(
+    normalize_evidence_genes(
       rule$exclusion_markers
     )
   )
 
-  term_matches <- phase4_match_terms(
+  term_matches <- match_evidence_terms(
     significant_terms,
     rule$term_patterns
   )
 
-  required_matches <- phase4_match_terms(
+  required_matches <- match_evidence_terms(
     significant_terms,
     rule$required_term_patterns
   )
@@ -1687,11 +1687,11 @@ phase4_evaluate_evidence_rule <- function(
       evidence_score >= as.numeric(rule$min_score)
   ) || isTRUE(marker_only_eligible)
 
-  term_supporting_genes <- phase4_normalize_genes(
+  term_supporting_genes <- normalize_evidence_genes(
     unlist(
       lapply(
         matched_terms$supporting_genes,
-        phase4_split_gene_text
+        split_gene_text
       ),
       use.names = FALSE
     )
@@ -1756,8 +1756,8 @@ phase4_evaluate_evidence_rule <- function(
   )
 }
 
-phase4_detect_technical_signature <- function(genes) {
-  genes <- phase4_normalize_genes(genes)
+detect_technical_signature <- function(genes) {
+  genes <- normalize_evidence_genes(genes)
   module_size <- length(genes)
 
   if (!module_size) {
@@ -1901,7 +1901,7 @@ phase4_detect_technical_signature <- function(genes) {
   )
 }
 
-phase4_select_axis_evidence <- function(
+select_axis_evidence <- function(
   evidence_table,
   axis,
   conflict_delta = 0.08
@@ -2067,7 +2067,7 @@ phase4_select_axis_evidence <- function(
   )
 }
 
-phase4_secondary_axis_evidence <- function(
+secondary_axis_evidence <- function(
   axis_selection,
   minimum_score = 0.40,
   maximum_rows = 3L
@@ -2111,7 +2111,7 @@ phase4_secondary_axis_evidence <- function(
   retained
 }
 
-phase4_confidence_from_evidence <- function(
+confidence_from_evidence <- function(
   selected_rows,
   has_conflict,
   technical_override
@@ -2161,7 +2161,7 @@ phase4_confidence_from_evidence <- function(
   "unresolved"
 }
 
-phase4_join_nonempty <- function(values, separator = "; ") {
+join_nonempty_evidence <- function(values, separator = "; ") {
   values <- unique(
     trimws(
       as.character(values)
@@ -2179,7 +2179,7 @@ phase4_join_nonempty <- function(values, separator = "; ") {
   )
 }
 
-phase4_infer_selected_compartment <- function(
+infer_selected_compartment <- function(
   selected_rows,
   lineage_selection
 ) {
@@ -2225,17 +2225,17 @@ phase4_infer_selected_compartment <- function(
   "multi-compartment"
 }
 
-phase4_annotate_module_evidence <- function(
+annotate_module_evidence <- function(
   genes,
   enrichment = NULL,
   module_id = NA,
   fdr_threshold = 0.05,
-  rules = phase4_default_evidence_rules(),
+  rules = default_evidence_rules(),
   conflict_delta = 0.08
 ) {
-  genes <- phase4_normalize_genes(genes)
+  genes <- normalize_evidence_genes(genes)
 
-  significant_terms <- phase4_significant_specific_terms(
+  significant_terms <- significant_specific_terms(
     enrichment = enrichment,
     fdr_threshold = fdr_threshold
   )
@@ -2245,7 +2245,7 @@ phase4_annotate_module_evidence <- function(
     lapply(
       rules,
       function(rule) {
-        phase4_evaluate_evidence_rule(
+        evaluate_evidence_rule(
           genes = genes,
           significant_terms = significant_terms,
           rule = rule
@@ -2254,23 +2254,23 @@ phase4_annotate_module_evidence <- function(
     )
   )
 
-  technical <- phase4_detect_technical_signature(
+  technical <- detect_technical_signature(
     genes
   )
 
-  lineage <- phase4_select_axis_evidence(
+  lineage <- select_axis_evidence(
     rule_evaluations,
     axis = "lineage",
     conflict_delta = conflict_delta
   )
 
-  state <- phase4_select_axis_evidence(
+  state <- select_axis_evidence(
     rule_evaluations,
     axis = "state",
     conflict_delta = conflict_delta
   )
 
-  process <- phase4_select_axis_evidence(
+  process <- select_axis_evidence(
     rule_evaluations,
     axis = "process",
     conflict_delta = conflict_delta
@@ -2279,11 +2279,11 @@ phase4_annotate_module_evidence <- function(
   # Lineage is represented by one primary assignment (or a mixed-lineage
   # result). States and processes are multi-label evidence dimensions: several
   # compatible, well-supported themes may coexist and must remain visible.
-  secondary_state_rows <- phase4_secondary_axis_evidence(
+  secondary_state_rows <- secondary_axis_evidence(
     state
   )
 
-  secondary_process_rows <- phase4_secondary_axis_evidence(
+  secondary_process_rows <- secondary_axis_evidence(
     process
   )
 
@@ -2404,7 +2404,7 @@ phase4_annotate_module_evidence <- function(
   selected_labels <- if (isTRUE(technical$detected)) {
     technical$display_label
   } else if (nrow(selected_rows) > 0L) {
-    phase4_join_nonempty(
+    join_nonempty_evidence(
       c(
         if (isTRUE(lineage$conflict)) {
           paste0(
@@ -2430,43 +2430,43 @@ phase4_annotate_module_evidence <- function(
     isTRUE(state$conflict) ||
     isTRUE(process$conflict)
 
-  confidence <- phase4_confidence_from_evidence(
+  confidence <- confidence_from_evidence(
     selected_rows = selected_rows,
     has_conflict = has_conflict,
     technical_override = technical$detected
   )
 
-  selected_positive_genes <- phase4_normalize_genes(
+  selected_positive_genes <- normalize_evidence_genes(
     unlist(
       lapply(
         selected_rows$positive_marker_genes,
-        phase4_split_gene_text
+        split_gene_text
       ),
       use.names = FALSE
     )
   )
 
-  selected_supportive_genes <- phase4_normalize_genes(
+  selected_supportive_genes <- normalize_evidence_genes(
     unlist(
       lapply(
         selected_rows$supportive_marker_genes,
-        phase4_split_gene_text
+        split_gene_text
       ),
       use.names = FALSE
     )
   )
 
-  selected_term_genes <- phase4_normalize_genes(
+  selected_term_genes <- normalize_evidence_genes(
     unlist(
       lapply(
         selected_rows$term_supporting_genes,
-        phase4_split_gene_text
+        split_gene_text
       ),
       use.names = FALSE
     )
   )
 
-  warning_text <- phase4_join_nonempty(
+  warning_text <- join_nonempty_evidence(
     c(
       if (isTRUE(technical$detected)) {
         "technical_or_covariate_signature_not_eligible_for_automatic_biological_priority"
@@ -2511,7 +2511,7 @@ phase4_annotate_module_evidence <- function(
     paste0(
       technical$display_label,
       ". Supporting genes: ",
-      phase4_join_nonempty(
+      join_nonempty_evidence(
         technical$supporting_genes
       ),
       ". This module is reported as a technical/covariate signature and is not automatically promoted as a biological priority."
@@ -2521,15 +2521,15 @@ phase4_annotate_module_evidence <- function(
       "Primary interpretation: ",
       selected_labels,
       ". Positive marker genes: ",
-      phase4_join_nonempty(
+      join_nonempty_evidence(
         selected_positive_genes
       ),
       ". Supportive genes: ",
-      phase4_join_nonempty(
+      join_nonempty_evidence(
         selected_supportive_genes
       ),
       ". Significant supporting terms: ",
-      phase4_join_nonempty(
+      join_nonempty_evidence(
         selected_rows$significant_terms,
         separator = " | "
       ),
@@ -2575,14 +2575,14 @@ phase4_annotate_module_evidence <- function(
     compartment = if (isTRUE(technical$detected)) {
       "not_applicable"
     } else {
-      phase4_infer_selected_compartment(
+      infer_selected_compartment(
         selected_rows = selected_rows,
         lineage_selection = lineage$selected
       )
     },
     lineage = lineage_label,
     conflicting_lineage_rules = if (isTRUE(lineage$conflict)) {
-      phase4_join_nonempty(
+      join_nonempty_evidence(
         c(
           lineage$selected$rule_id,
           lineage$conflict_evidence$rule_id
@@ -2592,7 +2592,7 @@ phase4_annotate_module_evidence <- function(
       ""
     },
     conflicting_lineage_labels = if (isTRUE(lineage$conflict)) {
-      phase4_join_nonempty(
+      join_nonempty_evidence(
         c(
           lineage$selected$display_label,
           lineage$conflict_evidence$display_label
@@ -2604,7 +2604,7 @@ phase4_annotate_module_evidence <- function(
     state = state_label,
     process = process_label,
     primary_interpretation = selected_labels,
-    secondary_themes = phase4_join_nonempty(
+    secondary_themes = join_nonempty_evidence(
       secondary_theme_rows$display_label
     ),
     confidence = confidence,
@@ -2613,16 +2613,16 @@ phase4_annotate_module_evidence <- function(
       !isTRUE(has_conflict) &&
       nrow(selected_rows) > 0L &&
       any(selected_rows$significant_term_count >= 1L),
-    positive_marker_genes = phase4_join_nonempty(
+    positive_marker_genes = join_nonempty_evidence(
       selected_positive_genes
     ),
-    supportive_marker_genes = phase4_join_nonempty(
+    supportive_marker_genes = join_nonempty_evidence(
       selected_supportive_genes
     ),
-    term_supporting_genes = phase4_join_nonempty(
+    term_supporting_genes = join_nonempty_evidence(
       selected_term_genes
     ),
-    significant_supporting_terms = phase4_join_nonempty(
+    significant_supporting_terms = join_nonempty_evidence(
       selected_rows$significant_terms,
       separator = " | "
     ),
@@ -2658,8 +2658,8 @@ phase4_annotate_module_evidence <- function(
   )
 }
 
-phase4_classify_entity <- function(gene) {
-  gene <- phase4_normalize_genes(gene)
+classify_evidence_entity <- function(gene) {
+  gene <- normalize_evidence_genes(gene)
 
   if (!length(gene)) {
     return("unknown")
@@ -2716,7 +2716,7 @@ phase4_classify_entity <- function(gene) {
   "canonical_or_unclassified_protein_coding"
 }
 
-phase4_candidate_eligibility <- function(entity_class) {
+determine_candidate_eligibility <- function(entity_class) {
   entity_class <- as.character(entity_class)
 
   if (

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# CancerPPIr release checkpoint
+# CancerPPIr release qualification
 #
 # One final release gate:
 #   1. runs the complete unit-test suite once in run-pipeline mode;
@@ -28,9 +28,9 @@
 #   run-tests for run-pipeline; skip-tests for validate-existing
 #
 # Examples:
-#   Rscript scripts/run_release_checkpoint.R
+#   Rscript scripts/run_release_qualification.R
 #
-#   Rscript scripts/run_release_checkpoint.R \
+#   Rscript scripts/run_release_qualification.R \
 #     "..\input" \
 #     "..\results\release_candidate_validation_v1" \
 #     "..\string_cache" \
@@ -240,7 +240,7 @@ missing_packages <- required_packages[
 if (length(missing_packages) > 0L) {
   stop(
     paste0(
-      "Release-checkpoint dependencies are missing: ",
+      "Release-qualification dependencies are missing: ",
       paste(
         missing_packages,
         collapse = ", "
@@ -396,12 +396,12 @@ tail_log <- function(
 }
 
 unit_test_log_temporary <- tempfile(
-  pattern = "phase4_release_unit_tests_",
+  pattern = "release_unit_tests_",
   fileext = ".log"
 )
 
 multicase_log_temporary <- tempfile(
-  pattern = "phase4_release_multicase_",
+  pattern = "release_multicase_",
   fileext = ".log"
 )
 
@@ -475,7 +475,7 @@ source(
   local = TRUE
 )
 
-static_validation <- phase4_9_validate_static_release(
+static_validation <- cancerppir_validate_static_release_contract(
   project_root
 )
 
@@ -488,7 +488,7 @@ source(
 )
 
 documentation_validation <-
-  phase4_8_validate_documentation(
+  cancerppir_validate_documentation_contract(
     project_root
   )
 
@@ -660,7 +660,7 @@ if (
 ) {
   stop(
     paste0(
-      "Seven-case multicase checkpoint failed with exit status ",
+      "Seven-case multicase qualification failed with exit status ",
       multicase_status,
       ".\n\nLog tail:\n",
       tail_log(
@@ -772,7 +772,7 @@ for (row_index in seq_len(
 
 multicase_summary_file <- file.path(
   output_root,
-  "phase4_5_multicase_analytical_summary.csv"
+  "multicase_analytical_summary.csv"
 )
 
 multicase_summary <- if (
@@ -803,7 +803,7 @@ multicase_summary_valid <- (
 
 add_check(
   "repository",
-  "multicase_analytical_checkpoint_passes",
+  "multicase_analytical_qualification_passes",
   multicase_summary_valid,
   if (nrow(multicase_summary) > 0L) {
     paste0(
@@ -956,7 +956,7 @@ for (case_index in seq_len(
           )
 
         expected_vertex_attributes <-
-          phase4_canonical_graphml_attribute_names()
+          canonical_graphml_attribute_names()
 
         add_check(
           sample_id,
@@ -973,13 +973,13 @@ for (case_index in seq_len(
 
         add_check(
           sample_id,
-          "legacy_graphml_fields_absent",
+          "deprecated_graphml_fields_absent",
           !any(
-            CANCERPPIR_LEGACY_ANNOTATION_FIELDS %in%
+            CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
               observed_vertex_attributes
           ),
           intersect(
-            CANCERPPIR_LEGACY_ANNOTATION_FIELDS,
+            CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS,
             observed_vertex_attributes
           )
         )
@@ -1459,7 +1459,7 @@ utils::write.csv(
 )
 
 cat(
-  "\nCANCERPPIR RELEASE CHECKPOINT\n\n"
+  "\nCANCERPPIR RELEASE QUALIFICATION\n\n"
 )
 
 print(
@@ -1531,7 +1531,7 @@ overall_pass <- (
 
 if (!overall_pass) {
   cat(
-    "\nCANCERPPIR RELEASE CHECKPOINT: FAILED\n"
+    "\nCANCERPPIR RELEASE QUALIFICATION: FAILED\n"
   )
 
   quit(
@@ -1541,5 +1541,5 @@ if (!overall_pass) {
 }
 
 cat(
-  "\nCANCERPPIR RELEASE CHECKPOINT: PASSED\n"
+  "\nCANCERPPIR RELEASE QUALIFICATION: PASSED\n"
 )

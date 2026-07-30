@@ -1,4 +1,4 @@
-phase4_analytical_test_fixture <- function() {
+analytical_workbook_test_fixture <- function() {
   node_annotations <- data.frame(
     STRING_id = paste0(
       "9606.ENSP",
@@ -543,7 +543,7 @@ phase4_analytical_test_fixture <- function() {
   list(
     graph_summary = graph_summary,
     degree_distribution = degree_distribution,
-    phase4_evidence = list(
+    biological_evidence = list(
       module_annotations = module_annotations,
       significant_module_terms = significant_terms,
       node_annotations = node_annotations,
@@ -563,11 +563,11 @@ phase4_analytical_test_fixture <- function() {
 }
 
 testthat::test_that(
-  "Phase 4 analytical workbook has the exact six-sheet contract",
+  "CancerPPIr analytical workbook has the exact six-sheet contract",
   {
-    fixture <- phase4_analytical_test_fixture()
+    fixture <- analytical_workbook_test_fixture()
 
-    report <- build_phase4_analytical_workbook(
+    report <- build_analytical_workbook(
       input_rows = 10L,
       mapped_proteins = 6L,
       unmapped_input_rows = 4L,
@@ -577,8 +577,8 @@ testthat::test_that(
       top_n = 6L,
       degree_distribution =
         fixture$degree_distribution,
-      phase4_evidence =
-        fixture$phase4_evidence
+      biological_evidence =
+        fixture$biological_evidence
     )
 
     testthat::expect_identical(
@@ -589,7 +589,7 @@ testthat::test_that(
     )
 
     expected_columns <-
-      phase4_expected_analytical_columns()
+      expected_analytical_columns()
 
     for (sheet_name in names(
       expected_columns
@@ -615,9 +615,9 @@ testthat::test_that(
 testthat::test_that(
   "automatic priorities respect entity and module eligibility",
   {
-    fixture <- phase4_analytical_test_fixture()
+    fixture <- analytical_workbook_test_fixture()
 
-    report <- build_phase4_analytical_workbook(
+    report <- build_analytical_workbook(
       input_rows = 10L,
       mapped_proteins = 6L,
       unmapped_input_rows = 4L,
@@ -627,8 +627,8 @@ testthat::test_that(
       top_n = 6L,
       degree_distribution =
         fixture$degree_distribution,
-      phase4_evidence =
-        fixture$phase4_evidence
+      biological_evidence =
+        fixture$biological_evidence
     )
 
     final_priorities <- report$sheets[[
@@ -674,9 +674,9 @@ testthat::test_that(
 testthat::test_that(
   "candidate score components reconstruct the production score",
   {
-    fixture <- phase4_analytical_test_fixture()
+    fixture <- analytical_workbook_test_fixture()
 
-    report <- build_phase4_analytical_workbook(
+    report <- build_analytical_workbook(
       input_rows = 10L,
       mapped_proteins = 6L,
       unmapped_input_rows = 4L,
@@ -686,8 +686,8 @@ testthat::test_that(
       top_n = 6L,
       degree_distribution =
         fixture$degree_distribution,
-      phase4_evidence =
-        fixture$phase4_evidence
+      biological_evidence =
+        fixture$biological_evidence
     )
 
     testthat::expect_true(
@@ -707,9 +707,9 @@ testthat::test_that(
       "openxlsx"
     )
 
-    fixture <- phase4_analytical_test_fixture()
+    fixture <- analytical_workbook_test_fixture()
 
-    report <- build_phase4_analytical_workbook(
+    report <- build_analytical_workbook(
       input_rows = 10L,
       mapped_proteins = 6L,
       unmapped_input_rows = 4L,
@@ -719,8 +719,8 @@ testthat::test_that(
       top_n = 6L,
       degree_distribution =
         fixture$degree_distribution,
-      phase4_evidence =
-        fixture$phase4_evidence
+      biological_evidence =
+        fixture$biological_evidence
     )
 
     output_file <- tempfile(

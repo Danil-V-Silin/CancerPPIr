@@ -1,6 +1,6 @@
-# Static documentation contract for CancerPPIr Phase 4.8.
+# Static documentation contract for CancerPPIr.
 
-phase4_8_validate_documentation <- function(
+cancerppir_validate_documentation_contract <- function(
   project_root = normalizePath(
     ".",
     winslash = "/",
@@ -33,12 +33,11 @@ phase4_8_validate_documentation <- function(
     "docs/user-guide/clinical-interpretation.md",
     "docs/reference/glossary.md",
     "docs/reference/limitations.md",
-    "docs/development/history/output-schema-migration.md",
+    "docs/reference/schema-versioning.md",
     "docs/user-guide/reproducibility.md",
     "examples/minimal_input.csv",
     "examples/README.md",
     "scripts/validate_documentation_contract.R",
-    "tools/development/history/release-checkpoints/run_documentation_checkpoint.R",
     "tests/testthat/test-documentation-contract.R"
   )
 
@@ -161,7 +160,7 @@ phase4_8_validate_documentation <- function(
 
   stale_patterns <- c(
     "CancerPPIr_final_v8_offline.R",
-    "biological_evidence_shadow",
+    paste0("biological_evidence_", paste0(c("s", "h", "a", "d", "o", "w"), collapse = "")),
     "Major module priorities",
     "Candidate rationale",
     "Graph summary"

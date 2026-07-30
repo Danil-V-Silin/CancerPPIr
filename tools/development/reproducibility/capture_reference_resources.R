@@ -1,13 +1,13 @@
 #!/usr/bin/env Rscript
 
 # Record the input files and local STRING resources used for
-# CancerPPIr legacy regression testing.
+# CancerPPIr regression qualification.
 #
 # Run this script from the root of the CancerPPIr repository.
 
 required_project_files <- c(
   "cancerppir.R",
-  "legacy/cancerppir_legacy.R"
+  "R/load_all.R"
 )
 
 missing_project_files <- required_project_files[
@@ -24,7 +24,7 @@ if (length(missing_project_files) > 0L) {
   )
 }
 
-output_dir <- "tests/reference/environment"
+output_dir <- "tests/reference/resources"
 
 dir.create(
   output_dir,

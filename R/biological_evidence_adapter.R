@@ -2,12 +2,12 @@
 #
 # Responsibility:
 # Convert current in-memory pipeline tables into the explicit input schema
-# required by the universal Phase 4 biological evidence engine.
+# required by the universal CancerPPIr biological evidence engine.
 #
 # This module does not write files. It provides the canonical tested boundary
 # between production network tables and the biological evidence engine.
 
-phase4_require_pipeline_columns <- function(
+require_evidence_pipeline_columns <- function(
   data,
   required_columns,
   object_name
@@ -39,7 +39,7 @@ phase4_require_pipeline_columns <- function(
   invisible(TRUE)
 }
 
-phase4_prepare_pipeline_enrichment <- function(
+prepare_pipeline_enrichment <- function(
   module_enrichment
 ) {
   if (
@@ -56,7 +56,7 @@ phase4_prepare_pipeline_enrichment <- function(
     )
   }
 
-  phase4_require_pipeline_columns(
+  require_evidence_pipeline_columns(
     module_enrichment,
     "community_louvain",
     "module_enrichment"
@@ -88,7 +88,7 @@ phase4_prepare_pipeline_enrichment <- function(
   output
 }
 
-phase4_pipeline_module_order <- function(
+order_pipeline_modules <- function(
   module_ids
 ) {
   module_ids <- unique(as.character(module_ids))
@@ -105,13 +105,13 @@ phase4_pipeline_module_order <- function(
   ]
 }
 
-phase4_bind_pipeline_evidence <- function(
+bind_pipeline_evidence <- function(
   node_metrics,
   module_enrichment = NULL,
   fdr_threshold = 0.05,
-  rules = phase4_default_evidence_rules()
+  rules = default_evidence_rules()
 ) {
-  phase4_require_pipeline_columns(
+  require_evidence_pipeline_columns(
     node_metrics,
     c("gene", "community_louvain"),
     "node_metrics"
@@ -152,11 +152,11 @@ phase4_bind_pipeline_evidence <- function(
     )
   }
 
-  enrichment <- phase4_prepare_pipeline_enrichment(
+  enrichment <- prepare_pipeline_enrichment(
     module_enrichment
   )
 
-  module_ids <- phase4_pipeline_module_order(
+  module_ids <- order_pipeline_modules(
     module_id_text
   )
 
@@ -203,7 +203,7 @@ phase4_bind_pipeline_evidence <- function(
       ]
     }
 
-    module_genes <- phase4_normalize_genes(
+    module_genes <- normalize_evidence_genes(
       module_nodes$gene
     )
 
@@ -217,7 +217,7 @@ phase4_bind_pipeline_evidence <- function(
       data.frame()
     }
 
-    evidence <- phase4_annotate_module_evidence(
+    evidence <- annotate_module_evidence(
       genes = module_genes,
       enrichment = module_terms,
       module_id = module_id,
@@ -316,7 +316,7 @@ phase4_bind_pipeline_evidence <- function(
     rownames(output) <- NULL
     output
   } else {
-    output <- phase4_significant_specific_terms(
+    output <- significant_specific_terms(
       enrichment = NULL,
       fdr_threshold = fdr_threshold
     )
@@ -342,13 +342,13 @@ phase4_bind_pipeline_evidence <- function(
 
   node_annotations$entity_class <- vapply(
     node_annotations$gene,
-    phase4_classify_entity,
+    classify_evidence_entity,
     FUN.VALUE = character(1)
   )
 
   node_annotations$candidate_eligibility <- vapply(
     node_annotations$entity_class,
-    phase4_candidate_eligibility,
+    determine_candidate_eligibility,
     FUN.VALUE = character(1)
   )
 
@@ -383,7 +383,7 @@ phase4_bind_pipeline_evidence <- function(
       module_annotations[[field]][annotation_index]
   }
 
-  validation <- phase4_validate_pipeline_evidence(
+  validation <- validate_pipeline_evidence(
     module_annotations = module_annotations,
     significant_module_terms = significant_module_terms,
     node_annotations = node_annotations,
@@ -399,13 +399,13 @@ phase4_bind_pipeline_evidence <- function(
   )
 }
 
-phase4_validate_pipeline_evidence <- function(
+validate_pipeline_evidence <- function(
   module_annotations,
   significant_module_terms,
   node_annotations,
   fdr_threshold = 0.05
 ) {
-  phase4_require_pipeline_columns(
+  require_evidence_pipeline_columns(
     module_annotations,
     c(
       "community_louvain",

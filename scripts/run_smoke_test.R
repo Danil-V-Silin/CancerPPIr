@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Run one local end-to-end R01 smoke test and compare it with the
-# frozen Phase 1 baseline.
+# qualified reference baseline.
 #
 # Optional positional arguments:
 #   1 baseline_root
@@ -25,7 +25,7 @@ arguments <- commandArgs(
 baseline_root <- if (length(arguments) >= 1L) {
   arguments[[1L]]
 } else {
-  file.path("..", "results", "renv_phase1_full")
+  file.path("..", "results", "reference_baseline_v1")
 }
 
 input_file <- if (length(arguments) >= 2L) {
@@ -43,7 +43,7 @@ cache_dir <- if (length(arguments) >= 3L) {
 results_root <- if (length(arguments) >= 4L) {
   arguments[[4L]]
 } else {
-  file.path("..", "results", "phase3_r01_smoke")
+  file.path("..", "results", "r01_smoke_validation")
 }
 
 required_paths <- c(
@@ -216,14 +216,14 @@ comparison_status <- system2(
     shQuote(
       file.path(
         project_root,
-        "tools", "development", "architecture", "compare_architecture_checkpoint_case.R"
+        "tools", "development", "reproducibility", "compare_reference_case.R"
       )
     ),
     shQuote(baseline_root),
     shQuote(results_root),
     "R01",
     "Genes_R",
-    "phase_3_r01_smoke"
+    "r01_smoke_validation"
   )
 )
 
@@ -239,10 +239,9 @@ if (!identical(as.integer(comparison_status), 0L)) {
 }
 
 summary_file <- file.path(
-  project_root,
-  "docs",
-  "architecture",
-  "phase_3_r01_smoke_summary.csv"
+  results_root,
+  "comparison",
+  "r01_smoke_validation_summary.csv"
 )
 
 summary_table <- utils::read.csv(
@@ -257,4 +256,4 @@ stopifnot(
   summary_table$strict_sheets_identical[[1L]] == 12L
 )
 
-cat("PHASE 3.2 R01 SMOKE TEST PASSED: 12/12 STRICT SHEETS\n")
+cat("CANCERPPIR R01 SMOKE TEST PASSED: 12/12 STRICT SHEETS\n")

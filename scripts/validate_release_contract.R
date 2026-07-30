@@ -1,9 +1,9 @@
-# CancerPPIr Phase 4.9 static release audit
+# CancerPPIr static release audit
 #
 # This file defines a sourceable validator. It performs no network analysis,
 # does not initialize STRINGdb and does not modify repository files.
 
-phase4_9_validate_static_release <- function(
+cancerppir_validate_static_release_contract <- function(
   project_root = normalizePath(
     ".",
     winslash = "/",
@@ -55,7 +55,7 @@ phase4_9_validate_static_release <- function(
     project_root,
     c(
       "scripts/validate_release_contract.R",
-      "scripts/run_release_checkpoint.R",
+      "scripts/run_release_qualification.R",
       "tests/testthat/test-release-edge-cases.R",
       "tests/testthat/test-release-static-contract.R",
       "docs/reference/contracts/release-validation.md",
@@ -100,7 +100,7 @@ phase4_9_validate_static_release <- function(
     ),
     file.path(
       project_root,
-      "scripts", "run_release_checkpoint.R"
+      "scripts", "run_release_qualification.R"
     ),
     file.path(
       project_root,
@@ -173,19 +173,24 @@ phase4_9_validate_static_release <- function(
 
   names(production_text) <- relative_production_files
 
-  active_shadow_patterns <- c(
-    "\\$biological_evidence_shadow",
-    "biological_evidence_shadow[[:space:]]*="
+  deprecated_parallel_field <- paste0(
+    "biological_evidence_",
+    paste0(c("s", "h", "a", "d", "o", "w"), collapse = "")
   )
 
-  active_shadow_hits <- character()
+  deprecated_parallel_patterns <- c(
+    paste0("\\$", deprecated_parallel_field),
+    paste0(deprecated_parallel_field, "[[:space:]]*=")
+  )
+
+  deprecated_parallel_hits <- character()
 
   for (path in names(production_text)) {
     text <- production_text[[path]]
 
-    hit_patterns <- active_shadow_patterns[
+    hit_patterns <- deprecated_parallel_patterns[
       vapply(
-        active_shadow_patterns,
+        deprecated_parallel_patterns,
         grepl,
         x = text,
         perl = TRUE,
@@ -194,21 +199,17 @@ phase4_9_validate_static_release <- function(
     ]
 
     if (length(hit_patterns) > 0L) {
-      active_shadow_hits <- c(
-        active_shadow_hits,
-        paste0(
-          path,
-          ": ",
-          hit_patterns
-        )
+      deprecated_parallel_hits <- c(
+        deprecated_parallel_hits,
+        paste0(path, ": ", hit_patterns)
       )
     }
   }
 
   add_check(
-    "shadow_api_is_not_active",
-    length(active_shadow_hits) == 0L,
-    active_shadow_hits
+    "deprecated_parallel_result_api_is_absent",
+    length(deprecated_parallel_hits) == 0L,
+    deprecated_parallel_hits
   )
 
   patient_id_pattern <-
@@ -386,7 +387,6 @@ phase4_9_validate_static_release <- function(
       "tests",
       "docs",
       "examples",
-      "legacy",
       "renv",
       ".github"
     )
@@ -419,6 +419,79 @@ phase4_9_validate_static_release <- function(
     "no_nested_git_repositories",
     length(nested_git_directories) == 0L,
     nested_git_directories
+  )
+
+  semantic_scan_roots <- file.path(
+    project_root,
+    c(
+      "R",
+      "scripts",
+      "tests/testthat",
+      "docs",
+      "examples",
+      "tools/audit"
+    )
+  )
+
+  semantic_scan_files <- unlist(lapply(
+    semantic_scan_roots[dir.exists(semantic_scan_roots)],
+    function(scan_root) {
+      list.files(
+        scan_root,
+        pattern = "\\.(R|md|txt|csv|yml|yaml)$",
+        recursive = TRUE,
+        full.names = TRUE
+      )
+    }
+  ), use.names = FALSE)
+
+  obsolete_semantic_patterns <- c(
+    paste0("phase", "4"),
+    paste0("Phase", " 4"),
+    paste0("run_release_", paste0(c("c", "h", "e", "c", "k", "p", "o", "i", "n", "t"), collapse = ""), ".R")
+  )
+
+  obsolete_semantic_hits <- character()
+
+  for (path in semantic_scan_files[file.exists(semantic_scan_files)]) {
+    text <- read_utf8(path)
+    matched <- obsolete_semantic_patterns[vapply(
+      obsolete_semantic_patterns,
+      grepl,
+      x = text,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )]
+
+    if (length(matched) > 0L) {
+      obsolete_semantic_hits <- c(
+        obsolete_semantic_hits,
+        paste0(basename(path), ": ", paste(matched, collapse = " | "))
+      )
+    }
+  }
+
+  add_check(
+    "obsolete_development_stage_labels_are_absent",
+    length(obsolete_semantic_hits) == 0L,
+    obsolete_semantic_hits
+  )
+
+  obsolete_tree_paths <- file.path(
+    project_root,
+    c(
+      "docs/development/history",
+      "docs/development/architecture",
+      "tools/development/history",
+      "tools/development/architecture",
+      "examples/input/Genes_R.csv"
+    )
+  )
+
+  add_check(
+    "superseded_repository_tree_is_absent",
+    !any(file.exists(obsolete_tree_paths)),
+    obsolete_tree_paths[file.exists(obsolete_tree_paths)]
   )
 
   schema_environment <- new.env(
