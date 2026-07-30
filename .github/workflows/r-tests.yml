@@ -50,9 +50,6 @@ jobs:
           - ubuntu-24.04
           - windows-2022
 
-    env:
-      RENV_CONFIG_REPOS_OVERRIDE: https://cloud.r-project.org
-
     steps:
       - name: Check out repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -78,6 +75,9 @@ jobs:
 
       - name: Verify renv status
         run: Rscript -e "renv::status()"
+
+      - name: Validate reproducibility contract
+        run: Rscript scripts/validate_reproducibility_contract.R
 
       - name: Run unit and CLI tests
         run: Rscript scripts/run_unit_tests.R

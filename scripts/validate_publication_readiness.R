@@ -402,10 +402,16 @@ cancerppir_validate_publication_readiness <- function(
   obsolete_schema_hits <- character()
 
   for (path in names(public_text)) {
+    schema_scan_text <- gsub(
+      "R 4.5.0",
+      "R <runtime-version>",
+      public_text[[path]],
+      fixed = TRUE
+    )
     hits <- obsolete_schema_versions[vapply(
       obsolete_schema_versions,
       grepl,
-      x = public_text[[path]],
+      x = schema_scan_text,
       fixed = TRUE,
       FUN.VALUE = logical(1)
     )]

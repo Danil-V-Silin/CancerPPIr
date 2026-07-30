@@ -17,6 +17,7 @@ STRING resources or running network analysis.
 - `run_unit_tests.R` — complete unit and CLI test suite.
 - `run_smoke_test.R` — single-case smoke validation.
 - `validate_documentation_contract.R` — documentation contract.
+- `validate_reproducibility_contract.R` — pinned software-environment contract.
 - `validate_release_contract.R` — static release contract.
 - `validate_publication_readiness.R` — publication metadata and public-contract
   audit.

@@ -7,6 +7,9 @@ CancerPPIr follows Semantic Versioning.
 ## [Unreleased]
 
 ### Changed
+- Pinned the CRAN repository to the 2026-07-20 snapshot, removed the CI
+  repository override, and added an executable reproducible-environment
+  contract to routine and release validation.
 - Enforced a versioned scientific input contract: explicit headers, raw
   differential-expression p-values, base-2 tumor-versus-reference logFC,
   complete finite values, bounded p-values, unique gene symbols and no
