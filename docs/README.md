@@ -25,6 +25,7 @@ tree; released states remain available through Git history and immutable tags.
 - [Analytical workbook contract](reference/contracts/analytical-workbook.md)
 - [Canonical annotation contract](reference/contracts/canonical-annotations.md)
 - [Output provenance contract](reference/contracts/output-provenance.md)
+- [Reproducible environment contract](reference/contracts/reproducible-environment.md)
 - [Release-validation contract](reference/contracts/release-validation.md)
 
 ## Maintainer documentation

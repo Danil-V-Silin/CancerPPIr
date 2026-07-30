@@ -43,8 +43,8 @@ Each case must contain:
 ## Repository preflight
 
 The qualification requires all static release, documentation, publication
-readiness, repository-quality, and CLI checks to pass before the seven-case run
-begins.
+readiness, reproducible-environment, repository-quality, and CLI checks to pass
+before the seven-case run begins.
 
 ## Release evidence
 

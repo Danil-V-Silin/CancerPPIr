@@ -260,6 +260,7 @@ required_project_files <- file.path(
     "scripts/validate_release_contract.R",
     "scripts/validate_documentation_contract.R",
     "scripts/validate_publication_readiness.R",
+    "scripts/validate_reproducibility_contract.R",
     "cancerppir.R"
   )
 )
@@ -506,6 +507,17 @@ publication_validation <-
     include_git_diff_check = TRUE
   )
 
+source(
+  file.path(
+    project_root,
+    "scripts", "validate_reproducibility_contract.R"
+  ),
+  local = TRUE
+)
+
+reproducibility_validation <-
+  cancerppir_validate_reproducibility_contract(project_root)
+
 cli_output <- suppressWarnings(
   system2(
     command = rscript_command,
@@ -582,6 +594,11 @@ preflight_validation <- rbind(
     stringsAsFactors = FALSE
   ),
   data.frame(
+    section = "reproducibility",
+    reproducibility_validation,
+    stringsAsFactors = FALSE
+  ),
+  data.frame(
     section = "cli",
     cli_validation,
     stringsAsFactors = FALSE
@@ -613,7 +630,7 @@ if (nrow(preflight_failures) > 0L) {
 }
 
 message(
-  "[CancerPPIr release] Static, documentation, publication and CLI preflight: PASS."
+  "[CancerPPIr release] Static, documentation, publication, reproducibility and CLI preflight: PASS."
 )
 
 multicase_arguments <- c(

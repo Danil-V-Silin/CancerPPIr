@@ -3,6 +3,16 @@
 CancerPPIr separates file integrity, run provenance, and semantic regression.
 All three are required for a defensible reproducible analysis.
 
+## Reproducible software environment
+
+The qualified environment uses R 4.5.x, R 4.5.0 in CI, Bioconductor 3.21,
+the exact package records in `renv.lock`, and the date-pinned CRAN snapshot
+`https://packagemanager.posit.co/cran/2026-07-20`. Restore with
+`renv::restore()` and validate with
+`Rscript scripts/validate_reproducibility_contract.R`. Repository overrides
+are prohibited in CI. See the
+[reproducible environment contract](../reference/contracts/reproducible-environment.md).
+
 ## Files to preserve
 
 For each run, preserve:

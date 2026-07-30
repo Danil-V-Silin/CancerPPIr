@@ -39,6 +39,9 @@ install.packages("renv")
 renv::restore()
 ```
 
+The lockfile uses a date-pinned CRAN snapshot and CI rejects repository
+overrides. See the [reproducible environment contract](docs/reference/contracts/reproducible-environment.md).
+
 Run commands from the repository root. STRING resources are stored in a cache
 folder supplied at run time and are not committed to the repository.
 
