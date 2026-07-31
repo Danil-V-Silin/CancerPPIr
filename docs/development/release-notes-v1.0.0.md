@@ -1,6 +1,6 @@
 # CancerPPIr 1.0.0
 
-Release date: 2026-07-27.
+Release date: 2026-07-31.
 
 CancerPPIr 1.0.0 is the first stable public release of the workflow.
 
