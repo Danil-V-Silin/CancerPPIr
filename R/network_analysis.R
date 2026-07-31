@@ -408,6 +408,7 @@ run_network_analysis <- function(
       nrow(mapped_final)
     )
   )
+  mapping_summary$value <- as.character(mapping_summary$value)
 
   gene_status <- input_tbl %>%
     distinct(input_gene, gene) %>%
