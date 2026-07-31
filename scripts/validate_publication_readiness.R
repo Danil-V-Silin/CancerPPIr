@@ -32,7 +32,26 @@ cancerppir_validate_publication_readiness <- function(
     }
   }
 
-  required_files <- c(
+  version_path <- file.path(project_root, "VERSION")
+  version_text <- if (file.exists(version_path)) {
+    trimws(read_utf8(version_path))
+  } else {
+    NA_character_
+  }
+  version_valid <- length(version_text) == 1L &&
+    !is.na(version_text) &&
+    grepl("^[0-9]+\\.[0-9]+\\.[0-9]+$", version_text)
+  release_notes_relative <- if (version_valid) {
+    paste0(
+      "docs/development/release-notes-v",
+      version_text,
+      ".md"
+    )
+  } else {
+    NA_character_
+  }
+
+  required_files <- unique(c(
     "VERSION",
     "LICENSE",
     "CITATION.cff",
@@ -60,8 +79,12 @@ cancerppir_validate_publication_readiness <- function(
     "docs/development/release-process.md",
     "docs/development/repository-governance.md",
     "docs/development/publication-readiness-checklist.md",
-    "docs/development/release-notes-v1.0.0.md"
-  )
+    "docs/development/release-notes-v1.0.0.md",
+    release_notes_relative
+  ))
+  required_files <- required_files[
+    !is.na(required_files) & nzchar(required_files)
+  ]
 
   missing_files <- required_files[
     !file.exists(file.path(project_root, required_files))
@@ -73,20 +96,39 @@ cancerppir_validate_publication_readiness <- function(
     missing_files
   )
 
-  version_text <- trimws(read_utf8(file.path(project_root, "VERSION")))
-  citation_text <- read_utf8(file.path(project_root, "CITATION.cff"))
-  add_check(
-    "stable_release_version_is_consistent",
-    identical(version_text, "1.0.0") &&
-      grepl('version: "1.0.0"', citation_text, fixed = TRUE),
-    paste0("VERSION=", version_text)
-  )
-
+  citation_text <- if (file.exists(file.path(project_root, "CITATION.cff"))) {
+    read_utf8(file.path(project_root, "CITATION.cff"))
+  } else {
+    ""
+  }
   citation_lines <- strsplit(
     citation_text,
     "\n",
     fixed = TRUE
   )[[1L]]
+  citation_version_lines <- citation_lines[
+    grepl("^version:", citation_lines)
+  ]
+  citation_version <- if (length(citation_version_lines) == 1L) {
+    trimws(gsub(
+      '"',
+      "",
+      sub("^version:", "", citation_version_lines[[1L]]),
+      fixed = TRUE
+    ))
+  } else {
+    NA_character_
+  }
+
+  add_check(
+    "stable_release_version_is_consistent",
+    version_valid && identical(citation_version, version_text),
+    paste0(
+      "VERSION=", version_text,
+      "; CITATION=", citation_version
+    )
+  )
+
   release_date_lines <- citation_lines[
     grepl("^date-released:", citation_lines)
   ]
@@ -105,15 +147,31 @@ cancerppir_validate_publication_readiness <- function(
       release_date
     ) &&
     !is.na(suppressWarnings(as.Date(release_date)))
-  changelog_text <- read_utf8(file.path(project_root, "CHANGELOG.md"))
-  notes_text <- read_utf8(file.path(
-    project_root,
-    "docs/development/release-notes-v1.0.0.md"
-  ))
-  release_metadata_valid <- citation_date_valid &&
+  changelog_text <- if (file.exists(file.path(project_root, "CHANGELOG.md"))) {
+    read_utf8(file.path(project_root, "CHANGELOG.md"))
+  } else {
+    ""
+  }
+  notes_path <- if (!is.na(release_notes_relative)) {
+    file.path(project_root, release_notes_relative)
+  } else {
+    ""
+  }
+  notes_text <- if (nzchar(notes_path) && file.exists(notes_path)) {
+    read_utf8(notes_path)
+  } else {
+    ""
+  }
+  release_metadata_valid <- version_valid &&
+    citation_date_valid &&
     grepl(
-      paste0("## [1.0.0] - ", release_date),
+      paste0("## [", version_text, "] - ", release_date),
       changelog_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      paste0("# CancerPPIr ", version_text),
+      notes_text,
       fixed = TRUE
     ) &&
     grepl(
@@ -127,7 +185,8 @@ cancerppir_validate_publication_readiness <- function(
     paste0(
       "version=", version_text,
       "; release_date=", release_date,
-      "; citation_date=", citation_date_valid
+      "; citation_date=", citation_date_valid,
+      "; notes=", release_notes_relative
     )
   )
 
@@ -349,7 +408,8 @@ cancerppir_validate_publication_readiness <- function(
         "docs/development/release-process.md",
         "docs/development/repository-governance.md",
         "docs/development/publication-readiness-checklist.md",
-        "docs/development/release-notes-v1.0.0.md"
+        "docs/development/release-notes-v1.0.0.md",
+        release_notes_relative
       )
     ),
     list.files(
@@ -452,9 +512,9 @@ cancerppir_validate_publication_readiness <- function(
     "docs/development/release-process.md"
   ))
   order_terms <- c(
+    "Restore the locked environment in a clean detached clone",
     "Run the complete seven-case release qualification",
-    "Perform clean-clone qualification",
-    "Create an annotated"
+    "Create and push an annotated"
   )
   order_positions <- vapply(
     order_terms,
@@ -470,14 +530,81 @@ cancerppir_validate_publication_readiness <- function(
   )
 
   add_check(
-    "release_qualification_precedes_tagging",
+    "clean_clone_and_qualification_precede_tagging",
     all(is.finite(order_positions)) &&
       order_positions[[1L]] < order_positions[[2L]] &&
       order_positions[[2L]] < order_positions[[3L]],
     paste(order_terms, order_positions, sep = "@", collapse = " | ")
   )
 
-  security_text <- read_utf8(file.path(project_root, "SECURITY.md"))
+  readme_path <- file.path(project_root, "README.md")
+  security_path <- file.path(project_root, "SECURITY.md")
+  docs_index_path <- file.path(project_root, "docs", "README.md")
+  readme_text <- if (file.exists(readme_path)) read_utf8(readme_path) else ""
+  security_text <- if (file.exists(security_path)) read_utf8(security_path) else ""
+  docs_index_text <- if (file.exists(docs_index_path)) {
+    read_utf8(docs_index_path)
+  } else {
+    ""
+  }
+
+  stable_documentation_valid <- version_valid &&
+    grepl(
+      paste0("version-", version_text, "-blue"),
+      readme_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      paste0("Current stable version: `", version_text, "`."),
+      readme_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      paste0("`", version_text, "` is the current supported stable release."),
+      security_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      paste0("(development/release-notes-v", version_text, ".md)"),
+      docs_index_text,
+      fixed = TRUE
+    )
+
+  add_check(
+    "stable_release_documentation_is_current",
+    stable_documentation_valid,
+    paste0(
+      "version=", version_text,
+      "; notes=", release_notes_relative
+    )
+  )
+
+  historical_notes_path <- file.path(
+    project_root,
+    "docs",
+    "development",
+    "release-notes-v1.0.0.md"
+  )
+  historical_notes_text <- if (file.exists(historical_notes_path)) {
+    read_utf8(historical_notes_path)
+  } else {
+    ""
+  }
+
+  add_check(
+    "historical_v1_0_0_metadata_is_preserved",
+    grepl(
+      "## [1.0.0] - 2026-07-27",
+      changelog_text,
+      fixed = TRUE
+    ) &&
+      grepl(
+        "Release date: 2026-07-27.",
+        historical_notes_text,
+        fixed = TRUE
+      ),
+    "The published v1.0.0 date must remain 2026-07-27."
+  )
 
   add_check(
     "security_reporting_channel_is_explicit",
