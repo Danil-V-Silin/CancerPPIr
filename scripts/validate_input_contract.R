@@ -8,12 +8,16 @@ script_argument <- grep(
 )
 
 project_root <- if (length(script_argument) >= 1L) {
-  dirname(
-    normalizePath(
-      sub("^--file=", "", script_argument[[1L]]),
-      winslash = "/",
-      mustWork = TRUE
-    )
+  script_path <- normalizePath(
+    sub("^--file=", "", script_argument[[1L]]),
+    winslash = "/",
+    mustWork = TRUE
+  )
+
+  normalizePath(
+    file.path(dirname(script_path), ".."),
+    winslash = "/",
+    mustWork = TRUE
   )
 } else {
   normalizePath(".", winslash = "/", mustWork = TRUE)
