@@ -82,12 +82,29 @@ cancerppir_validate_publication_readiness <- function(
     paste0("VERSION=", version_text)
   )
 
-  release_date <- "2026-07-27"
-  citation_date_valid <- grepl(
-    paste0("date-released: ", release_date),
+  citation_lines <- strsplit(
     citation_text,
+    "\n",
     fixed = TRUE
-  )
+  )[[1L]]
+  release_date_lines <- citation_lines[
+    grepl("^date-released:", citation_lines)
+  ]
+  release_date <- if (length(release_date_lines) == 1L) {
+    trimws(sub(
+      "^date-released:",
+      "",
+      release_date_lines[[1L]]
+    ))
+  } else {
+    NA_character_
+  }
+  citation_date_valid <- !is.na(release_date) &&
+    grepl(
+      "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      release_date
+    ) &&
+    !is.na(suppressWarnings(as.Date(release_date)))
   changelog_text <- read_utf8(file.path(project_root, "CHANGELOG.md"))
   notes_text <- read_utf8(file.path(
     project_root,
