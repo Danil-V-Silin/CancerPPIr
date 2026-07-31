@@ -45,7 +45,7 @@ input_contract_mapping_rows <- function(contract) {
 
   source_columns <- contract$source_columns
 
-  tibble(
+  tibble::tibble(
     metric = c(
       "input_contract_schema_version",
       "input_gene_identifier",
@@ -266,7 +266,7 @@ read_gene_table <- function(file) {
     )
   }
 
-  out <- tibble(
+  out <- tibble::tibble(
     input_row = seq_len(nrow(x)),
     gene = gene,
     logFC = logFC,

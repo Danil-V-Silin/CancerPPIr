@@ -7,6 +7,9 @@ CancerPPIr follows Semantic Versioning.
 ## [Unreleased]
 
 ### Changed
+- Corrected the executable scientific-input validator to resolve the
+  repository root from its `scripts/` location, with subprocess regression
+  coverage for direct command-line execution.
 - Pinned the CRAN repository to the 2026-07-20 snapshot, removed the CI
   repository override, and added an executable reproducible-environment
   contract to routine and release validation.
