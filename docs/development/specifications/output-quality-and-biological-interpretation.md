@@ -1,8 +1,7 @@
 # CancerPPIr Specification
 ## Output quality, biological interpretation, and evidence transparency
 
-**Status:** Proposed implementation contract  
-**Status:** Implemented in the supported 1.0.0 codebase
+**Status:** Implemented in the supported 1.0.x release line
 **Scope:** Biological interpretation, reporting architecture, output integrity, GraphML metadata, and STRING-link output  
 **Out of scope:** Estimation of cell-type proportions from bulk RNA-seq unless a full expression matrix and a validated deconvolution reference are supplied
 
@@ -10,7 +9,7 @@
 
 ## 1. Purpose
 
-CancerPPIr converts CancerPPIr outputs from a technically complete exploratory export into a concise, auditable, biologically defensible report for researchers.
+CancerPPIr converts technically complete exploratory outputs into a concise, auditable, biologically defensible report for researchers.
 
 The implementation must satisfy four principles:
 
