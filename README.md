@@ -139,6 +139,14 @@ Every successful run writes six principal files:
 | `CancerPPIr_Output_Manifest.json` | Machine-readable provenance and output inventory |
 | `CancerPPIr_Output_Checksums.sha256` | SHA-256 integrity verification |
 
+`STRING_links.txt` contains two convenience browser views of the mapped protein set.
+The `current` link opens the proteins in the current STRING web interface and may
+therefore change as STRING is updated. The `pinned_v12` link opens the proteins in
+STRING v12.0, matching the database version pinned by CancerPPIr, and is preferred
+for version-consistent STRING inspection. Because browser URL-length limits restrict
+these links to the first up to 300 STRING protein IDs,
+`Network_for_Cytoscape.graphml` remains the complete reconstructed network output.
+
 The analytical workbook has exactly six sheets, in this order:
 
 1. `Executive summary`
