@@ -1248,8 +1248,13 @@ run_cancerppir <- function(
     c(
       "STRING network links",
       "These links use the first up to 300 STRING protein IDs to avoid browser URL-length limits.",
+      "These are convenience browser views; Network_for_Cytoscape.graphml contains the complete reconstructed network.",
       paste("current:", links[["current"]]),
-      paste("pinned_v12:", links[["pinned_v12"]])
+      "  Opens the protein set in the current STRING web interface; displayed content may change when STRING is updated.",
+      "",
+      paste("pinned_v12:", links[["pinned_v12"]]),
+      "  Opens the protein set in STRING v12.0, matching the database version pinned by CancerPPIr.",
+      "  Prefer this link for version-consistent STRING inspection of the reported analysis."
     ),
     file.path(output_dir, "STRING_links.txt")
   )

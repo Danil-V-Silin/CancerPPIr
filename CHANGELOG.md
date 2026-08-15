@@ -6,7 +6,11 @@ CancerPPIr follows Semantic Versioning.
 
 ## [Unreleased]
 
-No unreleased changes.
+### Changed
+
+- Clarified the distinct roles of the current and STRING v12-pinned browser
+  links in `STRING_links.txt`, including the version-consistent inspection
+  purpose of the pinned link and the 300-protein browser-link limit.
 
 ## [1.0.1] - 2026-07-31
 
