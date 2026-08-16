@@ -604,17 +604,39 @@ cancerppir_validate_static_release_contract <- function(
     output_checksums = "1.0.0"
   )
 
+  expected_production_modules <- setdiff(
+    basename(
+      list.files(
+        file.path(project_root, "R"),
+        pattern = "\\.R$",
+        full.names = FALSE
+      )
+    ),
+    "load_all.R"
+  )
+
+  observed_production_modules <- basename(
+    loaded_modules
+  )
+
   add_check(
     "production_loader_is_complete",
     is.null(schema_error) &&
-      length(loaded_modules) == 13L,
+      length(observed_production_modules) ==
+        length(expected_production_modules) &&
+      setequal(
+        observed_production_modules,
+        expected_production_modules
+      ),
     if (is.null(schema_error)) {
-      paste(basename(loaded_modules), collapse = " | ")
+      paste(
+        observed_production_modules,
+        collapse = " | "
+      )
     } else {
       schema_error
     }
   )
-
   add_check(
     "public_schema_versions_are_pinned",
     is.null(schema_error) &&

@@ -22,6 +22,7 @@ load_cancerppir_modules <- function(
       "string_mapping.R",
       "enrichment.R",
       "module_labeling.R",
+      "biological_evidence_rules.R",
       "biological_evidence_engine.R",
       "biological_evidence_adapter.R",
       "reporting.R",
