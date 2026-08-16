@@ -65,7 +65,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "B-cell and plasma-cell evidence is not misclassified as myeloid",
+  "plasma-cell identity without secretory program is not misclassified as myeloid",
   {
     genes <- c(
       "MZB1", "JCHAIN", "TNFRSF17", "IRF4",
@@ -105,7 +105,7 @@ testthat::test_that(
 
     testthat::expect_identical(
       summary$state,
-      "immunoglobulin_secretion"
+      "not_assigned"
     )
 
     testthat::expect_false(
@@ -141,6 +141,78 @@ testthat::test_that(
 
     testthat::expect_false(
       myeloid_row$eligible[[1L]]
+    )
+  }
+)
+
+testthat::test_that(
+  "antibody-secretory ER program is assigned immunoglobulin secretion",
+  {
+    genes <- c(
+      "JCHAIN", "TNFRSF17", "SDC1", "PRDM1",
+      "MZB1", "XBP1", "DERL3",
+      "DNAJB9", "EDEM1", "P4HB",
+      "SEC61A1", "FKBP11", "PDIA4",
+      "HSPA5", "PRDX4"
+    )
+
+    enrichment <- data.frame(
+      category = c("GO", "GO", "Reactome"),
+      term_id = c("T1", "T2", "T3"),
+      description = c(
+        "immunoglobulin secretion",
+        "unfolded protein response",
+        "endoplasmic reticulum secretory pathway"
+      ),
+      fdr = c(0.001, 0.002, 0.003),
+      genes = c(
+        "JCHAIN;MZB1;XBP1",
+        "DNAJB9;EDEM1;HSPA5",
+        "SEC61A1;FKBP11;PDIA4"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- annotate_module_evidence(
+      genes = genes,
+      enrichment = enrichment,
+      module_id = 3
+    )
+
+    summary <- result$summary
+
+    testthat::expect_identical(
+      summary$lineage,
+      "plasma_cell_associated"
+    )
+
+    testthat::expect_identical(
+      summary$state,
+      "immunoglobulin_secretion"
+    )
+
+    secretion_row <- result$rule_evaluations[
+      result$rule_evaluations$rule_id ==
+        "immunoglobulin_secretion",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_true(
+      secretion_row$eligible[[1L]]
+    )
+
+    testthat::expect_equal(
+      secretion_row$positive_marker_count[[1L]],
+      6L
+    )
+
+    testthat::expect_false(
+      grepl(
+        "myeloid",
+        summary$primary_interpretation,
+        ignore.case = TRUE
+      )
     )
   }
 )

@@ -27,16 +27,12 @@ default_evidence_rules <- function() {
       ),
       term_patterns = c(
         "plasma cell",
-        "immunoglobulin production",
-        "immunoglobulin secretion",
-        "humoral immune response",
-        "antibody production"
+        "plasmablast",
+        "plasma-cell differentiation"
       ),
       required_term_patterns = c(
         "plasma cell",
-        "immunoglobulin",
-        "humoral",
-        "antibody"
+        "plasmablast"
       ),
       min_positive = 2L,
       min_score = 0.45,
@@ -316,13 +312,13 @@ default_evidence_rules <- function() {
         "pericyte",
         "perivascular",
         "vascular smooth muscle",
-        "contractile"
+        "mural cell"
       ),
       required_term_patterns = c(
         "smooth muscle",
         "pericyte",
         "perivascular",
-        "contractile"
+        "mural cell"
       ),
       min_positive = 2L,
       min_score = 0.42,
@@ -430,28 +426,31 @@ default_evidence_rules <- function() {
     list(
       rule_id = "immunoglobulin_secretion",
       axis = "state",
-      display_label = "immunoglobulin-secretion",
+      display_label = "antibody-secretory-program",
       compartment = "immune",
       positive_markers = c(
-        "MZB1", "JCHAIN", "TNFRSF17", "SDC1",
-        "PRDM1", "XBP1", "DERL3"
+        "DNAJB9", "EDEM1", "P4HB",
+        "SEC61A1", "FKBP11", "PDIA4"
       ),
       supportive_markers = c(
-        "IRF4", "IGLL5", "IGKC"
+        "XBP1", "MZB1", "DERL3",
+        "HSPA5", "PRDX4"
       ),
       exclusion_markers = character(),
       term_patterns = c(
-        "immunoglobulin production",
         "immunoglobulin secretion",
-        "humoral immune response",
-        "antibody production"
+        "antibody secretion",
+        "secretory pathway",
+        "unfolded protein response",
+        "endoplasmic reticulum"
       ),
       required_term_patterns = c(
-        "immunoglobulin",
-        "humoral",
-        "antibody"
+        "immunoglobulin secretion",
+        "antibody secretion",
+        "secretory",
+        "unfolded protein response"
       ),
-      min_positive = 1L,
+      min_positive = 5L,
       min_score = 0.40,
       priority = 10L
     ),
@@ -1122,39 +1121,6 @@ default_evidence_rules <- function() {
       priority = 5L
     ),
     list(
-      rule_id = "perivascular_contractile",
-      axis = "process",
-      display_label = "perivascular/contractile-associated",
-      compartment = "vascular/stromal",
-      positive_markers = c(
-        "MYH11", "ACTA2", "TAGLN", "RGS5",
-        "CSPG4", "MCAM", "KCNMB1", "MYLK",
-        "DES", "CALD1", "NOTCH3"
-      ),
-      supportive_markers = c(
-        "PDGFRB", "COL4A1", "COL4A2", "RBP1",
-        "COX4I2", "ABCC9"
-      ),
-      exclusion_markers = character(),
-      term_patterns = c(
-        "smooth muscle contraction",
-        "contractile",
-        "pericyte",
-        "vascular smooth muscle"
-      ),
-      required_term_patterns = c(
-        "smooth muscle",
-        "contractile",
-        "pericyte"
-      ),
-      min_positive = 2L,
-      min_score = 0.38,
-      marker_only_min_positive = 2L,
-      marker_only_min_supportive = 2L,
-      marker_only_min_score = 0.34,
-      priority = 6L
-    ),
-    list(
       rule_id = "mitotic_proliferation",
       axis = "process",
       display_label = "mitotic/proliferative",
@@ -1233,13 +1199,16 @@ default_evidence_rules <- function() {
 # ---------------------------------------------------------------------------
 
 CANCERPPIR_EVIDENCE_RULE_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_EVIDENCE_RULEBOOK_VERSION <- "1.0.0-transition"
+CANCERPPIR_EVIDENCE_RULEBOOK_VERSION <- "2.0.0-curation-1"
 
 default_evidence_rule_provenance <- function(
   rules = default_evidence_rules()
 ) {
   if (!is.list(rules) || !length(rules)) {
-    stop("Evidence rulebook must be a non-empty list.", call. = FALSE)
+    stop(
+      "Evidence rulebook must be a non-empty list.",
+      call. = FALSE
+    )
   }
 
   rule_ids <- vapply(
@@ -1248,10 +1217,16 @@ default_evidence_rule_provenance <- function(
     character(1)
   )
 
-  data.frame(
+  provenance <- data.frame(
     rule_id = rule_ids,
-    curation_status = rep("legacy_unverified", length(rules)),
-    rule_version = rep("legacy-1.0", length(rules)),
+    curation_status = rep(
+      "legacy_unverified",
+      length(rules)
+    ),
+    rule_version = rep(
+      "legacy-1.0",
+      length(rules)
+    ),
     rule_schema_version = rep(
       CANCERPPIR_EVIDENCE_RULE_SCHEMA_VERSION,
       length(rules)
@@ -1260,9 +1235,87 @@ default_evidence_rule_provenance <- function(
       "legacy_heuristic_pending_source_level_curation",
       length(rules)
     ),
-    references = rep("", length(rules)),
+    references = rep(
+      "",
+      length(rules)
+    ),
     stringsAsFactors = FALSE
   )
+
+  curated <- list(
+    plasma_cell_associated = list(
+      status = "provisional",
+      version = "curated-2.0",
+      basis = paste0(
+        "primary_literature_plasma_cell_identity; ",
+        "functional_secretion_terms_removed"
+      ),
+      references = paste(
+        "PMID:11460154",
+        "PMID:12612580",
+        sep = ";"
+      )
+    ),
+    immunoglobulin_secretion = list(
+      status = "provisional",
+      version = "curated-2.0",
+      basis = paste0(
+        "primary_literature_antibody_secretory_apparatus; ",
+        "identity_marker_overlap_reduced"
+      ),
+      references = paste(
+        "PMID:15345222",
+        "PMID:19752183",
+        "PMID:22925926",
+        "PMID:35456020",
+        sep = ";"
+      )
+    ),
+    perivascular_smooth_muscle_associated = list(
+      status = "provisional",
+      version = "curated-2.0",
+      basis = paste0(
+        "primary_human_vascular_atlas_and_rat_brain_vsmc_pericyte_transcriptome; ",
+        "exact_positive_supportive_marker_redundancy_removed"
+      ),
+      references = paste(
+        "PMID:39566559",
+        "PMID:30116021",
+        sep = ";"
+      )
+    )
+  )
+
+  for (rule_id in names(curated)) {
+    index <- match(
+      rule_id,
+      provenance$rule_id
+    )
+
+    if (is.na(index)) {
+      stop(
+        "Curated provenance rule is absent: ",
+        rule_id,
+        call. = FALSE
+      )
+    }
+
+    item <- curated[[rule_id]]
+
+    provenance$curation_status[[index]] <-
+      item$status
+
+    provenance$rule_version[[index]] <-
+      item$version
+
+    provenance$evidence_basis[[index]] <-
+      item$basis
+
+    provenance$references[[index]] <-
+      item$references
+  }
+
+  provenance
 }
 
 validate_evidence_rule_provenance <- function(

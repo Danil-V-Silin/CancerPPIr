@@ -9,9 +9,12 @@ those rules.
 
 ## Transition status
 
-The current 36-rule rulebook is retained behavior-for-behavior from the
-pre-provenance implementation. At this stage every rule is explicitly marked
-`legacy_unverified`.
+The active rulebook currently contains 35 rules. BE-2 curation removed the
+`perivascular_contractile` process rule whose positive and supportive marker
+sets exactly duplicated those of the retained lineage rule, and began source-level
+curation of the highest-risk cross-axis redundancies. Rules not yet reviewed remain
+`legacy_unverified`; reviewed rules may be marked `provisional` until seven-case
+regression qualification is complete.
 
 This status means that a rule remains available for regression compatibility,
 but its marker selection, thresholds, term patterns and heuristic weights must
