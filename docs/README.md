@@ -34,7 +34,7 @@ tree; released states remain available through Git history and immutable tags.
 - [Repository governance](development/repository-governance.md)
 - [Repository quality policy](development/repository-quality-policy.md)
 - [Publication-readiness checklist](development/publication-readiness-checklist.md)
-- [Stable release notes](development/release-notes-v1.0.1.md)
+- [Stable release notes](development/release-notes-v1.1.0.md)
 - [Output-quality specification](development/specifications/output-quality-and-biological-interpretation.md)
 - [Workbook-duplication review](development/workbook-duplication-review-v1.0.0.md)
 
