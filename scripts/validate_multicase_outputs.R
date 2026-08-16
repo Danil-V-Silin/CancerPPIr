@@ -1058,6 +1058,7 @@ for (case_index in seq_len(
       expected_module_priorities <-
         build_module_priorities(
           module_annotations = module_annotations,
+          significant_terms = significant_terms,
           network_nodes = graph_nodes,
           maximum_rows = 5L
         )
