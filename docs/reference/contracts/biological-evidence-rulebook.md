@@ -9,9 +9,12 @@ those rules.
 
 ## Transition status
 
-The current 36-rule rulebook is retained behavior-for-behavior from the
-pre-provenance implementation. At this stage every rule is explicitly marked
-`legacy_unverified`.
+The active rulebook currently contains 35 rules. BE-2 curation removed the
+`perivascular_contractile` process rule whose positive and supportive marker
+sets exactly duplicated those of the retained lineage rule, and began source-level
+curation of the highest-risk cross-axis redundancies. Rules not yet reviewed remain
+`legacy_unverified`; reviewed rules may be marked `provisional` until seven-case
+regression qualification is complete.
 
 This status means that a rule remains available for regression compatibility,
 but its marker selection, thresholds, term patterns and heuristic weights must
@@ -38,3 +41,17 @@ rules.
 It does not claim that the legacy marker sets, thresholds, term patterns or
 scoring weights have been scientifically validated. Source-level scientific
 curation is performed separately in BE-2.
+
+## Canonical decision role
+
+The biological-evidence rulebook is an auxiliary interpretation and audit
+resource. It does not define the canonical biological interpretation of a
+Louvain module and does not determine automatic module or protein priority.
+
+Canonical module interpretation is derived from statistically significant,
+non-generic local STRING enrichment evidence. The complete rule-evidence table
+is retained in technical outputs so that marker-based contextual evidence can
+still be inspected independently.
+
+A module without qualifying STRING/database enrichment remains unresolved
+rather than receiving a marker-rule-derived canonical label.

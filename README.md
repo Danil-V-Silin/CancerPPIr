@@ -24,8 +24,9 @@ actionability by itself.
 5. Calculates node topology and a five-component exploratory candidate score.
 6. Detects deterministic Louvain modules.
 7. Performs local enrichment from version-pinned STRING v12 resources cached on disk.
-8. Assigns canonical module evidence from marker and statistically significant
-   enrichment support.
+8. Builds canonical module interpretation from statistically significant local
+   STRING enrichment; curated marker-rule evidence is retained as an auxiliary
+   audit layer.
 9. Filters automatic priorities by entity and module eligibility.
 10. Writes analytical, technical, network, manifest, and checksum outputs.
 
@@ -132,7 +133,7 @@ Every successful run writes six principal files:
 
 | File | Primary use |
 |---|---|
-| `CancerPPIr_Analytical_Report.xlsx` | Concise human-readable interpretation layer |
+| `CancerPPIr_Analytical_Report.xlsx` | Concise human-readable STRING-supported interpretation and prioritization layer |
 | `CancerPPIr_Technical_Report.xlsx` | Complete mapping, metrics, enrichment, evidence, and session audit |
 | `Network_for_Cytoscape.graphml` | Canonical annotated network for Cytoscape or Gephi |
 | `STRING_links.txt` | Current and STRING v12-pinned inspection links |
@@ -170,10 +171,11 @@ audit how a result was produced. See the
 
 ## Candidate and module interpretation
 
-`candidate_score` is an exploratory within-network ranking that combines
-normalized degree, betweenness, log-transformed stress centrality, absolute
-`logFC`, and `-log10(pvalue)`. Its five components are exposed in `Candidate
-evidence` and GraphML.
+`candidate_score` is an exploratory within-network ranking based on three
+equally weighted evidence domains: network topology, absolute `logFC`, and
+`-log10(pvalue)`. The topology domain is the mean of normalized degree,
+betweenness, and log-transformed stress centrality. All five normalized base
+components remain exposed in `Candidate evidence` and GraphML.
 
 Automatic final priorities require both:
 

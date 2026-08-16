@@ -282,7 +282,7 @@ analytical_workbook_test_fixture <- function() {
     stringsAsFactors = FALSE
   )
 
-  node_annotations$candidate_score <- rowMeans(
+  topology_component <- rowMeans(
     cbind(
       minmax(
         node_annotations$degree
@@ -294,15 +294,20 @@ analytical_workbook_test_fixture <- function() {
         log1p(
           node_annotations$stress_centrality
         )
-      ),
+      )
+    )
+  )
+
+  node_annotations$candidate_score <- rowMeans(
+    cbind(
+      topology_component,
       minmax(
         node_annotations$abs_logFC
       ),
       minmax(
         node_annotations$neg_log10_pvalue
       )
-    ),
-    na.rm = TRUE
+    )
   )
 
   module_annotations <- data.frame(
@@ -750,6 +755,164 @@ testthat::test_that(
         output_file
       ),
       CANCERPPIR_ANALYTICAL_SHEET_NAMES
+    )
+  }
+)
+
+testthat::test_that(
+  "module priorities summarize STRING evidence directly and deterministically",
+  {
+    module_annotations <- data.frame(
+      module_id = c(
+        "1",
+        "2"
+      ),
+      module_size = c(
+        20L,
+        5L
+      ),
+      interpretation_class = c(
+        "biological",
+        "unresolved"
+      ),
+      primary_interpretation = c(
+        "DNA repair",
+        "unresolved biological context"
+      ),
+      priority_eligible = c(
+        TRUE,
+        FALSE
+      ),
+      representative_genes = c(
+        "TP53;BRCA1;RAD51",
+        "GENE4;GENE5"
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    significant_terms <- data.frame(
+      community_louvain = c(
+        1L,
+        1L,
+        1L,
+        1L
+      ),
+      module_id = rep(
+        "1",
+        4L
+      ),
+      source = c(
+        "Reactome",
+        "Biological Process (Gene Ontology)",
+        "KEGG",
+        "Biological Process (Gene Ontology)"
+      ),
+      term_id = c(
+        "R-HSA-73894",
+        "GO:0006974",
+        "hsa03440",
+        "GO:0009987"
+      ),
+      description = c(
+        "DNA repair",
+        "DNA damage response",
+        "homologous recombination",
+        "cellular process"
+      ),
+      fdr = c(
+        0.001,
+        0.002,
+        0.003,
+        0.000001
+      ),
+      supporting_genes = c(
+        "BRCA1;RAD51",
+        "TP53;BRCA1",
+        "BRCA1;RAD51",
+        "TP53"
+      ),
+      is_significant = rep(
+        TRUE,
+        4L
+      ),
+      is_generic = c(
+        FALSE,
+        FALSE,
+        FALSE,
+        TRUE
+      ),
+      stringsAsFactors = FALSE
+    )
+
+    result <- build_module_priorities(
+      module_annotations =
+        module_annotations,
+      significant_terms =
+        significant_terms,
+      network_nodes = 100L,
+      maximum_rows = 5L
+    )
+
+    testthat::expect_equal(
+      nrow(result),
+      1L
+    )
+
+    testthat::expect_identical(
+      names(result),
+      c(
+        "module_priority_rank",
+        "module_id",
+        "module_size",
+        "network_fraction",
+        "module_interpretation",
+        "primary_term_source",
+        "primary_term_id",
+        "primary_term_fdr",
+        "primary_term_supporting_genes",
+        "secondary_terms",
+        "top_module_proteins"
+      )
+    )
+
+    testthat::expect_identical(
+      result$module_interpretation[[1L]],
+      "DNA repair"
+    )
+
+    testthat::expect_identical(
+      result$primary_term_source[[1L]],
+      "Reactome"
+    )
+
+    testthat::expect_identical(
+      result$primary_term_id[[1L]],
+      "R-HSA-73894"
+    )
+
+    testthat::expect_equal(
+      result$primary_term_fdr[[1L]],
+      0.001
+    )
+
+    testthat::expect_identical(
+      result$primary_term_supporting_genes[[1L]],
+      "BRCA1;RAD51"
+    )
+
+    testthat::expect_identical(
+      result$secondary_terms[[1L]],
+      "DNA damage response | homologous recombination"
+    )
+
+    testthat::expect_identical(
+      result$top_module_proteins[[1L]],
+      "TP53;BRCA1;RAD51"
+    )
+
+    testthat::expect_equal(
+      result$network_fraction[[1L]],
+      0.2
     )
   }
 )

@@ -71,11 +71,17 @@ testthat::test_that("candidate score requires five complete finite components", 
   abs_logFC <- c(0.5, 1.0, 2.0)
   neg_log10_pvalue <- c(1, 2, 4)
 
-  expected <- rowMeans(
+  topology_component <- rowMeans(
     cbind(
       minmax(degree),
       minmax(betweenness),
-      minmax(log1p(stress)),
+      minmax(log1p(stress))
+    )
+  )
+
+  expected <- rowMeans(
+    cbind(
+      topology_component,
       minmax(abs_logFC),
       minmax(neg_log10_pvalue)
     )

@@ -105,6 +105,287 @@ order_pipeline_modules <- function(
   ]
 }
 
+summarize_database_primary_module_evidence <- function(
+  genes,
+  significant_terms,
+  technical_signature,
+  module_id = NA
+) {
+  genes <- normalize_evidence_genes(genes)
+
+  terms <- as.data.frame(
+    significant_terms,
+    stringsAsFactors = FALSE
+  )
+
+  required_term_columns <- c(
+    "source",
+    "term_id",
+    "description",
+    "fdr",
+    "supporting_genes"
+  )
+
+  if (
+    nrow(terms) > 0L &&
+    !all(required_term_columns %in% names(terms))
+  ) {
+    stop(
+      "Significant STRING/database terms have an invalid schema.",
+      call. = FALSE
+    )
+  }
+
+  if (nrow(terms) > 0L) {
+    term_fdr <- suppressWarnings(
+      as.numeric(terms$fdr)
+    )
+
+    terms <- terms[
+      order(
+        !is.finite(term_fdr),
+        term_fdr,
+        as.character(terms$source),
+        as.character(terms$description),
+        na.last = TRUE
+      ),
+      ,
+      drop = FALSE
+    ]
+
+    rownames(terms) <- NULL
+  }
+
+  has_database_evidence <- nrow(terms) > 0L
+
+  technical_detected <- (
+    is.list(technical_signature) &&
+    isTRUE(technical_signature$detected)
+  )
+
+  # Three terms are sufficient for the compact canonical view.
+  # The complete significant-term table remains available separately.
+  top_terms <- if (has_database_evidence) {
+    utils::head(
+      terms,
+      3L
+    )
+  } else {
+    terms
+  }
+
+  top_descriptions <- if (nrow(top_terms)) {
+    trimws(
+      as.character(top_terms$description)
+    )
+  } else {
+    character()
+  }
+
+  top_descriptions <- top_descriptions[
+    !is.na(top_descriptions) &
+      nzchar(top_descriptions)
+  ]
+
+  secondary_descriptions <- if (
+    length(top_descriptions) > 1L
+  ) {
+    top_descriptions[-1L]
+  } else {
+    character()
+  }
+
+  term_gene_text <- if (nrow(top_terms)) {
+    as.character(
+      top_terms$supporting_genes
+    )
+  } else {
+    character()
+  }
+
+  term_gene_parts <- unlist(
+    strsplit(
+      term_gene_text,
+      "[;,|]",
+      perl = TRUE
+    ),
+    use.names = FALSE
+  )
+
+  term_supporting_genes <- normalize_evidence_genes(
+    term_gene_parts
+  )
+
+  best_fdr <- if (has_database_evidence) {
+    suppressWarnings(
+      min(
+        as.numeric(terms$fdr),
+        na.rm = TRUE
+      )
+    )
+  } else {
+    NA_real_
+  }
+
+  if (!is.finite(best_fdr)) {
+    best_fdr <- NA_real_
+  }
+
+  primary_interpretation <- if (technical_detected) {
+    as.character(
+      technical_signature$display_label
+    )
+  } else if (length(top_descriptions)) {
+    top_descriptions[[1L]]
+  } else {
+    "unresolved biological context"
+  }
+
+  interpretation_class <- if (technical_detected) {
+    "technical_or_covariate"
+  } else if (has_database_evidence) {
+    "biological"
+  } else {
+    "unresolved"
+  }
+
+  interpretation_scope <- if (technical_detected) {
+    "technical_or_covariate"
+  } else if (has_database_evidence) {
+    "database_enrichment_supported"
+  } else {
+    "unresolved"
+  }
+
+  # Kept for schema compatibility during the transition.
+  # These fields are no longer canonical decision variables.
+  confidence <- if (technical_detected) {
+    "not_applicable"
+  } else if (has_database_evidence) {
+    "moderate"
+  } else {
+    "unresolved"
+  }
+
+  priority_eligible <- (
+    !technical_detected &&
+    has_database_evidence
+  )
+
+  warning_text <- if (technical_detected) {
+    paste0(
+      "technical_or_covariate_signature_",
+      "not_eligible_for_automatic_biological_priority"
+    )
+  } else if (!has_database_evidence) {
+    "no_significant_specific_enrichment_terms_available"
+  } else {
+    ""
+  }
+
+  top_term_text <- if (nrow(top_terms)) {
+    paste(
+      paste0(
+        as.character(top_terms$description),
+        " [",
+        as.character(top_terms$source),
+        "; FDR=",
+        format(
+          suppressWarnings(
+            as.numeric(top_terms$fdr)
+          ),
+          scientific = TRUE,
+          digits = 3L
+        ),
+        "]"
+      ),
+      collapse = " | "
+    )
+  } else {
+    ""
+  }
+
+  rationale <- if (technical_detected) {
+    paste0(
+      as.character(
+        technical_signature$display_label
+      ),
+      ". This technical/covariate guard is independent ",
+      "of biological rule assignment and is not eligible ",
+      "for automatic biological priority."
+    )
+  } else if (has_database_evidence) {
+    paste0(
+      "Canonical interpretation is derived directly from ",
+      "statistically significant, non-generic local ",
+      "STRING/database enrichment evidence. Top terms: ",
+      top_term_text,
+      ". Curated marker-rule evidence is retained only ",
+      "as auxiliary audit information and does not determine ",
+      "the canonical interpretation or priority."
+    )
+  } else {
+    paste0(
+      "No statistically significant, non-generic local ",
+      "STRING/database enrichment term passed the configured ",
+      "FDR threshold. The module remains unresolved."
+    )
+  }
+
+  data.frame(
+    module_id = as.character(module_id),
+    module_size = length(genes),
+    interpretation_class = interpretation_class,
+    interpretation_scope = interpretation_scope,
+
+    # Compatibility fields retained in schema.
+    # Marker-rule assignments no longer populate them canonically.
+    compartment = if (technical_detected) {
+      "not_applicable"
+    } else {
+      "unresolved"
+    },
+    lineage = if (technical_detected) {
+      "not_applicable"
+    } else {
+      "unresolved_lineage"
+    },
+    conflicting_lineage_rules = "",
+    conflicting_lineage_labels = "",
+    state = "not_assigned",
+    process = "not_assigned",
+
+    primary_interpretation = primary_interpretation,
+    secondary_themes = paste(
+      secondary_descriptions,
+      collapse = "; "
+    ),
+    confidence = confidence,
+    priority_eligible = priority_eligible,
+
+    # Marker evidence is intentionally absent from the
+    # canonical decision layer.
+    positive_marker_genes = "",
+    supportive_marker_genes = "",
+
+    term_supporting_genes = paste(
+      term_supporting_genes,
+      collapse = ";"
+    ),
+    significant_supporting_terms = paste(
+      top_descriptions,
+      collapse = " | "
+    ),
+    best_supporting_fdr = best_fdr,
+
+    # Rule conflicts cannot block a database-primary result.
+    conflict_detected = FALSE,
+    warning = warning_text,
+    evidence_rationale = rationale,
+    stringsAsFactors = FALSE
+  )
+}
+
 bind_pipeline_evidence <- function(
   node_metrics,
   module_enrichment = NULL,
@@ -227,7 +508,12 @@ bind_pipeline_evidence <- function(
 
     module_id_value <- module_nodes$community_louvain[[1L]]
 
-    summary_row <- evidence$summary
+    summary_row <- summarize_database_primary_module_evidence(
+      genes = module_genes,
+      significant_terms = evidence$significant_terms,
+      technical_signature = evidence$technical_signature,
+      module_id = module_id
+    )
     summary_row$community_louvain <- module_id_value
     summary_row$network_node_count <- nrow(module_nodes)
     summary_row$representative_genes <- paste(
@@ -440,9 +726,25 @@ validate_pipeline_evidence <- function(
       module_annotations$priority_eligible
   )
 
-  priority_confidence_valid <- !any(
-    module_annotations$priority_eligible &
-      !module_annotations$confidence %in% c("high", "moderate")
+  priority_module_ids <- as.character(
+    module_annotations$community_louvain[
+      !is.na(module_annotations$priority_eligible) &
+        module_annotations$priority_eligible
+    ]
+  )
+
+  significant_term_module_ids <- unique(
+    as.character(
+      significant_module_terms$community_louvain
+    )
+  )
+
+  priority_has_database_evidence <- (
+    !length(priority_module_ids) ||
+    all(
+      priority_module_ids %in%
+        significant_term_module_ids
+    )
   )
 
   forbidden_pattern <- paste(
@@ -472,8 +774,8 @@ validate_pipeline_evidence <- function(
     all_nodes_receive_module_annotations = all_nodes_annotated,
     significant_terms_respect_fdr_threshold = significant_terms_valid,
     technical_modules_are_not_priority = technical_not_priority,
-    priority_requires_moderate_or_high_confidence =
-      priority_confidence_valid,
+    priority_requires_significant_database_evidence =
+      priority_has_database_evidence,
     no_cell_fraction_or_deconvolution_claims =
       no_cell_fraction_claims
   )

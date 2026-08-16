@@ -72,7 +72,7 @@ Absolute input, cache, results, project, and output paths are excluded.
 |---|---:|
 | Pipeline result | `1.0.0` |
 | Biological evidence | `1.0.0` |
-| Analytical workbook | `1.0.0` |
+| Analytical workbook | `2.0.0` |
 | Technical workbook | `1.0.0` |
 | GraphML | `1.0.0` |
 | Output manifest | `1.0.0` |

@@ -6,7 +6,7 @@ testthat::test_that(
       list(
         pipeline_result = "1.0.0",
         biological_evidence = "1.0.0",
-        analytical_workbook = "1.0.0",
+        analytical_workbook = "2.0.0",
         technical_workbook = "1.0.0",
         graphml = "1.0.0",
         output_manifest = "1.0.0",

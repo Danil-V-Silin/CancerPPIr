@@ -151,7 +151,27 @@ calculate_candidate_score <- function(
     )
   }
 
-  rowMeans(components)
+  topology_component <- rowMeans(
+    components[
+      ,
+      c(
+        "degree",
+        "betweenness",
+        "log_stress"
+      ),
+      drop = FALSE
+    ]
+  )
+
+  evidence_domains <- cbind(
+    topology = topology_component,
+    expression_magnitude =
+      components[, "absolute_logFC"],
+    statistical_evidence =
+      components[, "negative_log10_pvalue"]
+  )
+
+  rowMeans(evidence_domains)
 }
 
 run_network_analysis <- function(

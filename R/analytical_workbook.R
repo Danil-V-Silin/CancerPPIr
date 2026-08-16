@@ -6,7 +6,7 @@
 #
 # This module contains no patient-specific rules and performs no file I/O.
 
-CANCERPPIR_ANALYTICAL_SCHEMA_VERSION <- "1.0.0"
+CANCERPPIR_ANALYTICAL_SCHEMA_VERSION <- "2.0.0"
 
 CANCERPPIR_ANALYTICAL_SHEET_NAMES <- c(
   "Executive summary",
@@ -332,17 +332,25 @@ prepare_candidate_table <- function(node_annotations) {
     candidates$neg_log10_pvalue
   )
 
+  candidates$topology_component <- rowMeans(
+    cbind(
+      candidates$degree_component,
+      candidates$betweenness_component,
+      candidates$log_stress_component
+    )
+  )
+
   score_matrix <- cbind(
-    candidates$degree_component,
-    candidates$betweenness_component,
-    candidates$log_stress_component,
-    candidates$abs_logFC_component,
-    candidates$statistical_component
+    topology =
+      candidates$topology_component,
+    expression_magnitude =
+      candidates$abs_logFC_component,
+    statistical_evidence =
+      candidates$statistical_component
   )
 
   candidates$candidate_score_reconstructed <- rowMeans(
-    score_matrix,
-    na.rm = TRUE
+    score_matrix
   )
 
   candidates$score_reconstruction_error <- abs(
@@ -568,28 +576,184 @@ build_final_priorities <- function(
   )
 }
 
+summarize_analytical_module_terms <- function(
+  module_id,
+  significant_terms,
+  maximum_terms = 3L
+) {
+  required_columns <- c(
+    "community_louvain",
+    "source",
+    "term_id",
+    "description",
+    "fdr",
+    "supporting_genes",
+    "is_significant",
+    "is_generic"
+  )
+
+  require_analytical_columns(
+    significant_terms,
+    required_columns,
+    "CancerPPIr significant module terms"
+  )
+
+  maximum_terms <- suppressWarnings(
+    as.integer(maximum_terms)
+  )
+
+  if (
+    length(maximum_terms) != 1L ||
+      is.na(maximum_terms) ||
+      maximum_terms < 1L
+  ) {
+    stop(
+      "maximum_terms must be a positive integer.",
+      call. = FALSE
+    )
+  }
+
+  terms <- as.data.frame(
+    significant_terms,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+
+  term_fdr <- suppressWarnings(
+    as.numeric(terms$fdr)
+  )
+
+  description <- analytical_vector_text(
+    terms$description,
+    fallback = ""
+  )
+
+  keep <- (
+    as.character(terms$community_louvain) ==
+      as.character(module_id) &
+      !is.na(terms$is_significant) &
+      terms$is_significant &
+      !is.na(terms$is_generic) &
+      !terms$is_generic &
+      is.finite(term_fdr) &
+      nzchar(description)
+  )
+
+  terms <- terms[
+    keep,
+    ,
+    drop = FALSE
+  ]
+
+  if (nrow(terms) == 0L) {
+    stop(
+      paste0(
+        "Priority-eligible biological module ",
+        as.character(module_id),
+        " has no qualifying STRING/database enrichment terms."
+      ),
+      call. = FALSE
+    )
+  }
+
+  terms$.fdr_numeric <- suppressWarnings(
+    as.numeric(terms$fdr)
+  )
+
+  terms$.source_text <- analytical_vector_text(
+    terms$source,
+    fallback = "not_available"
+  )
+
+  terms$.term_id_text <- analytical_vector_text(
+    terms$term_id,
+    fallback = "not_available"
+  )
+
+  terms$.description_text <- analytical_vector_text(
+    terms$description,
+    fallback = ""
+  )
+
+  terms$.supporting_genes_text <- analytical_vector_text(
+    terms$supporting_genes,
+    fallback = "not_available"
+  )
+
+  terms <- terms[
+    order(
+      terms$.fdr_numeric,
+      terms$.source_text,
+      terms$.description_text,
+      terms$.term_id_text,
+      na.last = TRUE
+    ),
+    ,
+    drop = FALSE
+  ]
+
+  # Remove exact repeated database terms while preserving
+  # the deterministic FDR-first order.
+  term_key <- paste(
+    terms$.source_text,
+    terms$.term_id_text,
+    terms$.description_text,
+    sep = "\r"
+  )
+
+  terms <- terms[
+    !duplicated(term_key),
+    ,
+    drop = FALSE
+  ]
+
+  terms <- utils::head(
+    terms,
+    maximum_terms
+  )
+
+  secondary_terms <- if (nrow(terms) > 1L) {
+    paste(
+      terms$.description_text[-1L],
+      collapse = " | "
+    )
+  } else {
+    "not_available"
+  }
+
+  list(
+    primary_description =
+      terms$.description_text[[1L]],
+
+    primary_source =
+      terms$.source_text[[1L]],
+
+    primary_term_id =
+      terms$.term_id_text[[1L]],
+
+    primary_fdr =
+      terms$.fdr_numeric[[1L]],
+
+    primary_supporting_genes =
+      terms$.supporting_genes_text[[1L]],
+
+    secondary_terms =
+      secondary_terms
+  )
+}
+
 build_module_priorities <- function(
   module_annotations,
   network_nodes,
-  maximum_rows = 5L
+  maximum_rows = 5L,
+  significant_terms = NULL
 ) {
   required_columns <- c(
     "module_id",
     "module_size",
     "interpretation_class",
-    "interpretation_scope",
-    "primary_interpretation",
-    "confidence",
     "priority_eligible",
-    "representative_genes",
-    "positive_marker_genes",
-    "supportive_marker_genes",
-    "significant_supporting_terms",
-    "best_supporting_fdr",
-    "secondary_themes",
-    "conflict_detected",
-    "warning",
-    "evidence_rationale"
+    "representative_genes"
   )
 
   require_analytical_columns(
@@ -612,13 +776,7 @@ build_module_priorities <- function(
       !is.na(
         modules$priority_eligible
       ) &
-      modules$priority_eligible &
-      (
-        is.na(
-          modules$conflict_detected
-        ) |
-          !modules$conflict_detected
-      )
+      modules$priority_eligible
   )
 
   modules <- modules[
@@ -627,54 +785,94 @@ build_module_priorities <- function(
     drop = FALSE
   ]
 
-  if (nrow(modules) == 0L) {
-    return(
-      data.frame(
-        module_priority_rank = integer(),
-        module_id = character(),
-        module_size = integer(),
-        network_fraction = numeric(),
-        biological_context = character(),
-        interpretation_scope = character(),
-        confidence = character(),
-        representative_genes = character(),
-        marker_evidence_genes = character(),
-        significant_supporting_terms = character(),
-        best_supporting_fdr = numeric(),
-        secondary_themes = character(),
-        conflict_detected = logical(),
-        warning = character(),
-        evidence_rationale = character(),
-        stringsAsFactors = FALSE
-      )
+  empty_output <- function() {
+    data.frame(
+      module_priority_rank = integer(),
+      module_id = character(),
+      module_size = integer(),
+      network_fraction = numeric(),
+      module_interpretation = character(),
+      primary_term_source = character(),
+      primary_term_id = character(),
+      primary_term_fdr = numeric(),
+      primary_term_supporting_genes = character(),
+      secondary_terms = character(),
+      top_module_proteins = character(),
+      stringsAsFactors = FALSE
     )
   }
 
-  confidence_order <- match(
-    analytical_vector_text(
-      modules$confidence,
-      fallback = ""
-    ),
+  if (nrow(modules) == 0L) {
+    return(
+      empty_output()
+    )
+  }
+
+  require_analytical_columns(
+    significant_terms,
     c(
-      "high",
-      "moderate",
-      "low"
-    )
+      "community_louvain",
+      "source",
+      "term_id",
+      "description",
+      "fdr",
+      "supporting_genes",
+      "is_significant",
+      "is_generic"
+    ),
+    "CancerPPIr significant module terms"
   )
 
-  confidence_order[is.na(confidence_order)] <- 99L
-
-  best_fdr_order <- suppressWarnings(
-    as.numeric(
-      modules$best_supporting_fdr
-    )
+  term_summary <- lapply(
+    as.character(
+      modules$module_id
+    ),
+    summarize_analytical_module_terms,
+    significant_terms = significant_terms,
+    maximum_terms = 3L
   )
 
-  best_fdr_order[
-    !is.finite(
-      best_fdr_order
-    )
-  ] <- Inf
+  modules$.primary_description <- vapply(
+    term_summary,
+    `[[`,
+    FUN.VALUE = character(1),
+    "primary_description"
+  )
+
+  modules$.primary_source <- vapply(
+    term_summary,
+    `[[`,
+    FUN.VALUE = character(1),
+    "primary_source"
+  )
+
+  modules$.primary_term_id <- vapply(
+    term_summary,
+    `[[`,
+    FUN.VALUE = character(1),
+    "primary_term_id"
+  )
+
+  modules$.primary_fdr <- vapply(
+    term_summary,
+    `[[`,
+    FUN.VALUE = numeric(1),
+    "primary_fdr"
+  )
+
+  modules$.primary_supporting_genes <- vapply(
+    term_summary,
+    `[[`,
+    FUN.VALUE = character(1),
+    "primary_supporting_genes"
+  )
+
+  modules$.secondary_terms <- vapply(
+    term_summary,
+    `[[`,
+    FUN.VALUE = character(1),
+    "secondary_terms"
+  )
 
   module_id_numeric <- suppressWarnings(
     as.numeric(
@@ -684,13 +882,12 @@ build_module_priorities <- function(
 
   modules <- modules[
     order(
-      confidence_order,
       -suppressWarnings(
         as.numeric(
           modules$module_size
         )
       ),
-      best_fdr_order,
+      modules$.primary_fdr,
       module_id_numeric,
       analytical_vector_text(
         modules$module_id,
@@ -707,23 +904,8 @@ build_module_priorities <- function(
     maximum_rows
   )
 
-  marker_evidence <- vapply(
-    seq_len(
-      nrow(modules)
-    ),
-    function(index) {
-      combine_evidence_text(
-        modules$positive_marker_genes[[index]],
-        modules$supportive_marker_genes[[index]]
-      )
-    },
-    FUN.VALUE = character(1)
-  )
-
   network_nodes <- suppressWarnings(
-    as.numeric(
-      network_nodes
-    )
+    as.numeric(network_nodes)
   )
 
   network_fraction <- if (
@@ -743,63 +925,53 @@ build_module_priorities <- function(
   }
 
   data.frame(
-    module_priority_rank = seq_len(
-      nrow(modules)
-    ),
-    module_id = as.character(
-      modules$module_id
-    ),
-    module_size = as.integer(
-      modules$module_size
-    ),
-    network_fraction = round(
-      network_fraction,
-      4L
-    ),
-    biological_context = analytical_vector_text(
-      modules$primary_interpretation,
-      fallback = "unresolved"
-    ),
-    interpretation_scope = analytical_vector_text(
-      modules$interpretation_scope,
-      fallback = "not_available"
-    ),
-    confidence = analytical_vector_text(
-      modules$confidence,
-      fallback = "not_available"
-    ),
-    representative_genes = analytical_vector_text(
-      modules$representative_genes,
-      fallback = "not_available"
-    ),
-    marker_evidence_genes = marker_evidence,
-    significant_supporting_terms = analytical_vector_text(
-      modules$significant_supporting_terms,
-      fallback = "not_available"
-    ),
-    best_supporting_fdr = suppressWarnings(
+    module_priority_rank =
+      seq_len(
+        nrow(modules)
+      ),
+
+    module_id =
+      as.character(
+        modules$module_id
+      ),
+
+    module_size =
+      as.integer(
+        modules$module_size
+      ),
+
+    network_fraction =
+      round(
+        network_fraction,
+        4L
+      ),
+
+    module_interpretation =
+      modules$.primary_description,
+
+    primary_term_source =
+      modules$.primary_source,
+
+    primary_term_id =
+      modules$.primary_term_id,
+
+    primary_term_fdr =
       as.numeric(
-        modules$best_supporting_fdr
-      )
-    ),
-    secondary_themes = analytical_vector_text(
-      modules$secondary_themes,
-      fallback = "not_available"
-    ),
-    conflict_detected = as.logical(
-      modules$conflict_detected
-    ),
-    warning = analytical_vector_text(
-      modules$warning,
-      fallback = "no_warning"
-    ),
-    evidence_rationale = truncate_text(
+        modules$.primary_fdr
+      ),
+
+    primary_term_supporting_genes =
+      modules$.primary_supporting_genes,
+
+    secondary_terms =
+      modules$.secondary_terms,
+
+    top_module_proteins =
       analytical_vector_text(
-        modules$evidence_rationale,
+        modules$representative_genes,
         fallback = "not_available"
       ),
-      1600L
-    ),
+
     stringsAsFactors = FALSE
   )
 }
@@ -1338,15 +1510,15 @@ build_methods_and_limitations <- function() {
       "Read Executive summary, Final priorities, Module priorities, Candidate evidence, Network overview, then Methods and limitations.",
       "Raw mapping, complete modules, unfiltered enrichment, complete node metrics and validation tables remain in the technical workbook.",
       "candidate_score is an exploratory within-network rank, not a probability or clinical actionability estimate.",
-      "The score is the mean of normalized degree, betweenness, log-transformed stress, absolute logFC and -log10(p-value) components.",
+      "The score is the mean of three equally weighted evidence domains: topology (mean normalized degree, betweenness and log-transformed stress), absolute logFC, and -log10(p-value).",
       "Score values are comparable within the reconstructed case network; cross-patient numerical comparison requires separate calibration.",
       "Automatic final priority requires a review-ready canonical entity in an eligible non-conflicting biological module.",
       "A high rank does not establish druggability, tumor dependency, therapeutic efficacy or expected clinical response.",
-      "The CancerPPIr engine integrates curated positive, supportive and exclusion markers with significant specific local STRING terms.",
-      "Interpretations are separated into compartment, lineage, state and process; primary_interpretation is a conservative synthesis.",
+      "Canonical module interpretation is derived from statistically significant, non-generic local STRING enrichment; curated marker rules are retained only as auxiliary technical audit evidence.",
+      "The primary module interpretation is the most significant qualifying STRING term; up to two additional qualifying terms are retained as secondary context.",
       "Only non-generic supporting enrichment terms with FDR <= 0.05 are used as analytical biological evidence.",
       "Broad generic terms are excluded from primary analytical interpretation and retained only for technical audit.",
-      "Mixed lineage evidence, insufficient evidence and eligibility restrictions are reported explicitly rather than silently resolved.",
+      "Modules without qualifying STRING enrichment remain unresolved, while technical or covariate signatures remain excluded from automatic biological priority.",
       "Y-chromosome and similar signatures are reported as technical or covariate context and are ineligible for automatic biological priority.",
       "A protein inherits biological context through module membership; this does not prove that the protein causally drives the program.",
       "Bulk tumor RNA-seq can contain malignant, immune, stromal, endothelial and other specimen components.",
@@ -1566,17 +1738,13 @@ expected_analytical_columns <- function() {
       "module_id",
       "module_size",
       "network_fraction",
-      "biological_context",
-      "interpretation_scope",
-      "confidence",
-      "representative_genes",
-      "marker_evidence_genes",
-      "significant_supporting_terms",
-      "best_supporting_fdr",
-      "secondary_themes",
-      "conflict_detected",
-      "warning",
-      "evidence_rationale"
+      "module_interpretation",
+      "primary_term_source",
+      "primary_term_id",
+      "primary_term_fdr",
+      "primary_term_supporting_genes",
+      "secondary_terms",
+      "top_module_proteins"
     ),
     "Candidate evidence" = c(
       "network_candidate_rank",
@@ -1760,6 +1928,68 @@ validate_analytical_workbook <- function(
       nrow(
         module_priorities
       )
+    )
+  )
+
+  module_summary_traceable <- (
+    nrow(module_priorities) == 0L ||
+      all(
+        vapply(
+          seq_len(
+            nrow(module_priorities)
+          ),
+          function(index) {
+            summary <- summarize_analytical_module_terms(
+              module_id =
+                module_priorities$module_id[[index]],
+              significant_terms =
+                significant_terms,
+              maximum_terms = 3L
+            )
+
+            fdr_matches <- (
+              is.finite(
+                module_priorities$primary_term_fdr[[index]]
+              ) &&
+                abs(
+                  module_priorities$primary_term_fdr[[index]] -
+                    summary$primary_fdr
+                ) <= 1e-12
+            )
+
+            identical(
+              module_priorities$module_interpretation[[index]],
+              summary$primary_description
+            ) &&
+              identical(
+                module_priorities$primary_term_source[[index]],
+                summary$primary_source
+              ) &&
+              identical(
+                module_priorities$primary_term_id[[index]],
+                summary$primary_term_id
+              ) &&
+              identical(
+                module_priorities$primary_term_supporting_genes[[index]],
+                summary$primary_supporting_genes
+              ) &&
+              identical(
+                module_priorities$secondary_terms[[index]],
+                summary$secondary_terms
+              ) &&
+              fdr_matches
+          },
+          FUN.VALUE = logical(1)
+        )
+      )
+  )
+
+  add_check(
+    "module_priorities_trace_directly_to_STRING_terms",
+    module_summary_traceable,
+    paste0(
+      "module_rows=",
+      nrow(module_priorities)
     )
   )
 
@@ -2020,6 +2250,8 @@ build_analytical_workbook <- function(
   module_priorities <- build_module_priorities(
     module_annotations =
       biological_evidence$module_annotations,
+    significant_terms =
+      biological_evidence$significant_module_terms,
     network_nodes = network_nodes,
     maximum_rows = 5L
   )

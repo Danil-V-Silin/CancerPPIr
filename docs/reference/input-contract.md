@@ -109,7 +109,7 @@ The canonical input columns have the following scientific meanings:
 
 Canonical column names are required, and positional column fallback is disabled. This prevents CancerPPIr from silently interpreting unrelated columns as `gene`, `logFC`, or `pvalue`.
 
-The complete `candidate_score` contains five equally weighted components, each min-max normalized within the analyzed network:
+The complete `candidate_score` is derived from five min-max-normalized base components within the analyzed network:
 
 1. degree;
 2. betweenness centrality;
@@ -117,4 +117,6 @@ The complete `candidate_score` contains five equally weighted components, each m
 4. `abs(logFC)`;
 5. `-log10(pvalue)`.
 
-All five components must be finite before normalization and aggregation. The final `candidate_score` is their arithmetic mean. It is an exploratory within-network ranking and is not a calibrated probability, clinical recommendation, or proof of therapeutic actionability.
+The first three components are aggregated into one topology domain as their arithmetic mean. The final `candidate_score` is the arithmetic mean of three equally weighted evidence domains: topology, absolute `logFC`, and `-log10(pvalue)`.
+
+All five components must be finite before normalization and aggregation. The score therefore gives equal aggregate weight to network topology, differential-expression magnitude, and statistical evidence. It is an exploratory within-network ranking and is not a calibrated probability, clinical recommendation, or proof of therapeutic actionability.

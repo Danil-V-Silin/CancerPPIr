@@ -1,6 +1,6 @@
 # Analytical workbook contract
 
-Schema version: `1.0.0`
+Schema version: `2.0.0`
 
 ## Scope
 
@@ -41,10 +41,18 @@ At most five modules are reported. A module is eligible only when:
 
 - `interpretation_class == "biological"`
 - `priority_eligible == TRUE`
-- `conflict_detected == FALSE`
 
-Ordering is deterministic: confidence, module size, best supporting FDR, and
-module identifier.
+The analytical interpretation is derived directly from statistically
+significant, non-generic STRING/database enrichment terms. The primary term is
+the qualifying term with the lowest FDR; up to two additional qualifying terms
+are retained as secondary context.
+
+Ordering is deterministic: module size, primary-term FDR, and module
+identifier.
+
+The sheet exposes direct STRING/database traceability through
+`primary_term_source`, `primary_term_id`, `primary_term_fdr`,
+`primary_term_supporting_genes`, and `secondary_terms`.
 
 ### Candidate evidence
 
@@ -54,7 +62,7 @@ predicted loci remain visible with their eligibility status and warning.
 
 ## Candidate-score transparency
 
-The workbook exposes the five normalized score components:
+The workbook exposes the five normalized base score components:
 
 - degree;
 - betweenness;
@@ -62,9 +70,14 @@ The workbook exposes the five normalized score components:
 - absolute `logFC`;
 - `-log10(pvalue)`.
 
-All five components must be finite. Their equal-weight row mean must reconstruct
-`candidate_score` within floating-point tolerance; variable-denominator scoring
-is not permitted.
+Degree, betweenness, and log-stress are first averaged into one topology
+domain. `candidate_score` is then the arithmetic mean of the topology domain,
+absolute `logFC`, and statistical evidence, giving equal aggregate weight to
+the three evidence domains.
+
+All five components must be finite. The exposed base components must
+reconstruct `candidate_score` through this two-stage aggregation within
+floating-point tolerance; variable-denominator scoring is not permitted.
 
 ## Biological-evidence policy
 

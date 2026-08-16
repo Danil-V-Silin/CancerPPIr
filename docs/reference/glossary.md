@@ -13,8 +13,8 @@
 | `stress_centrality` | Number of shortest paths passing through a node; log-transformed for candidate scoring. |
 | `harmonic_closeness` | Closeness variant suitable for disconnected graphs. |
 | `local_clustering` | Connectivity among a node's neighbours. |
-| `candidate_score` | Exploratory within-network composite of normalized degree, betweenness, log-stress, absolute logFC, and statistical evidence. |
-| Candidate-score component | One of the five normalized inputs used in the equal-weight score. All five components must be finite for every ranked network node. |
+| `candidate_score` | Exploratory within-network composite of three equally weighted evidence domains: topology, absolute logFC, and statistical evidence. |
+| Candidate-score component | One of five normalized base inputs. Degree, betweenness, and log-stress are averaged into the topology domain; absolute logFC and statistical evidence define the other two domains. All five base components must be finite for every ranked network node. |
 | Louvain module | Deterministically detected community of densely connected nodes. |
 | `module_id` | Stable identifier used to refer to a Louvain module within a run. |
 | `interpretation_class` | Module category: biological, mixed biological, technical/covariate, or unresolved. |

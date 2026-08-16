@@ -59,26 +59,56 @@ project_root <- normalizePath(
   mustWork = TRUE
 )
 
-engine_file <- file.path(
+loader_file <- file.path(
   project_root,
   "R",
-  "biological_evidence_engine.R"
+  "load_all.R"
 )
 
-if (!file.exists(engine_file)) {
+if (!file.exists(loader_file)) {
   stop(
     paste0(
-      "Biological evidence engine not found: ",
-      engine_file
+      "CancerPPIr module loader not found: ",
+      loader_file
     ),
     call. = FALSE
   )
 }
 
 source(
-  engine_file,
+  loader_file,
   local = FALSE
 )
+
+loaded_files <- load_cancerppir_modules(
+  project_root = project_root,
+  envir = .GlobalEnv
+)
+
+required_functions <- c(
+  "default_evidence_rules",
+  "annotate_module_evidence"
+)
+
+missing_functions <- required_functions[
+  !vapply(
+    required_functions,
+    exists,
+    logical(1),
+    envir = .GlobalEnv,
+    inherits = FALSE
+  )
+]
+
+if (length(missing_functions) > 0L) {
+  stop(
+    paste0(
+      "Required biological-evidence function(s) unavailable after standard loading: ",
+      paste(missing_functions, collapse = ", ")
+    ),
+    call. = FALSE
+  )
+}
 
 arguments <- commandArgs(
   trailingOnly = TRUE
