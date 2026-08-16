@@ -19,6 +19,10 @@ CancerPPIr follows Semantic Versioning.
 - Removed the unreachable online STRING/g:Profiler enrichment-validation path
   and its production dependency while preserving the public output schemas.
 
+- Pruned the locked dependency graph after removal of the obsolete online
+  enrichment path, reducing `renv.lock` from 114 to 80 packages without
+  changing retained package versions or the qualified R/Bioconductor baseline.
+
 ## [1.0.1] - 2026-07-31
 
 ### Added
