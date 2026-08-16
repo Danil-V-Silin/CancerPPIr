@@ -1,5 +1,5 @@
 testthat::test_that(
-  "strict offline STRINGdb initialization uses only pinned local files",
+  "local STRINGdb initialization uses pinned cached files",
   {
     testthat::skip_if_not_installed("STRINGdb")
     testthat::skip_if_not_installed("igraph")
@@ -155,35 +155,97 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "strict offline STRINGdb initialization rejects an incomplete cache",
+  "STRING v12 resources are acquired once and then reused from cache",
   {
-    testthat::skip_if_not_installed("STRINGdb")
-
     cache_dir <- tempfile(
-      pattern = "cancerppir_incomplete_string_cache_"
+      pattern = "cancerppir_resource_cache_"
     )
 
-    dir.create(
-      cache_dir,
-      recursive = TRUE
-    )
-
+    dir.create(cache_dir, recursive = TRUE)
     on.exit(
-      unlink(
-        cache_dir,
-        recursive = TRUE,
-        force = TRUE
-      ),
+      unlink(cache_dir, recursive = TRUE, force = TRUE),
+      add = TRUE
+    )
+
+    download_calls <- character()
+
+    fake_download <- function(
+      url,
+      destfile,
+      mode = "wb",
+      quiet = FALSE,
+      ...
+    ) {
+      download_calls <<- c(download_calls, url)
+
+      connection <- gzfile(destfile, open = "wt", encoding = "UTF-8")
+      on.exit(close(connection), add = TRUE)
+      writeLines(c("header", "data"), connection)
+      invisible(0L)
+    }
+
+    roles <- c(
+      "protein_info",
+      "protein_aliases",
+      "protein_links",
+      "enrichment_terms"
+    )
+
+    acquired <- cancerppir_ensure_string_v12_resources(
+      cache_dir = cache_dir,
+      roles = roles,
+      download_fun = fake_download
+    )
+
+    testthat::expect_equal(length(download_calls), 4L)
+    testthat::expect_identical(acquired$cache_role, roles)
+    testthat::expect_true(all(acquired$valid))
+    testthat::expect_true(all(file.exists(acquired$path)))
+
+    reused <- cancerppir_ensure_string_v12_resources(
+      cache_dir = cache_dir,
+      roles = roles,
+      download_fun = function(...) {
+        stop("Downloader must not be called for valid cached resources.")
+      }
+    )
+
+    testthat::expect_true(all(reused$valid))
+    testthat::expect_equal(length(download_calls), 4L)
+  }
+)
+
+testthat::test_that(
+  "STRING resource acquisition fails clearly without leaving a partial file",
+  {
+    cache_dir <- tempfile(
+      pattern = "cancerppir_failed_resource_cache_"
+    )
+
+    dir.create(cache_dir, recursive = TRUE)
+    on.exit(
+      unlink(cache_dir, recursive = TRUE, force = TRUE),
       add = TRUE
     )
 
     testthat::expect_error(
-      create_offline_stringdb(
+      cancerppir_ensure_string_v12_resources(
         cache_dir = cache_dir,
-        score_threshold = 400L
+        roles = "protein_info",
+        download_fun = function(...) {
+          stop("simulated download failure")
+        }
       ),
-      regexp = "Strict offline STRINGdb initialization requires"
+      regexp = "Could not acquire required STRING v12.0 resource"
     )
+
+    partial_files <- list.files(
+      cache_dir,
+      pattern = "\\.part-",
+      full.names = TRUE
+    )
+
+    testthat::expect_length(partial_files, 0L)
   }
 )
 

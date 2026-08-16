@@ -16,7 +16,7 @@ The qualified environment is:
 - package versions and package sources recorded in `renv.lock`;
 - CRAN snapshot
   `https://packagemanager.posit.co/cran/2026-07-20`;
-- STRING v12 resources supplied through the external cache contract.
+- STRING v12.0 resources acquired when missing and reused from the user-supplied local cache.
 
 The R patch release may differ within the R 4.5.x series for local development.
 Continuous integration remains fixed to R 4.5.0.

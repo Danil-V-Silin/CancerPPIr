@@ -103,7 +103,7 @@ Do not use a different XLSX SHA-256 alone as evidence that the analysis changed.
 1. Check out the recorded Git commit or use the archived source.
 2. Restore dependencies from `renv.lock`.
 3. Provide the same input file and verify its SHA-256.
-4. Provide compatible STRING v12 cache resources.
+4. Provide the compatible STRING v12.0 cache or allow CancerPPIr to acquire missing pinned resources.
 5. Use the manifest-recorded threshold, enrichment mode, seed, FDR, and top-N.
 6. Run CancerPPIr.
 7. Verify the new manifest and checksums.

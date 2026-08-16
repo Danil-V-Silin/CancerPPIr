@@ -1,63 +1,6 @@
 # CancerPPIr: enrichment
 #
 #
-# Functions below were extracted from cancerppir.R without semantic rewriting.
-
-##############################################################################
-clean_enrichment_table <- function(x) {
-  if (is.null(x) || !nrow(x)) {
-    return(tibble())
-  }
-
-  x <- as_tibble(x)
-
-  for (nm in names(x)) {
-    if (is.list(x[[nm]])) {
-      x[[nm]] <- vapply(
-        x[[nm]],
-        function(v) paste(as.character(v), collapse = ";"),
-        character(1)
-      )
-    }
-  }
-
-  x
-}
-
-##############################################################################
-run_gprofiler <- function(genes, query_name, organism = "hsapiens") {
-  genes <- unique(na.omit(as.character(genes)))
-  genes <- genes[nzchar(genes)]
-
-  if (length(genes) < 3L) {
-    return(tibble())
-  }
-
-  if (!requireNamespace("gprofiler2", quietly = TRUE)) {
-    return(tibble())
-  }
-
-  res <- tryCatch(
-    gprofiler2::gost(
-      query = genes,
-      organism = organism,
-      ordered_query = FALSE,
-      correction_method = "fdr",
-      sources = c("GO:BP", "GO:MF", "GO:CC", "REAC", "KEGG", "WP")
-    ),
-    error = function(e) {
-      msg("g:Profiler enrichment skipped for ", query_name, ": ", conditionMessage(e))
-      NULL
-    }
-  )
-
-  if (is.null(res) || is.null(res$result) || !nrow(res$result)) {
-    return(tibble())
-  }
-
-  clean_enrichment_table(res$result) %>%
-    mutate(query_name = query_name, .before = 1)
-}
 
 ##############################################################################
 string_enrichment_terms_candidates <- function(cache_dir) {
@@ -83,29 +26,19 @@ find_string_enrichment_terms <- function(cache_dir) {
 ##############################################################################
 download_string_enrichment_terms <- function(cache_dir) {
   local_path <- find_string_enrichment_terms(cache_dir)
+
   if (!is.na(local_path)) {
     msg("Using cached STRING enrichment terms: ", basename(local_path))
     return(local_path)
   }
 
-  dest <- file.path(cache_dir, "9606.protein.enrichment.terms.v12.0.txt.gz")
-  url <- "https://stringdb-downloads.org/download/protein.enrichment.terms.v12.0/9606.protein.enrichment.terms.v12.0.txt.gz"
-  msg("Cached STRING enrichment terms were not found; trying to download them.")
-  ok <- tryCatch({
-    utils::download.file(url, destfile = dest, mode = "wb", quiet = FALSE)
-    TRUE
-  }, error = function(e) {
-    msg("Local STRING enrichment file was not downloaded: ", conditionMessage(e))
-    FALSE
-  })
+  resource <- cancerppir_ensure_string_v12_resources(
+    cache_dir = cache_dir,
+    roles = "enrichment_terms"
+  )
 
-  if (isTRUE(ok) && file.exists(dest) && file.info(dest)$size > 0) {
-    dest
-  } else {
-    NA_character_
-  }
+  resource$path[[1L]]
 }
-
 ##############################################################################
 read_string_enrichment_terms <- function(cache_dir) {
   path <- download_string_enrichment_terms(cache_dir)
@@ -249,30 +182,6 @@ run_local_string_enrichment <- function(
     arrange(fdr, pvalue, desc(number_of_genes))
 
   out
-}
-
-##############################################################################
-run_string_enrichment_online <- function(string_db, ids, query_name = "STRING_online_query") {
-  ids <- unique(na.omit(as.character(ids)))
-  ids <- ids[nzchar(ids)]
-  if (length(ids) < 3L) {
-    return(tibble())
-  }
-
-  out <- tryCatch(
-    string_db$get_enrichment(ids),
-    error = function(e) {
-      msg("Online STRING enrichment skipped for ", query_name, ": ", conditionMessage(e))
-      NULL
-    }
-  )
-
-  if (is.null(out) || !nrow(out)) {
-    return(tibble())
-  }
-
-  clean_enrichment_table(as_tibble(out)) %>%
-    mutate(query_name = query_name, .before = 1)
 }
 
 ##############################################################################
@@ -430,100 +339,6 @@ collapse_module_enrichment <- function(tbl, n_terms = 6L) {
       total_enrichment_terms, specific_interpretable_terms_n
     )
 }
-
-##############################################################################
-collapse_gprofiler_module_enrichment <- function(tbl, n_terms = 6L) {
-  if (!nrow(tbl) || !("community_louvain" %in% names(tbl))) {
-    return(tibble(
-      community_louvain = integer(),
-      online_gprofiler_terms = character(),
-      online_gprofiler_sources = character(),
-      online_gprofiler_best_p = numeric(),
-      online_gprofiler_terms_n = integer()
-    ))
-  }
-  tbl %>%
-    mutate(
-      term_name = as.character(term_name),
-      source = as.character(source),
-      p_value = suppressWarnings(as.numeric(p_value))
-    ) %>%
-    filter(!is.na(term_name), nzchar(term_name)) %>%
-    group_by(community_louvain) %>%
-    arrange(p_value, .by_group = TRUE) %>%
-    summarise(
-      online_gprofiler_terms = paste(head(unique(term_name), n_terms), collapse = "; "),
-      online_gprofiler_sources = paste(head(unique(source), n_terms), collapse = "; "),
-      online_gprofiler_best_p = safe_min(p_value),
-      online_gprofiler_terms_n = dplyr::n(),
-      .groups = "drop"
-    )
-}
-
-##############################################################################
-collapse_string_online_module_enrichment <- function(tbl, n_terms = 6L) {
-  if (!nrow(tbl) || !("community_louvain" %in% names(tbl))) {
-    return(tibble(
-      community_louvain = integer(),
-      online_STRING_terms = character(),
-      online_STRING_sources = character(),
-      online_STRING_best_fdr = numeric(),
-      online_STRING_terms_n = integer()
-    ))
-  }
-  desc_col <- if ("description" %in% names(tbl)) "description" else if ("term_description" %in% names(tbl)) "term_description" else NA_character_
-  if (is.na(desc_col)) {
-    return(tibble(
-      community_louvain = integer(),
-      online_STRING_terms = character(),
-      online_STRING_sources = character(),
-      online_STRING_best_fdr = numeric(),
-      online_STRING_terms_n = integer()
-    ))
-  }
-  fdr_col <- if ("fdr" %in% names(tbl)) "fdr" else if ("p_value" %in% names(tbl)) "p_value" else if ("pvalue" %in% names(tbl)) "pvalue" else NA_character_
-  if (is.na(fdr_col)) {
-    tbl$fdr_for_sort <- NA_real_
-  } else {
-    tbl$fdr_for_sort <- suppressWarnings(as.numeric(tbl[[fdr_col]]))
-  }
-  if (!("category" %in% names(tbl))) {
-    tbl$category <- "STRING_online"
-  }
-  tbl %>%
-    mutate(
-      online_description = as.character(.data[[desc_col]]),
-      category = as.character(category)
-    ) %>%
-    filter(!is.na(online_description), nzchar(online_description)) %>%
-    group_by(community_louvain) %>%
-    arrange(fdr_for_sort, .by_group = TRUE) %>%
-    summarise(
-      online_STRING_terms = paste(head(unique(online_description), n_terms), collapse = "; "),
-      online_STRING_sources = paste(head(unique(category), n_terms), collapse = "; "),
-      online_STRING_best_fdr = safe_min(fdr_for_sort),
-      online_STRING_terms_n = dplyr::n(),
-      .groups = "drop"
-    )
-}
-
-##############################################################################
-online_concordance_status <- function(specific_label_candidate, online_text) {
-  if (is.na(online_text) || !nzchar(online_text) || online_text == "not_available") {
-    return("online_not_run_or_no_terms")
-  }
-  label_raw <- normalize_label_text(specific_label_candidate)
-  idx <- which(vapply(label_rulebook, function(r) identical(r$label_id, label_raw), logical(1)))
-  if (!length(idx)) {
-    return("online_terms_available_no_matching_rule")
-  }
-  rule <- label_rulebook[[idx[[1]]]]
-  if (matches_any_pattern(online_text, rule$core_term_patterns) || matches_any_pattern(online_text, rule$required_specific_patterns)) {
-    return("online_terms_concordant_with_assigned_label")
-  }
-  "online_terms_available_not_rule_concordant"
-}
-
 
 ##############################################################################
 # Stable enrichment configuration moved from cancerppir.R

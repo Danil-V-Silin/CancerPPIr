@@ -3,7 +3,6 @@
 # Responsibility: End-to-end CancerPPIr workflow coordination with explicit inputs and returned analysis objects.
 #
 #
-# Function definitions will be moved here incrementally without semantic rewriting.
 
 
 # -----------------------------------------------------------------------------
@@ -23,7 +22,6 @@ run_cancerppir <- function(
     "jsonlite", "digest"
   )
   required_bioc <- c("STRINGdb")
-  optional_cran <- c("gprofiler2")
 
 
   invisible(lapply(c(required_cran, required_bioc), check_package))
@@ -65,9 +63,7 @@ run_cancerppir <- function(
     output_dir <- file.path(results_root, sample_name)
   }
 
-  # Online enrichment is deliberately disabled in this offline-only release.
-  enrichment_mode <- "offline"
-  run_online_enrichment <- FALSE
+  enrichment_mode <- "local_STRING_cache"
 
   if (!file.exists(input_file)) {
     stop("Input file not found: ", input_file, call. = FALSE)
@@ -160,7 +156,7 @@ run_cancerppir <- function(
     stop("No rows remained after gene-symbol normalization.", call. = FALSE)
   }
 
-  msg("Initializing STRINGdb from pinned local cache.")
+  msg("Preparing pinned STRING v12 network resources and local STRINGdb.")
   string_db <- create_offline_stringdb(
     cache_dir = cache_dir,
     score_threshold = score_threshold,
@@ -346,24 +342,13 @@ run_cancerppir <- function(
   rm(network_analysis)
 
 
-  enrichment_string_online_all <- tibble()
-  enrichment_string_online_top <- tibble()
-  module_enrichment_string_online <- tibble()
-  online_enrichment_status <- tibble()
   enrichment_string_local_all <- tibble()
   enrichment_string_local_top <- tibble()
   module_enrichment_string_local <- tibble()
   local_string_terms <- tibble()
-  enrichment_gprofiler_all <- tibble()
-  enrichment_gprofiler_top <- tibble()
-  module_enrichment_gprofiler <- tibble()
 
   if (isTRUE(run_enrichment)) {
     msg("Running functional enrichment analysis.")
-    if (!requireNamespace("gprofiler2", quietly = TRUE)) {
-      msg("Optional package gprofiler2 is not installed; g:Profiler enrichment will be skipped.")
-    }
-
     id_to_gene <- setNames(node_metrics$gene, node_metrics$STRING_id)
     local_string_terms <- read_string_enrichment_terms(cache_dir)
     if (nrow(local_string_terms)) {
@@ -414,77 +399,6 @@ run_cancerppir <- function(
       }
     ))
 
-    if (isTRUE(run_online_enrichment)) {
-      msg("Online enrichment validation mode enabled. Local STRING remains the primary fallback annotation layer.")
-
-      enrichment_string_online_all <- run_string_enrichment_online(string_db,
-        mapped_final$STRING_id,
-        query_name = "all_network_genes_STRING_online"
-      )
-      enrichment_string_online_top <- run_string_enrichment_online(string_db,
-        top_candidates$STRING_id,
-        query_name = "top_candidates_STRING_online"
-      )
-
-      module_enrichment_string_online <- bind_rows(lapply(
-        split(node_metrics %>% filter(community_louvain %in% major_module_ids),
-              node_metrics$community_louvain[node_metrics$community_louvain %in% major_module_ids]),
-        function(m) {
-          if (nrow(m) < 5L) {
-            return(tibble())
-          }
-          qn <- paste0("module_", unique(m$community_louvain), "_STRING_online")
-          st <- run_string_enrichment_online(string_db, m$STRING_id, query_name = qn)
-          if (!nrow(st)) {
-            return(tibble())
-          }
-          st %>% mutate(community_louvain = unique(m$community_louvain), .after = query_name)
-        }
-      ))
-
-      enrichment_gprofiler_all <- run_gprofiler(node_metrics$gene, "all_network_genes_gProfiler")
-      enrichment_gprofiler_top <- run_gprofiler(top_candidates$gene, "top_candidates_gProfiler")
-
-      module_enrichment_gprofiler <- bind_rows(lapply(
-        split(node_metrics %>% filter(community_louvain %in% major_module_ids),
-              node_metrics$community_louvain[node_metrics$community_louvain %in% major_module_ids]),
-        function(m) {
-          if (nrow(m) < 5L) {
-            return(tibble())
-          }
-          qn <- paste0("module_", unique(m$community_louvain), "_gProfiler")
-          gp <- run_gprofiler(m$gene, qn)
-          if (!nrow(gp)) {
-            return(tibble())
-          }
-          gp %>% mutate(community_louvain = unique(m$community_louvain), .after = query_name)
-        }
-      ))
-
-      if (!nrow(enrichment_string_online_all) && !nrow(enrichment_string_online_top) &&
-          !nrow(module_enrichment_string_online) && !nrow(enrichment_gprofiler_all) &&
-          !nrow(enrichment_gprofiler_top) && !nrow(module_enrichment_gprofiler)) {
-        msg("Online enrichment returned no usable results; continuing with local STRING enrichment only.")
-      }
-    } else {
-      msg("Online enrichment is disabled; using local STRING enrichment and marker-based module labels.")
-    }
-
-    online_enrichment_status <- tibble(
-      setting = c(
-        "run_enrichment", "enrichment_mode", "online_validation_requested",
-        "gprofiler2_installed", "local_STRING_terms_loaded",
-        "STRING_online_network_rows", "STRING_online_candidate_rows", "STRING_online_module_rows",
-        "gProfiler_network_rows", "gProfiler_candidate_rows", "gProfiler_module_rows"
-      ),
-      value = c(
-        as.character(run_enrichment), enrichment_mode, as.character(run_online_enrichment),
-        as.character(requireNamespace("gprofiler2", quietly = TRUE)), as.character(nrow(local_string_terms)),
-        as.character(nrow(enrichment_string_online_all)), as.character(nrow(enrichment_string_online_top)), as.character(nrow(module_enrichment_string_online)),
-        as.character(nrow(enrichment_gprofiler_all)), as.character(nrow(enrichment_gprofiler_top)), as.character(nrow(module_enrichment_gprofiler))
-      )
-    )
-
     if (nrow(module_enrichment_string_local)) {
       top_terms <- module_enrichment_string_local %>%
         filter(is.finite(fdr)) %>%
@@ -500,22 +414,7 @@ run_cancerppir <- function(
 
       module_summary <- module_summary %>%
         left_join(top_terms, by = "community_louvain")
-    } else if (nrow(module_enrichment_gprofiler)) {
-      top_terms <- module_enrichment_gprofiler %>%
-        group_by(community_louvain) %>%
-        arrange(p_value, .by_group = TRUE) %>%
-        summarise(
-          enrichment_evidence_terms = paste(head(unique(term_name), 3L), collapse = "; "),
-          top_enrichment_sources = paste(head(unique(source), 3L), collapse = ";"),
-          min_enrichment_pvalue = min(p_value, na.rm = TRUE),
-          min_enrichment_fdr = min(p_value, na.rm = TRUE),
-          .groups = "drop"
-        )
-
-      module_summary <- module_summary %>%
-        left_join(top_terms, by = "community_louvain")
     }
-
     if (!("enrichment_evidence_terms" %in% names(module_summary))) {
       module_summary <- module_summary %>%
         mutate(
@@ -736,61 +635,6 @@ run_cancerppir <- function(
     filter(community_louvain %in% major_module_ids) %>%
     arrange(match(community_louvain, major_module_ids)) %>%
     mutate(major_module_rank = row_number(), .before = 1)
-
-  # Optional online validation is kept separate from primary label assignment.
-  # Local STRING enrichment + marker overlap remain the primary reproducible layer.
-  online_gprofiler_collapsed <- collapse_gprofiler_module_enrichment(module_enrichment_gprofiler, n_terms = 6L)
-  online_string_collapsed <- collapse_string_online_module_enrichment(module_enrichment_string_online, n_terms = 6L)
-
-  online_validation_summary <- major_module_summary_readable %>%
-    select(
-      major_module_rank, community_louvain, final_functional_label,
-      final_label_raw, specific_label_candidate_raw, label_source,
-      label_evidence_score, label_confidence, label_warning,
-      top_interpretable_terms, best_interpretable_fdr
-    ) %>%
-    left_join(online_string_collapsed, by = "community_louvain") %>%
-    left_join(online_gprofiler_collapsed, by = "community_louvain") %>%
-    mutate(
-      online_validation_mode = enrichment_mode,
-      online_validation_requested = run_online_enrichment,
-      online_validation_terms = mapply(
-        function(a, b) {
-          vals <- c(a, b)
-          vals <- vals[!is.na(vals) & nzchar(vals)]
-          if (!length(vals)) "not_available" else paste(unique(vals), collapse = " | ")
-        },
-        online_STRING_terms,
-        online_gprofiler_terms,
-        USE.NAMES = FALSE
-      ),
-      online_validation_status = mapply(
-        online_concordance_status,
-        specific_label_candidate_raw,
-        online_validation_terms,
-        USE.NAMES = FALSE
-      ),
-      online_validation_interpretation = case_when(
-        !isTRUE(run_online_enrichment) ~
-          "Online validation was not requested. Primary annotation uses local STRING enrichment and curated marker overlap.",
-        online_validation_status == "online_not_run_or_no_terms" ~
-          "Online validation was requested but did not return usable module-level terms. Primary local STRING/marker annotation remains in use.",
-        online_validation_status == "online_terms_concordant_with_assigned_label" ~
-          "Online enrichment terms are concordant with the assigned label rule and can be used as an independent validation layer.",
-        TRUE ~
-          "Online enrichment terms were retrieved but did not clearly match the assigned label rule; keep the local evidence-based label and review raw online terms manually."
-      )
-    ) %>%
-    select(
-      major_module_rank, community_louvain, final_functional_label,
-      label_source, label_evidence_score, label_confidence, label_warning,
-      top_interpretable_terms, best_interpretable_fdr,
-      online_validation_mode, online_validation_requested,
-      online_validation_status, online_validation_interpretation,
-      online_STRING_terms, online_STRING_sources, online_STRING_best_fdr,
-      online_gprofiler_terms, online_gprofiler_sources, online_gprofiler_best_p,
-      online_validation_terms
-    )
 
   # Node-level readable evidence --------------------------------------------------
   node_metrics_readable <- node_metrics %>%
@@ -1355,7 +1199,7 @@ run_cancerppir <- function(
       STRING_score_threshold = as.integer(score_threshold),
       enrichment_mode = enrichment_mode,
       local_enrichment_enabled = isTRUE(run_enrichment),
-      online_enrichment_enabled = isTRUE(run_online_enrichment),
+      online_enrichment_enabled = FALSE,
       Louvain_seed = as.integer(CANCERPPIR_LOUVAIN_SEED),
       FDR_threshold = 0.05,
       candidate_top_n = as.integer(top_n),
