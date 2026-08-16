@@ -12,6 +12,13 @@ CancerPPIr follows Semantic Versioning.
   links in `STRING_links.txt`, including the version-consistent inspection
   purpose of the pinned link and the 300-protein browser-link limit.
 
+- Replaced the contradictory STRING resource behavior with a unified
+  cache-first model: required STRING v12.0 files are reused when present and
+  downloaded into the cache when missing or invalid; network construction and
+  enrichment then execute locally from the cached resources.
+- Removed the unreachable online STRING/g:Profiler enrichment-validation path
+  and its production dependency while preserving the public output schemas.
+
 ## [1.0.1] - 2026-07-31
 
 ### Added

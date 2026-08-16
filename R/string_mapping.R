@@ -193,6 +193,239 @@ map_to_string <- function(db, data, gene_col = "gene", removeUnmappedRows = FALS
   parent = emptyenv()
 )
 
+cancerppir_string_resource_file_valid <- function(path) {
+  if (
+    length(path) != 1L ||
+      is.na(path) ||
+      !nzchar(path) ||
+      !file.exists(path)
+  ) {
+    return(FALSE)
+  }
+
+  info <- file.info(path)
+  if (is.na(info$size[[1L]]) || info$size[[1L]] <= 0) {
+    return(FALSE)
+  }
+
+  connection <- file(path, open = "rb")
+  on.exit(close(connection), add = TRUE)
+
+  magic <- tryCatch(
+    readBin(connection, what = "raw", n = 2L),
+    error = function(error) raw()
+  )
+
+  identical(magic, as.raw(c(0x1f, 0x8b)))
+}
+
+cancerppir_string_v12_resource_manifest <- function(
+  cache_dir,
+  species = 9606L,
+  version = "12.0"
+) {
+  species <- as.integer(species)
+  version <- as.character(version)
+
+  if (!identical(species, 9606L)) {
+    stop(
+      "CancerPPIr STRING resource management supports only species 9606.",
+      call. = FALSE
+    )
+  }
+
+  if (!identical(version, "12.0")) {
+    stop(
+      "CancerPPIr STRING resource management requires STRING version 12.0.",
+      call. = FALSE
+    )
+  }
+
+  cache_dir <- normalizePath(
+    cache_dir,
+    winslash = "/",
+    mustWork = FALSE
+  )
+
+  resource_groups <- c(
+    protein_info = "protein.info",
+    protein_aliases = "protein.aliases",
+    protein_links = "protein.links",
+    enrichment_terms = "protein.enrichment.terms"
+  )
+
+  filenames <- paste0(
+    species,
+    ".",
+    unname(resource_groups),
+    ".v",
+    version,
+    ".txt.gz"
+  )
+
+  urls <- paste0(
+    "https://stringdb-downloads.org/download/",
+    unname(resource_groups),
+    ".v",
+    version,
+    "/",
+    filenames
+  )
+
+  paths <- file.path(cache_dir, filenames)
+  exists <- file.exists(paths)
+  sizes <- ifelse(exists, file.info(paths)$size, NA_real_)
+  valid <- vapply(
+    paths,
+    cancerppir_string_resource_file_valid,
+    logical(1)
+  )
+
+  data.frame(
+    cache_role = names(resource_groups),
+    filename = filenames,
+    url = urls,
+    path = paths,
+    exists = exists,
+    size_bytes = sizes,
+    valid = valid,
+    stringsAsFactors = FALSE,
+    row.names = NULL
+  )
+}
+
+cancerppir_ensure_string_v12_resources <- function(
+  cache_dir,
+  roles,
+  download_fun = utils::download.file
+) {
+  if (!is.function(download_fun)) {
+    stop("download_fun must be a function.", call. = FALSE)
+  }
+
+  if (!dir.exists(cache_dir)) {
+    created <- dir.create(
+      cache_dir,
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
+
+    if (!isTRUE(created) && !dir.exists(cache_dir)) {
+      stop(
+        "Could not create STRING cache directory: ",
+        cache_dir,
+        call. = FALSE
+      )
+    }
+  }
+
+  manifest <- cancerppir_string_v12_resource_manifest(cache_dir)
+  roles <- unique(as.character(roles))
+
+  unknown_roles <- setdiff(roles, manifest$cache_role)
+  if (length(unknown_roles)) {
+    stop(
+      "Unknown STRING resource role(s): ",
+      paste(unknown_roles, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  for (role in roles) {
+    row_index <- match(role, manifest$cache_role)
+    resource <- manifest[row_index, , drop = FALSE]
+
+    if (isTRUE(resource$valid[[1L]])) {
+      msg(
+        "Using cached STRING v12.0 resource: ",
+        resource$filename[[1L]]
+      )
+      next
+    }
+
+    destination <- resource$path[[1L]]
+    partial <- tempfile(
+      pattern = paste0(resource$filename[[1L]], ".part-"),
+      tmpdir = cache_dir
+    )
+
+    msg(
+      "STRING v12.0 resource is missing or invalid; downloading: ",
+      resource$filename[[1L]]
+    )
+
+    download_error <- tryCatch({
+      download_fun(
+        resource$url[[1L]],
+        destfile = partial,
+        mode = "wb",
+        quiet = FALSE
+      )
+      NULL
+    }, error = function(error) error)
+
+    if (!is.null(download_error)) {
+      unlink(partial, force = TRUE)
+      stop(
+        "Could not acquire required STRING v12.0 resource ",
+        resource$filename[[1L]],
+        ": ",
+        conditionMessage(download_error),
+        call. = FALSE
+      )
+    }
+
+    if (!cancerppir_string_resource_file_valid(partial)) {
+      unlink(partial, force = TRUE)
+      stop(
+        "Downloaded STRING v12.0 resource is empty, incomplete, or not gzip: ",
+        resource$filename[[1L]],
+        call. = FALSE
+      )
+    }
+
+    if (file.exists(destination)) {
+      unlink(destination, force = TRUE)
+    }
+
+    moved <- file.rename(partial, destination)
+
+    if (!isTRUE(moved)) {
+      copied <- file.copy(
+        partial,
+        destination,
+        overwrite = TRUE
+      )
+      unlink(partial, force = TRUE)
+
+      if (!isTRUE(copied)) {
+        stop(
+          "Could not move downloaded STRING resource into cache: ",
+          resource$filename[[1L]],
+          call. = FALSE
+        )
+      }
+    }
+
+    if (!cancerppir_string_resource_file_valid(destination)) {
+      stop(
+        "Cached STRING resource failed validation after download: ",
+        resource$filename[[1L]],
+        call. = FALSE
+      )
+    }
+
+    msg("Cached STRING v12.0 resource: ", resource$filename[[1L]])
+  }
+
+  refreshed <- cancerppir_string_v12_resource_manifest(cache_dir)
+  refreshed[
+    match(roles, refreshed$cache_role),
+    ,
+    drop = FALSE
+  ]
+}
+
 cancerppir_stringdb_cache_manifest <- function(
   cache_dir,
   species = 9606,
@@ -200,84 +433,43 @@ cancerppir_stringdb_cache_manifest <- function(
   network_type = "full",
   link_data = "combined_only"
 ) {
-  cache_dir <- normalizePath(
-    cache_dir,
-    winslash = "/",
-    mustWork = FALSE
-  )
-
-  species <- as.integer(species)
-  version <- as.character(version)
   network_type <- tolower(as.character(network_type))
   link_data <- tolower(as.character(link_data))
 
-  if (!identical(species, 9606L)) {
-    stop(
-      "CancerPPIr offline STRINGdb initialization supports only species 9606.",
-      call. = FALSE
-    )
-  }
-
-  if (!identical(version, "12.0")) {
-    stop(
-      "CancerPPIr offline STRINGdb initialization requires STRING version 12.0.",
-      call. = FALSE
-    )
-  }
-
   if (!identical(network_type, "full")) {
     stop(
-      "CancerPPIr offline STRINGdb initialization currently requires network_type='full'.",
+      "CancerPPIr local STRINGdb initialization currently requires network_type='full'.",
       call. = FALSE
     )
   }
 
   if (!identical(link_data, "combined_only")) {
     stop(
-      "CancerPPIr offline STRINGdb initialization currently requires link_data='combined_only'.",
+      "CancerPPIr local STRINGdb initialization currently requires link_data='combined_only'.",
       call. = FALSE
     )
   }
 
-  filenames <- c(
-    protein_info = paste0(
-      species,
-      ".protein.info.v",
-      version,
-      ".txt.gz"
-    ),
-    protein_aliases = paste0(
-      species,
-      ".protein.aliases.v",
-      version,
-      ".txt.gz"
-    ),
-    protein_links = paste0(
-      species,
-      ".protein.links.v",
-      version,
-      ".txt.gz"
-    )
+  manifest <- cancerppir_string_v12_resource_manifest(
+    cache_dir = cache_dir,
+    species = species,
+    version = version
   )
 
-  paths <- file.path(
-    cache_dir,
-    filenames
+  roles <- c(
+    "protein_info",
+    "protein_aliases",
+    "protein_links"
   )
 
-  data.frame(
-    cache_role = names(filenames),
-    filename = unname(filenames),
-    path = unname(paths),
-    exists = file.exists(paths),
-    size_bytes = ifelse(
-      file.exists(paths),
-      file.info(paths)$size,
-      NA_real_
-    ),
-    stringsAsFactors = FALSE,
-    row.names = NULL
-  )
+  manifest <- manifest[
+    match(roles, manifest$cache_role),
+    c("cache_role", "filename", "path", "exists", "size_bytes"),
+    drop = FALSE
+  ]
+
+  rownames(manifest) <- NULL
+  manifest
 }
 
 cancerppir_get_offline_stringdb_generator <- function() {
@@ -297,7 +489,7 @@ cancerppir_get_offline_stringdb_generator <- function() {
   if (!identical(installed_version, supported_version)) {
     stop(
       paste0(
-        "The strict offline initializer is validated for STRINGdb ",
+        "The local pinned initializer is validated for STRINGdb ",
         supported_version,
         ", but version ",
         installed_version,
@@ -363,7 +555,8 @@ create_offline_stringdb <- function(
   species = 9606L,
   version = "12.0",
   network_type = "full",
-  link_data = "combined_only"
+  link_data = "combined_only",
+  download_fun = utils::download.file
 ) {
   if (
     length(score_threshold) != 1L ||
@@ -378,13 +571,19 @@ create_offline_stringdb <- function(
   }
 
   if (!dir.exists(cache_dir)) {
-    stop(
-      paste0(
-        "Local STRING cache directory does not exist: ",
-        cache_dir
-      ),
-      call. = FALSE
+    created <- dir.create(
+      cache_dir,
+      recursive = TRUE,
+      showWarnings = FALSE
     )
+
+    if (!isTRUE(created) && !dir.exists(cache_dir)) {
+      stop(
+        "Could not create STRING cache directory: ",
+        cache_dir,
+        call. = FALSE
+      )
+    }
   }
 
   cache_dir <- normalizePath(
@@ -393,36 +592,15 @@ create_offline_stringdb <- function(
     mustWork = TRUE
   )
 
-  manifest <- cancerppir_stringdb_cache_manifest(
+  cancerppir_ensure_string_v12_resources(
     cache_dir = cache_dir,
-    species = species,
-    version = version,
-    network_type = network_type,
-    link_data = link_data
+    roles = c(
+      "protein_info",
+      "protein_aliases",
+      "protein_links"
+    ),
+    download_fun = download_fun
   )
-
-  invalid_cache <- manifest[
-    !manifest$exists |
-      is.na(manifest$size_bytes) |
-      manifest$size_bytes <= 0,
-    ,
-    drop = FALSE
-  ]
-
-  if (nrow(invalid_cache) > 0L) {
-    stop(
-      paste0(
-        "Strict offline STRINGdb initialization requires the following non-empty local cache file(s):\n",
-        paste0(
-          "- ",
-          invalid_cache$path,
-          collapse = "\n"
-        ),
-        "\nNo online download fallback is permitted."
-      ),
-      call. = FALSE
-    )
-  }
 
   generator <- cancerppir_get_offline_stringdb_generator()
 

@@ -23,7 +23,7 @@ actionability by itself.
 4. Reconstructs a thresholded STRING-derived PPI subnetwork.
 5. Calculates node topology and a five-component exploratory candidate score.
 6. Detects deterministic Louvain modules.
-7. Performs offline enrichment from locally cached STRING v12 resources.
+7. Performs local enrichment from version-pinned STRING v12 resources cached on disk.
 8. Assigns canonical module evidence from marker and statistically significant
    enrichment support.
 9. Filters automatic priorities by entity and module eligibility.
@@ -185,12 +185,15 @@ A high candidate rank is not proof of therapeutic actionability. Read protein
 rank together with module context, eligibility, warning fields, pathology, and
 independent molecular or clinical evidence.
 
-## Offline STRING resources
+## STRING v12 resources
 
-CancerPPIr uses pinned local STRING v12 resources for network construction and
-enrichment. The first environment setup may require downloading large files;
-subsequent runs reuse the cache. Standard manifests record cache basenames and
-sizes without re-reading multi-gigabyte resources solely to hash them.
+CancerPPIr uses version-pinned STRING v12.0 resources for network construction
+and enrichment. Resources already present in the user-supplied cache are reused.
+When a required resource is absent or invalid, CancerPPIr downloads the exact
+STRING v12.0 file into the cache before continuing with local computation.
+Subsequent runs can reuse the cached resources without downloading them again.
+Standard manifests record cache basenames and sizes without re-reading
+multi-gigabyte resources solely to hash them.
 
 ## Reproducibility
 
