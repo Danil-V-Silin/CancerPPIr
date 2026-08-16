@@ -6,22 +6,57 @@ CancerPPIr follows Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-16
+
+### Added
+
+- Added a STRING-traceable analytical module summary with module size, primary
+  STRING source and term identifier, FDR, supporting genes, secondary terms,
+  and representative module proteins.
+- Added an explicit biological-evidence curation contract and strengthened
+  provenance reporting for rule-based auxiliary evidence.
+
 ### Changed
 
+- Made significant non-generic local STRING v12 enrichment the canonical
+  biological evidence for automatic module interpretation while retaining
+  curated marker rules as an auxiliary audit layer.
+- Curated cross-axis rule redundancies without converting the rulebook into an
+  independent expert oncology system.
+- Rebalanced `candidate_score` across three equally weighted evidence domains:
+  network topology, differential-expression magnitude, and statistical
+  evidence. The topology domain is the mean of normalized degree,
+  betweenness, and log-transformed stress centrality.
+- Preserved the five normalized base candidate-score components as separately
+  auditable output fields.
+- Advanced the Analytical Workbook schema to `2.0.0` and made module
+  interpretation directly traceable to STRING evidence.
 - Clarified the distinct roles of the current and STRING v12-pinned browser
   links in `STRING_links.txt`, including the version-consistent inspection
   purpose of the pinned link and the 300-protein browser-link limit.
-
-- Replaced the contradictory STRING resource behavior with a unified
-  cache-first model: required STRING v12.0 files are reused when present and
-  downloaded into the cache when missing or invalid; network construction and
-  enrichment then execute locally from the cached resources.
-- Removed the unreachable online STRING/g:Profiler enrichment-validation path
-  and its production dependency while preserving the public output schemas.
-
+- Replaced contradictory STRING resource behavior with a unified cache-first
+  model: required STRING v12.0 resources are reused when valid and downloaded
+  into the cache when missing or invalid; network construction and enrichment
+  then execute locally from the cached resources.
+- Removed the obsolete online STRING/g:Profiler enrichment-validation path and
+  its production dependency.
 - Pruned the locked dependency graph after removal of the obsolete online
-  enrichment path, reducing `renv.lock` from 114 to 80 packages without
-  changing retained package versions or the qualified R/Bioconductor baseline.
+  enrichment path, reducing `renv.lock` without changing the retained
+  qualified R/Bioconductor baseline.
+
+### Compatibility
+
+- CancerPPIr product version advances from `1.0.1` to `1.1.0`.
+- Product versioning remains independent from public output-schema versioning.
+- The Analytical Workbook schema advances to `2.0.0`; the other public
+  output-schema versions remain at their existing versions.
+- Candidate rankings can differ from v1.0.1 because the candidate-score
+  aggregation semantics changed from five equally weighted base components to
+  three equally weighted evidence domains.
+- STRING mapping, STRING v12 network construction, and deterministic Louvain
+  community detection are not changed by the candidate-score rebalancing.
+- Automatic module interpretation can differ from v1.0.1 because qualifying
+  STRING enrichment is now the canonical biological evidence source.
 
 ## [1.0.1] - 2026-07-31
 
