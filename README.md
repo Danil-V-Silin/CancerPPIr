@@ -133,7 +133,7 @@ Every successful run writes six principal files:
 
 | File | Primary use |
 |---|---|
-| `CancerPPIr_Analytical_Report.xlsx` | Concise human-readable interpretation layer |
+| `CancerPPIr_Analytical_Report.xlsx` | Concise human-readable STRING-supported interpretation and prioritization layer |
 | `CancerPPIr_Technical_Report.xlsx` | Complete mapping, metrics, enrichment, evidence, and session audit |
 | `Network_for_Cytoscape.graphml` | Canonical annotated network for Cytoscape or Gephi |
 | `STRING_links.txt` | Current and STRING v12-pinned inspection links |

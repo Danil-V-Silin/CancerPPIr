@@ -265,7 +265,15 @@ cancerppir_validate_publication_readiness <- function(
 
   expected_schema_versions <- as.list(
     stats::setNames(
-      rep("1.0.0", 7L),
+      c(
+        "1.0.0",
+        "1.0.0",
+        "2.0.0",
+        "1.0.0",
+        "1.0.0",
+        "1.0.0",
+        "1.0.0"
+      ),
       c(
         "pipeline_result",
         "biological_evidence",
@@ -279,7 +287,7 @@ cancerppir_validate_publication_readiness <- function(
   )
 
   add_check(
-    "public_schema_registry_is_1_0_0",
+    "public_schema_registry_matches_pinned_versions",
     is.null(schema_error) &&
       identical(observed_schema_versions, expected_schema_versions),
     if (is.null(schema_error)) {

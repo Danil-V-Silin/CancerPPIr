@@ -1,6 +1,6 @@
 # Analytical workbook contract
 
-Schema version: `1.0.0`
+Schema version: `2.0.0`
 
 ## Scope
 

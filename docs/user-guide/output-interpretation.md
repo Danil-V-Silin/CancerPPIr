@@ -28,7 +28,7 @@ interactions, cell fractions, drug response, or clinical benefit.
 
 ## Analytical workbook
 
-The analytical workbook schema is version `1.0.0` and contains exactly six
+The analytical workbook schema is version `2.0.0` and contains exactly six
 sheets.
 
 ### `Executive summary`
