@@ -41,10 +41,18 @@ At most five modules are reported. A module is eligible only when:
 
 - `interpretation_class == "biological"`
 - `priority_eligible == TRUE`
-- `conflict_detected == FALSE`
 
-Ordering is deterministic: confidence, module size, best supporting FDR, and
-module identifier.
+The analytical interpretation is derived directly from statistically
+significant, non-generic STRING/database enrichment terms. The primary term is
+the qualifying term with the lowest FDR; up to two additional qualifying terms
+are retained as secondary context.
+
+Ordering is deterministic: module size, primary-term FDR, and module
+identifier.
+
+The sheet exposes direct STRING/database traceability through
+`primary_term_source`, `primary_term_id`, `primary_term_fdr`,
+`primary_term_supporting_genes`, and `secondary_terms`.
 
 ### Candidate evidence
 

@@ -66,21 +66,26 @@ automatic promotion.
 ### `Module priorities`
 
 This sheet contains up to five biological modules that are priority eligible.
-Technical/covariate, mixed-conflict, low-confidence, or unresolved modules are
-not inserted merely to fill the table.
+Technical/covariate or unresolved modules are not inserted merely to fill the
+table.
+
+Each row is directly traceable to statistically significant, non-generic
+STRING/database enrichment evidence. The primary interpretation is the
+qualifying term with the lowest FDR; up to two further qualifying terms provide
+secondary context.
 
 | Field | Interpretation |
 |---|---|
+| `module_priority_rank` | rank within the reported module subset |
 | `module_id` | Louvain module identifier |
 | `module_size` and `network_fraction` | module scale in the reconstructed network |
-| `biological_context` | canonical primary interpretation |
-| `interpretation_scope` | whether lineage, state, and/or process evidence is resolved |
-| `confidence` | `high`, `moderate`, or lower confidence category |
-| marker and term fields | explicit supporting genes and significant terms |
-| `best_supporting_fdr` | strongest reported supporting FDR |
-| `conflict_detected` | evidence conflict that constrains prioritization |
-| `warning` | unresolved or limited-evidence flag |
-| `evidence_rationale` | auditable summary of evidence and limits |
+| `module_interpretation` | primary qualifying STRING/database term |
+| `primary_term_source` | annotation source of the primary term |
+| `primary_term_id` | database identifier of the primary term |
+| `primary_term_fdr` | adjusted enrichment significance of the primary term |
+| `primary_term_supporting_genes` | module proteins supporting the primary term |
+| `secondary_terms` | up to two additional qualifying enrichment terms |
+| `top_module_proteins` | representative proteins from the module |
 
 The number of module rows may be less than five. That is a result, not a missing
 value problem.
