@@ -51,7 +51,6 @@ loaded_files <- load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-stopifnot(length(loaded_files) == 13L)
 
 Sys.setenv(
   CANCERPPIR_PROJECT_ROOT = project_root

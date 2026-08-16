@@ -49,7 +49,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-  "module loader uses the deterministic twelve-module order",
+  "module loader uses the deterministic module order",
   {
     project_root <- Sys.getenv(
       "CANCERPPIR_PROJECT_ROOT",
@@ -75,6 +75,7 @@ testthat::test_that(
       "string_mapping.R",
       "enrichment.R",
       "module_labeling.R",
+      "biological_evidence_rules.R",
       "biological_evidence_engine.R",
       "biological_evidence_adapter.R",
       "reporting.R",

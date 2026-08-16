@@ -11,6 +11,15 @@ source(
   file.path(
     project_root,
     "R",
+    "biological_evidence_rules.R"
+  ),
+  local = FALSE
+)
+
+source(
+  file.path(
+    project_root,
+    "R",
     "biological_evidence_engine.R"
   ),
   local = FALSE
