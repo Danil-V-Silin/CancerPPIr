@@ -125,3 +125,164 @@ testthat::test_that(
     )
   }
 )
+
+testthat::test_that(
+  "canonical module interpretation is database-primary",
+  {
+    node_metrics <- tibble::tibble(
+      STRING_id = c(
+        "9606.ENSP_TEST1",
+        "9606.ENSP_TEST2",
+        "9606.ENSP_TEST3"
+      ),
+      gene = c(
+        "GENE_TEST_A",
+        "GENE_TEST_B",
+        "GENE_TEST_C"
+      ),
+      community_louvain = c(
+        1L,
+        1L,
+        1L
+      ),
+      candidate_score = c(
+        1,
+        0.8,
+        0.6
+      )
+    )
+
+    module_enrichment <- tibble::tibble(
+      community_louvain = 1L,
+      category = "Biological Process (Gene Ontology)",
+      term = "GO:TEST_DATABASE_PRIMARY",
+      description = "mitotic chromosome segregation",
+      fdr = 0.001,
+      preferred_names =
+        "GENE_TEST_A;GENE_TEST_B"
+    )
+
+    result <- bind_pipeline_evidence(
+      node_metrics = node_metrics,
+      module_enrichment = module_enrichment,
+      fdr_threshold = 0.05
+    )
+
+    module <- result$module_annotations[
+      1L,
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_identical(
+      module$interpretation_class[[1L]],
+      "biological"
+    )
+
+    testthat::expect_identical(
+      module$interpretation_scope[[1L]],
+      "database_enrichment_supported"
+    )
+
+    testthat::expect_identical(
+      module$primary_interpretation[[1L]],
+      "mitotic chromosome segregation"
+    )
+
+    testthat::expect_true(
+      module$priority_eligible[[1L]]
+    )
+
+    testthat::expect_identical(
+      module$positive_marker_genes[[1L]],
+      ""
+    )
+
+    testthat::expect_identical(
+      module$supportive_marker_genes[[1L]],
+      ""
+    )
+
+    testthat::expect_false(
+      module$conflict_detected[[1L]]
+    )
+
+    testthat::expect_true(
+      nrow(result$module_rule_evidence) > 0L
+    )
+
+    testthat::expect_true(
+      all(result$validation$status == "PASS")
+    )
+  }
+)
+
+testthat::test_that(
+  "marker evidence alone cannot define canonical module interpretation",
+  {
+    node_metrics <- tibble::tibble(
+      STRING_id = paste0(
+        "9606.ENSP_MARKER_",
+        seq_len(5L)
+      ),
+      gene = c(
+        "CD3D",
+        "CD3E",
+        "CD3G",
+        "TRAC",
+        "LCK"
+      ),
+      community_louvain = rep(
+        1L,
+        5L
+      ),
+      candidate_score = seq(
+        1,
+        0.6,
+        length.out = 5L
+      )
+    )
+
+    result <- bind_pipeline_evidence(
+      node_metrics = node_metrics,
+      module_enrichment = NULL,
+      fdr_threshold = 0.05
+    )
+
+    module <- result$module_annotations[
+      1L,
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_identical(
+      module$interpretation_class[[1L]],
+      "unresolved"
+    )
+
+    testthat::expect_identical(
+      module$primary_interpretation[[1L]],
+      "unresolved biological context"
+    )
+
+    testthat::expect_false(
+      module$priority_eligible[[1L]]
+    )
+
+    t_cell_rule <- result$module_rule_evidence[
+      result$module_rule_evidence$rule_id ==
+        "T_cell_associated",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_equal(
+      nrow(t_cell_rule),
+      1L
+    )
+
+    testthat::expect_true(
+      t_cell_rule$positive_marker_count[[1L]] >= 2L
+    )
+  }
+)

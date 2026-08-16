@@ -24,8 +24,9 @@ actionability by itself.
 5. Calculates node topology and a five-component exploratory candidate score.
 6. Detects deterministic Louvain modules.
 7. Performs local enrichment from version-pinned STRING v12 resources cached on disk.
-8. Assigns canonical module evidence from marker and statistically significant
-   enrichment support.
+8. Builds canonical module interpretation from statistically significant local
+   STRING enrichment; curated marker-rule evidence is retained as an auxiliary
+   audit layer.
 9. Filters automatic priorities by entity and module eligibility.
 10. Writes analytical, technical, network, manifest, and checksum outputs.
 

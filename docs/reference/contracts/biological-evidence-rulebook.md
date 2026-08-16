@@ -41,3 +41,17 @@ rules.
 It does not claim that the legacy marker sets, thresholds, term patterns or
 scoring weights have been scientifically validated. Source-level scientific
 curation is performed separately in BE-2.
+
+## Canonical decision role
+
+The biological-evidence rulebook is an auxiliary interpretation and audit
+resource. It does not define the canonical biological interpretation of a
+Louvain module and does not determine automatic module or protein priority.
+
+Canonical module interpretation is derived from statistically significant,
+non-generic local STRING enrichment evidence. The complete rule-evidence table
+is retained in technical outputs so that marker-based contextual evidence can
+still be inspected independently.
+
+A module without qualifying STRING/database enrichment remains unresolved
+rather than receiving a marker-rule-derived canonical label.
