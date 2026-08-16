@@ -648,7 +648,6 @@ cancerppir_validate_static_release_contract <- function(
     "tibble",
     "curl",
     "sna",
-    "gprofiler2",
     "jsonlite",
     "digest",
     "testthat"
