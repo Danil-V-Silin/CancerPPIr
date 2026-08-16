@@ -95,13 +95,17 @@ value problem.
 This is the main protein-level audit table. It contains the top network
 candidates plus any additional proteins needed to preserve final priorities.
 
-The score components are reported separately:
+The five normalized base score components are reported separately:
 
 - `degree_component`;
 - `betweenness_component`;
 - `log_stress_component`;
 - `abs_logFC_component`;
 - `statistical_component`.
+
+The first three are averaged into the topology evidence domain. The final
+`candidate_score` is the arithmetic mean of the topology domain,
+`abs_logFC_component`, and `statistical_component`.
 
 `priority_status`, `candidate_eligibility`, `entity_class`, module evidence,
 warning, and rationale explain why a protein is or is not automatically promoted.

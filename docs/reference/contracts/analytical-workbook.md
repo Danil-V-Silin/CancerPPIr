@@ -62,7 +62,7 @@ predicted loci remain visible with their eligibility status and warning.
 
 ## Candidate-score transparency
 
-The workbook exposes the five normalized score components:
+The workbook exposes the five normalized base score components:
 
 - degree;
 - betweenness;
@@ -70,9 +70,14 @@ The workbook exposes the five normalized score components:
 - absolute `logFC`;
 - `-log10(pvalue)`.
 
-All five components must be finite. Their equal-weight row mean must reconstruct
-`candidate_score` within floating-point tolerance; variable-denominator scoring
-is not permitted.
+Degree, betweenness, and log-stress are first averaged into one topology
+domain. `candidate_score` is then the arithmetic mean of the topology domain,
+absolute `logFC`, and statistical evidence, giving equal aggregate weight to
+the three evidence domains.
+
+All five components must be finite. The exposed base components must
+reconstruct `candidate_score` through this two-stage aggregation within
+floating-point tolerance; variable-denominator scoring is not permitted.
 
 ## Biological-evidence policy
 

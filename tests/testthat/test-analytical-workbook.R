@@ -282,7 +282,7 @@ analytical_workbook_test_fixture <- function() {
     stringsAsFactors = FALSE
   )
 
-  node_annotations$candidate_score <- rowMeans(
+  topology_component <- rowMeans(
     cbind(
       minmax(
         node_annotations$degree
@@ -294,15 +294,20 @@ analytical_workbook_test_fixture <- function() {
         log1p(
           node_annotations$stress_centrality
         )
-      ),
+      )
+    )
+  )
+
+  node_annotations$candidate_score <- rowMeans(
+    cbind(
+      topology_component,
       minmax(
         node_annotations$abs_logFC
       ),
       minmax(
         node_annotations$neg_log10_pvalue
       )
-    ),
-    na.rm = TRUE
+    )
   )
 
   module_annotations <- data.frame(

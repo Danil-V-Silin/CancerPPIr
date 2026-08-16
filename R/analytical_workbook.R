@@ -332,17 +332,25 @@ prepare_candidate_table <- function(node_annotations) {
     candidates$neg_log10_pvalue
   )
 
+  candidates$topology_component <- rowMeans(
+    cbind(
+      candidates$degree_component,
+      candidates$betweenness_component,
+      candidates$log_stress_component
+    )
+  )
+
   score_matrix <- cbind(
-    candidates$degree_component,
-    candidates$betweenness_component,
-    candidates$log_stress_component,
-    candidates$abs_logFC_component,
-    candidates$statistical_component
+    topology =
+      candidates$topology_component,
+    expression_magnitude =
+      candidates$abs_logFC_component,
+    statistical_evidence =
+      candidates$statistical_component
   )
 
   candidates$candidate_score_reconstructed <- rowMeans(
-    score_matrix,
-    na.rm = TRUE
+    score_matrix
   )
 
   candidates$score_reconstruction_error <- abs(
@@ -1502,7 +1510,7 @@ build_methods_and_limitations <- function() {
       "Read Executive summary, Final priorities, Module priorities, Candidate evidence, Network overview, then Methods and limitations.",
       "Raw mapping, complete modules, unfiltered enrichment, complete node metrics and validation tables remain in the technical workbook.",
       "candidate_score is an exploratory within-network rank, not a probability or clinical actionability estimate.",
-      "The score is the mean of normalized degree, betweenness, log-transformed stress, absolute logFC and -log10(p-value) components.",
+      "The score is the mean of three equally weighted evidence domains: topology (mean normalized degree, betweenness and log-transformed stress), absolute logFC, and -log10(p-value).",
       "Score values are comparable within the reconstructed case network; cross-patient numerical comparison requires separate calibration.",
       "Automatic final priority requires a review-ready canonical entity in an eligible non-conflicting biological module.",
       "A high rank does not establish druggability, tumor dependency, therapeutic efficacy or expected clinical response.",

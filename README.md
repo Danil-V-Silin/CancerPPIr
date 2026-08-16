@@ -171,10 +171,11 @@ audit how a result was produced. See the
 
 ## Candidate and module interpretation
 
-`candidate_score` is an exploratory within-network ranking that combines
-normalized degree, betweenness, log-transformed stress centrality, absolute
-`logFC`, and `-log10(pvalue)`. Its five components are exposed in `Candidate
-evidence` and GraphML.
+`candidate_score` is an exploratory within-network ranking based on three
+equally weighted evidence domains: network topology, absolute `logFC`, and
+`-log10(pvalue)`. The topology domain is the mean of normalized degree,
+betweenness, and log-transformed stress centrality. All five normalized base
+components remain exposed in `Candidate evidence` and GraphML.
 
 Automatic final priorities require both:
 
