@@ -1372,7 +1372,10 @@ for (case_index in seq_len(
       ]]
 
       required_configuration_tokens <- c(
-        "schema=1.0.0",
+        paste0(
+          "schema=",
+          CANCERPPIR_ANALYTICAL_SCHEMA_VERSION
+        ),
         "STRING=12.0",
         "score_threshold=400",
         "offline_enrichment=TRUE",
