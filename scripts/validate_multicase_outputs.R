@@ -1058,6 +1058,7 @@ for (case_index in seq_len(
       expected_module_priorities <-
         build_module_priorities(
           module_annotations = module_annotations,
+          significant_terms = significant_terms,
           network_nodes = graph_nodes,
           maximum_rows = 5L
         )
@@ -1371,7 +1372,10 @@ for (case_index in seq_len(
       ]]
 
       required_configuration_tokens <- c(
-        "schema=1.0.0",
+        paste0(
+          "schema=",
+          CANCERPPIR_ANALYTICAL_SCHEMA_VERSION
+        ),
         "STRING=12.0",
         "score_threshold=400",
         "offline_enrichment=TRUE",
