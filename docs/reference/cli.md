@@ -28,4 +28,10 @@ are rejected rather than ignored. Invalid integers, fractional values,
 out-of-range thresholds, and unrecognized Boolean values produce a non-zero
 exit status before network analysis begins.
 
+The derived case folder must not already exist. CancerPPIr never overwrites or
+reuses a result folder. Outputs are generated in a sibling staging directory
+and atomically published only after all output and provenance checks pass.
+The input basename is used only to derive the local case-folder name and is not
+written to the output manifest. Use a pseudonymous basename for patient data.
+
 `Rscript cancerppir.R --help` is the executable source of truth.

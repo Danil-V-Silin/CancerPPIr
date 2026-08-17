@@ -195,11 +195,12 @@ serialization. The original statistical evidence remains represented by
 
 ## Manifest and checksums
 
-The output manifest schema is version `1.0.0`. It records the input basename and
-SHA-256, software/runtime metadata, public schema versions, analysis
+The output manifest schema is version `2.0.0`. It records the input SHA-256,
+software/runtime metadata, public schema versions, analysis
 configuration, the versioned scientific input contract, run summary, and hashes
-of the four principal analysis outputs. It intentionally excludes absolute user
-paths.
+of the four principal analysis outputs. It intentionally excludes the original
+input filename and absolute user paths. Manifest `1.0.0` remains supported when
+validating existing results.
 
 The checksum file schema is version `1.0.0`. It hashes the four principal
 outputs and the manifest. It does not hash itself.

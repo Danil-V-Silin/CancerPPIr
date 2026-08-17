@@ -14,9 +14,61 @@ string_enrichment_terms_candidates <- function(cache_dir) {
 }
 
 ##############################################################################
+string_enrichment_terms_file_header_valid <- function(path) {
+  if (
+    length(path) != 1L ||
+      is.na(path) ||
+      !nzchar(path) ||
+      !file.exists(path) ||
+      is.na(file.info(path)$size[[1L]]) ||
+      file.info(path)$size[[1L]] <= 0
+  ) {
+    return(FALSE)
+  }
+
+  if (grepl("\\.gz$", path, ignore.case = TRUE)) {
+    return(
+      cancerppir_string_resource_file_valid(
+        path = path,
+        role = "enrichment_terms"
+      )
+    )
+  }
+
+  connection <- file(
+    path,
+    open = "rt",
+    encoding = "UTF-8"
+  )
+  on.exit(close(connection), add = TRUE)
+
+  header <- tryCatch(
+    readLines(
+      connection,
+      n = 1L,
+      warn = FALSE
+    ),
+    error = function(error) character()
+  )
+
+  length(header) == 1L && identical(
+    header,
+    cancerppir_string_resource_expected_header(
+      "enrichment_terms"
+    )
+  )
+}
+
+##############################################################################
 find_string_enrichment_terms <- function(cache_dir) {
   candidates <- string_enrichment_terms_candidates(cache_dir)
-  candidates <- candidates[file.exists(candidates) & file.info(candidates)$size > 0]
+  candidates <- candidates[
+    vapply(
+      candidates,
+      string_enrichment_terms_file_header_valid,
+      logical(1)
+    )
+  ]
   if (length(candidates)) {
     return(candidates[[1]])
   }
@@ -40,56 +92,73 @@ download_string_enrichment_terms <- function(cache_dir) {
   resource$path[[1L]]
 }
 ##############################################################################
-read_string_enrichment_terms <- function(cache_dir) {
-  path <- download_string_enrichment_terms(cache_dir)
-  if (is.na(path) || !file.exists(path)) {
-    return(tibble())
+read_string_enrichment_terms_file <- function(path) {
+  if (!string_enrichment_terms_file_header_valid(path)) {
+    stop(
+      "Local STRING enrichment terms file has an invalid header or format: ",
+      basename(path),
+      call. = FALSE
+    )
   }
 
-  msg("Reading local STRING enrichment terms from cache.")
   con <- if (grepl("\\.gz$", path, ignore.case = TRUE)) {
-    gzfile(path, open = "rt")
+    gzfile(path, open = "rt", encoding = "UTF-8")
   } else {
     file(path, open = "rt", encoding = "UTF-8")
   }
   on.exit(close(con), add = TRUE)
 
   x <- tryCatch(
-    utils::read.table(
-      con,
-      sep = "\t",
-      header = TRUE,
-      quote = "",
-      comment.char = "",
-      stringsAsFactors = FALSE,
-      check.names = FALSE,
-      fill = TRUE
+    withCallingHandlers(
+      utils::read.table(
+        con,
+        sep = "\t",
+        header = TRUE,
+        quote = "",
+        comment.char = "",
+        stringsAsFactors = FALSE,
+        check.names = FALSE,
+        fill = FALSE
+      ),
+      warning = function(warning) {
+        stop(
+          conditionMessage(warning),
+          call. = FALSE
+        )
+      }
     ),
     error = function(e) {
-      msg("Could not read local STRING enrichment terms: ", conditionMessage(e))
-      NULL
+      stop(
+        "Could not read local STRING enrichment terms file ",
+        basename(path),
+        ": ",
+        conditionMessage(e),
+        call. = FALSE
+      )
     }
   )
 
-  if (is.null(x) || !nrow(x)) {
-    return(tibble())
+  if (!nrow(x)) {
+    stop(
+      "Local STRING enrichment terms file contains no data rows: ",
+      basename(path),
+      call. = FALSE
+    )
   }
 
   names(x) <- gsub("^#", "", names(x))
   names(x) <- trimws(names(x))
 
   required <- c("string_protein_id", "category", "term", "description")
-  if (!all(required %in% names(x))) {
-    if (ncol(x) >= 4L) {
-      msg("Local STRING enrichment file has no standard header; using first four columns as string_protein_id, category, term and description.")
-      names(x)[1:4] <- required
-    } else {
-      msg("Local STRING enrichment file has unexpected columns; local enrichment skipped.")
-      return(tibble())
-    }
+  if (!identical(names(x), required)) {
+    stop(
+      "Local STRING enrichment terms file has an invalid schema: ",
+      basename(path),
+      call. = FALSE
+    )
   }
 
-  as_tibble(x) %>%
+  output <- as_tibble(x) %>%
     select(all_of(required)) %>%
     mutate(
       string_protein_id = as.character(string_protein_id),
@@ -99,6 +168,31 @@ read_string_enrichment_terms <- function(cache_dir) {
     ) %>%
     filter(grepl("^9606\\.", string_protein_id)) %>%
     distinct(string_protein_id, category, term, description)
+
+  if (!nrow(output)) {
+    stop(
+      "Local STRING enrichment terms file contains no human protein rows: ",
+      basename(path),
+      call. = FALSE
+    )
+  }
+
+  output
+}
+
+##############################################################################
+read_string_enrichment_terms <- function(cache_dir) {
+  path <- download_string_enrichment_terms(cache_dir)
+
+  if (is.na(path) || !file.exists(path)) {
+    stop(
+      "Required local STRING enrichment terms file is unavailable.",
+      call. = FALSE
+    )
+  }
+
+  msg("Reading local STRING enrichment terms from cache.")
+  read_string_enrichment_terms_file(path)
 }
 
 ##############################################################################
@@ -131,8 +225,20 @@ run_local_string_enrichment <- function(
     return(tibble())
   }
 
-  background_n <- length(unique(bg_terms$string_protein_id))
+  annotated_background_ids <- unique(
+    as.character(bg_terms$string_protein_id)
+  )
+  query_ids <- intersect(
+    query_ids,
+    annotated_background_ids
+  )
+
+  background_n <- length(annotated_background_ids)
   query_n <- length(query_ids)
+
+  if (query_n < min_query_hits || background_n < 10L) {
+    return(tibble())
+  }
 
   gene_name <- function(ids) {
     ids <- unique(ids)

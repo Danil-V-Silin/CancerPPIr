@@ -9,7 +9,11 @@
 # manifest itself. The checksum file deliberately does not contain its own hash.
 
 CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "1.0.0"
+CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "2.0.0"
+CANCERPPIR_SUPPORTED_OUTPUT_MANIFEST_SCHEMA_VERSIONS <- c(
+  "1.0.0",
+  CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION
+)
 CANCERPPIR_OUTPUT_CHECKSUMS_SCHEMA_VERSION <- "1.0.0"
 
 cancerppir_schema_versions <- function() {
@@ -343,7 +347,6 @@ cancerppir_build_output_manifest <- function(
     schemas = cancerppir_schema_versions(),
     input = c(
       list(
-        file_name = basename(input_file),
         size_bytes = unname(as.numeric(input_info$size)),
         sha256 = cancerppir_sha256_file(input_file)
       ),
@@ -358,9 +361,10 @@ cancerppir_build_output_manifest <- function(
     ),
     privacy = list(
       absolute_paths_in_manifest = FALSE,
+      original_input_file_name_recorded = FALSE,
       path_policy = paste(
-        "Only basenames and non-path metadata are recorded;",
-        "absolute input, cache, project and output paths are excluded."
+        "The original input filename and all absolute input, cache,",
+        "project and output paths are excluded."
       )
     )
   )
@@ -559,14 +563,31 @@ cancerppir_validate_output_provenance <- function(
       use.names = TRUE
     )
 
-    schema_versions_valid <- identical(
-      observed_versions[names(expected_versions)],
-      expected_versions
-    ) &&
+    non_manifest_schemas <- setdiff(
+      names(expected_versions),
+      "output_manifest"
+    )
+
+    observed_manifest_schema <- as.character(
+      manifest$manifest_schema_version
+    )
+
+    observed_registry_manifest_schema <- as.character(
+      manifest$schemas$output_manifest
+    )
+
+    schema_versions_valid <-
       identical(
-        as.character(manifest$manifest_schema_version),
-        CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION
-      )
+        observed_versions[non_manifest_schemas],
+        expected_versions[non_manifest_schemas]
+      ) &&
+      length(observed_manifest_schema) == 1L &&
+      identical(
+        observed_manifest_schema,
+        observed_registry_manifest_schema
+      ) &&
+      observed_manifest_schema %in%
+        CANCERPPIR_SUPPORTED_OUTPUT_MANIFEST_SCHEMA_VERSIONS
   }
 
   add_check(
@@ -821,17 +842,43 @@ cancerppir_validate_output_provenance <- function(
     paste(leaked_paths, collapse = "; ")
   )
 
-  input_name_is_basename <- sections_present &&
-    identical(
-      as.character(manifest$input$file_name),
-      basename(as.character(manifest$input$file_name))
+  input_name_privacy_valid <- FALSE
+
+  if (sections_present) {
+    observed_manifest_schema <- as.character(
+      manifest$manifest_schema_version
     )
 
+    observed_input_name <- as.character(
+      manifest$input$file_name
+    )
+
+    input_name_privacy_valid <- if (
+      identical(observed_manifest_schema, "1.0.0")
+    ) {
+      length(observed_input_name) == 1L &&
+        identical(
+          observed_input_name,
+          basename(observed_input_name)
+        )
+    } else {
+      length(observed_input_name) == 0L &&
+        identical(
+          manifest$privacy$original_input_file_name_recorded,
+          FALSE
+        )
+    }
+  }
+
   add_check(
-    "input_file_name_is_path_free",
-    input_name_is_basename,
+    "input_file_name_privacy_is_valid",
+    input_name_privacy_valid,
     if (sections_present) {
-      as.character(manifest$input$file_name)
+      if (length(observed_input_name) == 0L) {
+        "original input filename not recorded"
+      } else {
+        observed_input_name
+      }
     } else {
       "manifest unavailable"
     }

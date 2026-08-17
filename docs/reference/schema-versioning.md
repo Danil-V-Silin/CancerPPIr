@@ -11,12 +11,12 @@ CancerPPIr versions each public output contract independently.
 | Analytical workbook | `2.0.0` |
 | Technical workbook | `1.0.0` |
 | GraphML | `1.0.0` |
-| Output manifest | `1.0.0` |
+| Output manifest | `2.0.0` |
 | Output checksums | `1.0.0` |
 
-The first public release line starts every public schema at `1.0.0`. Earlier
-superseded development identifiers remain available only through Git history and
-are not public schema versions.
+Most public contracts began at `1.0.0`. The output manifest is now `2.0.0`
+because original input filenames were removed for privacy. Manifest `1.0.0`
+remains supported when validating existing results.
 
 ## Change rules
 

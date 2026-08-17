@@ -20,4 +20,11 @@ The result is written to:
 results/minimal_input/
 ```
 
+The case folder must not already exist. CancerPPIr refuses to overwrite or
+reuse an existing result folder. A successful run is published from a sibling
+staging directory only after its outputs pass validation.
+The original input filename is not written to the output manifest. It still
+determines the local folder name, so patient files should use pseudonymous
+basenames.
+
 The first STRING initialization can require substantial download time and disk space. Subsequent runs reuse the supplied cache directory.
