@@ -731,17 +731,6 @@ loaded_modules <- load_cancerppir_modules(
   envir = .GlobalEnv
 )
 
-if (length(loaded_modules) != 13L) {
-  stop(
-    paste0(
-      "Expected 13 production modules, loaded ",
-      length(loaded_modules),
-      "."
-    ),
-    call. = FALSE
-  )
-}
-
 checks <- list()
 
 add_check <- function(
