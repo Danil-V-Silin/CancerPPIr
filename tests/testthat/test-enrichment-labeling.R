@@ -88,6 +88,51 @@ testthat::test_that("local STRING enrichment works on a synthetic fixture", {
   testthat::expect_true(is.finite(result$fdr[[1]]))
 })
 
+testthat::test_that("local STRING enrichment uses one annotated universe", {
+  background_ids <- paste0("9606.P", seq_len(11L))
+  term_map <- tibble::tibble(
+    string_protein_id = paste0("9606.P", seq_len(10L)),
+    category = "Biological Process (Gene Ontology)",
+    term = c(
+      rep("GO:IMMUNE", 5L),
+      rep("GO:OTHER", 5L)
+    ),
+    description = c(
+      rep("leukocyte migration", 5L),
+      rep("unrelated process", 5L)
+    )
+  )
+
+  result <- run_local_string_enrichment(
+    query_ids = c("9606.P1", "9606.P2", "9606.P11"),
+    background_ids = background_ids,
+    term_map = term_map,
+    query_name = "partly_unannotated_query"
+  )
+
+  expected_pvalue <- stats::phyper(
+    1,
+    5,
+    5,
+    2,
+    lower.tail = FALSE
+  )
+
+  testthat::expect_equal(nrow(result), 1L)
+  testthat::expect_identical(result$query_size[[1L]], 2L)
+  testthat::expect_identical(result$background_size[[1L]], 10L)
+  testthat::expect_equal(result$pvalue[[1L]], expected_pvalue)
+
+  insufficient_query <- run_local_string_enrichment(
+    query_ids = c("9606.P1", "9606.P11"),
+    background_ids = background_ids,
+    term_map = term_map,
+    query_name = "insufficient_annotated_query"
+  )
+
+  testthat::expect_equal(nrow(insufficient_query), 0L)
+})
+
 testthat::test_that("module labeling recognizes curated biological programs", {
   cell_cycle <- label_module_by_markers(
     c("CDK1", "TOP2A", "CDC20", "CCNB1")

@@ -131,8 +131,20 @@ run_local_string_enrichment <- function(
     return(tibble())
   }
 
-  background_n <- length(unique(bg_terms$string_protein_id))
+  annotated_background_ids <- unique(
+    as.character(bg_terms$string_protein_id)
+  )
+  query_ids <- intersect(
+    query_ids,
+    annotated_background_ids
+  )
+
+  background_n <- length(annotated_background_ids)
   query_n <- length(query_ids)
+
+  if (query_n < min_query_hits || background_n < 10L) {
+    return(tibble())
+  }
 
   gene_name <- function(ids) {
     ids <- unique(ids)
