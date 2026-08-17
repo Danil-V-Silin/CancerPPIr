@@ -95,6 +95,28 @@ cancerppir_elapsed_label <- function(
 }
 
 ##############################################################################
+cancerppir_log_has_completion_marker <- function(log_lines) {
+  log_lines <- as.character(log_lines)
+  log_lines <- log_lines[!is.na(log_lines)]
+
+  if (!length(log_lines)) {
+    return(FALSE)
+  }
+
+  any(
+    grepl(
+      paste0(
+        "^\\[CancerPPIr\\]",
+        "(?: \\[\\+[0-9]+:[0-9]{2}:[0-9]{2}\\])?",
+        " Done\\.$"
+      ),
+      log_lines,
+      perl = TRUE
+    )
+  )
+}
+
+##############################################################################
 msg <- function(...) {
   message(
     "[CancerPPIr] ",

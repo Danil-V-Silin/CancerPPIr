@@ -256,6 +256,7 @@ required_project_files <- file.path(
   c(
     "R/load_all.R",
     "scripts/run_unit_tests.R",
+    "scripts/validate_input_contract.R",
     "scripts/validate_multicase_outputs.R",
     "scripts/validate_release_contract.R",
     "scripts/validate_documentation_contract.R",
@@ -401,6 +402,11 @@ unit_test_log_temporary <- tempfile(
   fileext = ".log"
 )
 
+input_contract_log_temporary <- tempfile(
+  pattern = "release_input_contract_",
+  fileext = ".log"
+)
+
 multicase_log_temporary <- tempfile(
   pattern = "release_multicase_",
   fileext = ".log"
@@ -409,11 +415,59 @@ multicase_log_temporary <- tempfile(
 on.exit(
   unlink(
     c(
+      input_contract_log_temporary,
       unit_test_log_temporary,
       multicase_log_temporary
     )
   ),
   add = TRUE
+)
+
+message(
+  "[CancerPPIr release] Validating the strict input contract for all seven cases."
+)
+
+input_contract_arguments <- c(
+  shQuote(
+    file.path(
+      project_root,
+      "scripts",
+      "validate_input_contract.R"
+    )
+  ),
+  vapply(
+    file.path(input_root, case_map$input_file),
+    shQuote,
+    FUN.VALUE = character(1)
+  )
+)
+
+input_contract_status <- system2(
+  command = rscript_command,
+  args = input_contract_arguments,
+  stdout = input_contract_log_temporary,
+  stderr = input_contract_log_temporary,
+  wait = TRUE
+)
+
+if (
+  is.null(input_contract_status) ||
+    is.na(input_contract_status) ||
+    input_contract_status != 0L
+) {
+  stop(
+    paste0(
+      "Seven-case input-contract preflight failed with exit status ",
+      input_contract_status,
+      ".\n\nLog tail:\n",
+      tail_log(input_contract_log_temporary)
+    ),
+    call. = FALSE
+  )
+}
+
+message(
+  "[CancerPPIr release] Seven-case input-contract preflight: PASS."
 )
 
 if (run_tests) {
@@ -693,6 +747,17 @@ output_root <- normalizePath(
   output_root,
   winslash = "/",
   mustWork = TRUE
+)
+
+invisible(
+  file.copy(
+    input_contract_log_temporary,
+    file.path(
+      output_root,
+      "release_input_contract.log"
+    ),
+    overwrite = TRUE
+  )
 )
 
 invisible(
@@ -1381,6 +1446,7 @@ rownames(case_summary) <- NULL
 
 summary_table <- data.frame(
   metric = c(
+    "input_contract",
     "unit_tests",
     "static_release_checks",
     "documentation_checks",
@@ -1390,6 +1456,7 @@ summary_table <- data.frame(
     "execution_mode"
   ),
   value = c(
+    "PASS",
     if (run_tests) "PASS" else "SKIPPED",
     as.character(
       nrow(static_validation)

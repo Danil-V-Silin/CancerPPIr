@@ -162,6 +162,24 @@ testthat::test_that("ranking and text helpers retain qualified behavior", {
   testthat::expect_identical("value" %||% "fallback", "value")
 })
 
+testthat::test_that("pipeline completion markers support legacy and timed logs", {
+  testthat::expect_true(
+    cancerppir_log_has_completion_marker("[CancerPPIr] Done.")
+  )
+
+  testthat::expect_true(
+    cancerppir_log_has_completion_marker(
+      "[CancerPPIr] [+00:03:15] Done."
+    )
+  )
+
+  testthat::expect_false(
+    cancerppir_log_has_completion_marker(
+      "[CancerPPIr] [+00:03:15] Not done."
+    )
+  )
+})
+
 testthat::test_that("candidate score requires five complete finite components", {
   degree <- c(1, 2, 4)
   betweenness <- c(0.1, 0.2, 0.5)
