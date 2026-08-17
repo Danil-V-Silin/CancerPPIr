@@ -4,6 +4,7 @@ testthat::test_that(
     expected_functions <- c(
       "parse_bool",
       "cancerppir_validate_case_id",
+      "cancerppir_schema_versions",
       "read_gene_table",
       "run_local_string_enrichment",
       "label_module_by_markers",
@@ -73,6 +74,7 @@ testthat::test_that(
 
     expected_files <- c(
       "utils.R",
+      "schema_registry.R",
       "input.R",
       "string_mapping.R",
       "enrichment.R",
@@ -124,6 +126,24 @@ testthat::test_that(
         "cancerppir_write_output_provenance",
         envir = isolated_environment,
         inherits = FALSE
+      )
+    )
+  }
+)
+
+testthat::test_that(
+  "public schema registry is centralized and pinned",
+  {
+    testthat::expect_identical(
+      cancerppir_schema_versions(),
+      list(
+        pipeline_result = "1.0.0",
+        biological_evidence = "1.0.0",
+        analytical_workbook = "2.0.0",
+        technical_workbook = "1.0.0",
+        graphml = "1.0.0",
+        output_manifest = "2.1.0",
+        output_checksums = "1.0.0"
       )
     )
   }

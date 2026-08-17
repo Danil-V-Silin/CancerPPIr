@@ -14,6 +14,19 @@ STRING resources or running network analysis.
 
 ## Routine validation
 
+Use the unified quality interface from the repository root:
+
+```bash
+Rscript scripts/run_quality_checks.R fast
+Rscript scripts/run_quality_checks.R full
+```
+
+`fast` runs static, reproducibility, publication and CLI checks without
+unit tests or production cases. `full` adds the complete unit-test suite but
+still does not run the seven-case production regression.
+
+Individual commands remain available for focused diagnosis:
+
 - `run_unit_tests.R` — complete unit and CLI test suite.
 - `run_smoke_test.R` — single-case smoke validation.
 - `validate_documentation_contract.R` — documentation contract.

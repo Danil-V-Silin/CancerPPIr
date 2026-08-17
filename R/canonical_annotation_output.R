@@ -8,9 +8,6 @@
 # migration and audit. They must not drive analytical priorities, GraphML
 # annotation or the canonical public result object.
 
-CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_GRAPHML_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION <- "1.0.0"
 
 CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS <- c(
   "module_direction",

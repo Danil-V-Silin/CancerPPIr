@@ -75,12 +75,17 @@ cancerppir_validate_repository_quality <- function(
     "SECURITY.md",
     "README.md",
     "cancerppir.R",
+    "R/schema_registry.R",
     "renv.lock",
     ".gitattributes",
     ".github/workflows/r-tests.yml",
     ".github/dependabot.yml",
     ".github/CODEOWNERS",
     ".github/pull_request_template.md",
+    "tests/testthat/helper-cancerppir.R",
+    "tests/testthat/test-quality-runner.R",
+    "scripts/README.md",
+    "scripts/run_quality_checks.R",
     "scripts/validate_repository_quality.R",
     "scripts/validate_publication_readiness.R"
   )
@@ -93,6 +98,33 @@ cancerppir_validate_repository_quality <- function(
     "required_repository_files_exist",
     length(missing_files) == 0L,
     missing_files
+  )
+
+  quality_runner_documentation <- c(
+    "scripts/README.md",
+    "CONTRIBUTING.md",
+    ".github/pull_request_template.md"
+  )
+
+  undocumented_quality_runner_files <-
+    quality_runner_documentation[
+      !vapply(
+        quality_runner_documentation,
+        function(path) {
+          grepl(
+            "scripts/run_quality_checks.R",
+            read_utf8(file.path(project_root, path)),
+            fixed = TRUE
+          )
+        },
+        FUN.VALUE = logical(1)
+      )
+    ]
+
+  add_check(
+    "quality_runner_is_documented",
+    length(undocumented_quality_runner_files) == 0L,
+    undocumented_quality_runner_files
   )
 
   version_path <- file.path(project_root, "VERSION")
