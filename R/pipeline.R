@@ -9,7 +9,7 @@
 # End-to-end CancerPPIr workflow
 # -----------------------------------------------------------------------------
 
-cancerppir_prepare_output_staging <- function(
+cancerppir_assert_output_target_available <- function(
   final_output_dir
 ) {
   if (
@@ -34,6 +34,16 @@ cancerppir_prepare_output_staging <- function(
       call. = FALSE
     )
   }
+
+  invisible(final_output_dir)
+}
+
+cancerppir_prepare_output_staging <- function(
+  final_output_dir
+) {
+  cancerppir_assert_output_target_available(
+    final_output_dir
+  )
 
   output_parent <- dirname(final_output_dir)
 
@@ -132,8 +142,89 @@ run_cancerppir <- function(
   cache_dir,
   score_threshold = 400L,
   top_n = 30L,
-  run_enrichment = TRUE
+  run_enrichment = TRUE,
+  case_id = NULL
 ) {
+  previous_progress_start <- getOption(
+    "cancerppir.progress_started_at",
+    default = NULL
+  )
+
+  options(
+    cancerppir.progress_started_at = Sys.time()
+  )
+
+  on.exit(
+    options(
+      cancerppir.progress_started_at =
+        previous_progress_start
+    ),
+    add = TRUE
+  )
+
+  if (!file.exists(input_file)) {
+    stop("Input file not found: ", input_file, call. = FALSE)
+  }
+
+  if (dir.exists(input_file)) {
+    stop("input_file is a directory: ", input_file, call. = FALSE)
+  }
+
+  if (file.exists(results_root) && !dir.exists(results_root)) {
+    stop(
+      "results_root exists and is not a directory: ",
+      results_root,
+      call. = FALSE
+    )
+  }
+
+  if (file.exists(cache_dir) && !dir.exists(cache_dir)) {
+    stop(
+      "cache_dir exists and is not a directory: ",
+      cache_dir,
+      call. = FALSE
+    )
+  }
+
+  case_identity <- cancerppir_resolve_case_id(
+    input_file = input_file,
+    case_id = case_id
+  )
+
+  case_id <- case_identity$value
+  case_id_source <- case_identity$source
+
+  final_output_dir <- cancerppir_resolve_output_directory(
+    results_root = results_root,
+    case_id = case_id,
+    preserve_legacy_variant_redirect = identical(
+      case_id_source,
+      "legacy_input_basename"
+    )
+  )
+
+  msg(
+    "Case ID: ",
+    case_id,
+    " (",
+    case_id_source,
+    ")."
+  )
+  msg("Planned output directory: ", final_output_dir)
+
+  if (identical(case_id_source, "legacy_input_basename")) {
+    msg(
+      paste(
+        "No explicit case_id was supplied; the output folder is derived",
+        "from the input basename. Use a pseudonymous case_id for patient data."
+      )
+    )
+  }
+
+  cancerppir_assert_output_target_available(
+    final_output_dir
+  )
+
   required_cran <- c(
     "HGNChelper", "igraph", "openxlsx", "dplyr", "tibble", "curl", "sna",
     "jsonlite", "digest"
@@ -153,38 +244,7 @@ run_cancerppir <- function(
     library(curl)
   })
 
-  # Derive output directory from the input filename. This prevents accidental creation
-  # of many variant folders such as Genes_R_CancerPPIr_offline_v7. The target folder is
-  # always <results_root>/<input_basename_without_extension>, unless the user already
-  # passes exactly that folder as the second argument.
-  sample_name <- tools::file_path_sans_ext(basename(input_file))
-  sample_name <- gsub("[<>:\"/\\|?*]+", "_", sample_name)
-  sample_name <- trimws(sample_name)
-  if (!nzchar(sample_name)) {
-    stop("Could not derive a valid sample name from input file: ", input_file, call. = FALSE)
-  }
-
-
-  results_root_cmp <- normalize_path_for_compare(results_root)
-  results_root_base <- basename(results_root_cmp)
-  results_root_parent <- dirname(results_root_cmp)
-
-  if (identical(results_root_base, sample_name)) {
-    final_output_dir <- results_root
-  } else if (startsWith(results_root_base, paste0(sample_name, "_")) &&
-             basename(results_root_parent) %in% c("results", "result", "reults")) {
-    # Backward-safety: if a previous command used results/Genes_R_variant as output,
-    # redirect to the canonical patient folder results/Genes_R.
-    final_output_dir <- file.path(results_root_parent, sample_name)
-  } else {
-    final_output_dir <- file.path(results_root, sample_name)
-  }
-
   enrichment_mode <- "local_STRING_cache"
-
-  if (!file.exists(input_file)) {
-    stop("Input file not found: ", input_file, call. = FALSE)
-  }
 
   score_threshold_numeric <- suppressWarnings(as.numeric(score_threshold))
   if (
@@ -257,7 +317,7 @@ run_cancerppir <- function(
   }
 
 
-  msg("Reading and validating input table.")
+  msg("Stage 1/8: reading and validating the input table.")
   input_tbl <- read_gene_table(input_file)
   input_contract <- attr(
     input_tbl,
@@ -272,7 +332,7 @@ run_cancerppir <- function(
     )
   }
 
-  msg("Checking gene symbols.")
+  msg("Stage 2/8: normalizing HGNC gene symbols.")
   hgnc_map <- HGNChelper::checkGeneSymbols(
     unique(input_tbl$gene),
     species = "human",
@@ -295,7 +355,7 @@ run_cancerppir <- function(
     stop("No rows remained after gene-symbol normalization.", call. = FALSE)
   }
 
-  msg("Preparing pinned STRING v12 network resources and local STRINGdb.")
+  msg("Stage 3/8: preparing pinned STRING v12 resources.")
   string_db <- create_offline_stringdb(
     cache_dir = cache_dir,
     score_threshold = score_threshold,
@@ -305,7 +365,7 @@ run_cancerppir <- function(
     link_data = "combined_only"
   )
 
-  msg("Mapping genes to STRING identifiers.")
+  msg("Stage 4/8: mapping genes to STRING identifiers.")
   mapped_initial <- map_to_string(string_db, input_tbl, "gene", removeUnmappedRows = FALSE)
 
   initial_total <- nrow(mapped_initial)
@@ -442,6 +502,8 @@ run_cancerppir <- function(
   after_unmapped <- after_total - after_mapped
   after_pct <- round(100 * after_mapped / after_total, 1)
 
+  msg("Stage 5/8: reconstructing and measuring the PPI network.")
+
   network_analysis <- run_network_analysis(
     string_db = string_db,
     mapped_final = mapped_final,
@@ -486,8 +548,12 @@ run_cancerppir <- function(
   module_enrichment_string_local <- tibble()
   local_string_terms <- tibble()
 
+  msg(
+    "Stage 6/8: computing functional enrichment and biological evidence."
+  )
+
   if (isTRUE(run_enrichment)) {
-    msg("Running functional enrichment analysis.")
+    msg("Running local functional enrichment.")
     id_to_gene <- setNames(node_metrics$gene, node_metrics$STRING_id)
     local_string_terms <- read_string_enrichment_terms(cache_dir)
     if (nrow(local_string_terms)) {
@@ -619,7 +685,7 @@ run_cancerppir <- function(
   top_by_stress <- node_metrics %>%
     arrange(desc(stress_centrality), desc(candidate_score), desc(degree)) %>%
     slice_head(n = top_n)
-  msg("Writing consolidated output files.")
+  msg("Constructing biological evidence tables.")
 
   # -----------------------------------------------------------------------------
   # Human-readable output layer
@@ -1172,6 +1238,8 @@ run_cancerppir <- function(
   # Main analytical workbook ------------------------------------------------------
   # The concise six-sheet workbook is built only from the deterministic CancerPPIr
   # evidence objects. Complete pre-canonical/raw tables remain in the technical workbook.
+  msg("Stage 7/8: writing and validating reports and GraphML.")
+
   analytical_report <- build_analytical_workbook(
     input_rows = nrow(input_tbl),
     mapped_proteins = nrow(mapped_final),
@@ -1282,7 +1350,7 @@ run_cancerppir <- function(
   # The manifest records only basenames and non-path metadata. It includes
   # checksums for the four principal outputs. The separate checksum file also
   # authenticates the manifest itself and deliberately omits its own hash.
-  msg("Writing output manifest and SHA-256 checksums.")
+  msg("Stage 8/8: writing provenance and publishing outputs.")
 
   primary_output_files <- c(
     analytical_report = file.path(
@@ -1320,6 +1388,14 @@ run_cancerppir <- function(
       graphml = CANCERPPIR_GRAPHML_SCHEMA_VERSION
     ),
     input_summary = list(
+      case_id = if (
+        identical(case_id_source, "explicit_case_id")
+      ) {
+        case_id
+      } else {
+        "not_recorded"
+      },
+      case_id_source = case_id_source,
       input_rows = nrow(input_tbl),
       normalized_unique_genes = length(unique(input_tbl$gene)),
       mapped_input_rows = after_mapped,
@@ -1404,6 +1480,7 @@ run_cancerppir <- function(
   )
 
   msg("Done.")
+  msg("Case ID: ", case_id)
   msg("Output directory: ", normalizePath(output_dir))
   msg("Mapped genes: ", after_mapped, "/", after_total, " (", after_pct, "%)")
   msg("Network: ", igraph::gorder(ppi), " nodes, ", igraph::gsize(ppi), " edges, ", comp$no, " components")

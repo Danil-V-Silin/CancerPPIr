@@ -1,8 +1,9 @@
 # CLI contract
 
 ```text
-Rscript cancerppir.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment]
+Rscript cancerppir.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment] [--case-id ID]
 Rscript cancerppir.R --help
+Rscript cancerppir.R --version
 ```
 
 | Position | Argument | Requirement |
@@ -13,6 +14,9 @@ Rscript cancerppir.R --help
 | 4 | `score_threshold` | Optional integer from `1` to `1000`; default `400` |
 | 5 | `top_n` | Optional positive integer; default `30` |
 | 6 | `run_enrichment` | Optional `TRUE` or `FALSE`; default `TRUE` |
+
+Named option: `--case-id ID` sets a pseudonymous identifier containing 1-64
+safe ASCII characters. `--case-id=ID` is also accepted.
 
 ## Input preflight
 
@@ -28,10 +32,20 @@ are rejected rather than ignored. Invalid integers, fractional values,
 out-of-range thresholds, and unrecognized Boolean values produce a non-zero
 exit status before network analysis begins.
 
-The derived case folder must not already exist. CancerPPIr never overwrites or
-reuses a result folder. Outputs are generated in a sibling staging directory
-and atomically published only after all output and provenance checks pass.
-The input basename is used only to derive the local case-folder name and is not
-written to the output manifest. Use a pseudonymous basename for patient data.
+The `case_id` must start with a letter or digit and may contain only ASCII
+letters, digits, `.`, `_` and `-`; it must not end in `.` or use a reserved
+Windows device name. It determines the case-folder name and is the recommended
+privacy-safe interface for patient data. If it is omitted,
+CancerPPIr retains the legacy input-basename behavior and prints a reminder.
 
-`Rscript cancerppir.R --help` is the executable source of truth.
+The case folder must not already exist. CancerPPIr never overwrites or reuses a
+result folder. Outputs are generated in a sibling staging directory and
+atomically published only after all output and provenance checks pass. Progress
+messages show the current stage and elapsed run time.
+
+For an intentional rerun, choose a new pseudonymous ID such as `DEMO01_run2` or
+move the previous case folder first. CancerPPIr deliberately has no implicit
+overwrite mode.
+
+`Rscript cancerppir.R --help` is the executable source of truth; `--version`
+prints the program version and exits without starting an analysis.

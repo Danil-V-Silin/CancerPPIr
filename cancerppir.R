@@ -56,16 +56,23 @@ rm(
   "CancerPPIr",
   "",
   "Usage:",
-  "  Rscript cancerppir.R input.csv results_dir string_cache [score_threshold] [top_n] [run_enrichment]",
+  paste(
+    "  Rscript cancerppir.R input.csv results_dir string_cache",
+    "[score_threshold] [top_n] [run_enrichment] [--case-id ID]"
+  ),
   "  Rscript cancerppir.R --help",
+  "  Rscript cancerppir.R --version",
   "",
   "Defaults:",
   "  score_threshold = 400 (integer, 1-1000)",
   "  top_n = 30 (positive integer)",
   "  run_enrichment = TRUE or FALSE (offline local STRING enrichment)",
+  "  case_id = optional pseudonymous ID (1-64 safe ASCII characters)",
   "",
   "Output folder:",
-  "  input.csv + results_dir=results -> results/input/",
+  "  case_id=DEMO01 + results_dir=results -> results/DEMO01/",
+  "  Existing output folders are never overwritten.",
+  "  If case_id is omitted, the legacy input-basename behavior is used.",
   "",
   "Principal output files:",
   "  CancerPPIr_Analytical_Report.xlsx",
@@ -76,7 +83,10 @@ rm(
   "  CancerPPIr_Output_Checksums.sha256",
   "",
   "Example:",
-  "  Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE",
+  paste(
+    "  Rscript cancerppir.R examples/minimal_input.csv results string_cache",
+    "400 30 TRUE --case-id DEMO01"
+  ),
   sep = "\n"
 )
 
@@ -86,6 +96,81 @@ if (length(args) == 1L && args[[1L]] %in% c("--help", "-h")) {
   cat(.cancerppir_usage_text, "\n")
   quit(save = "no", status = 0L)
 }
+
+if (length(args) == 1L && args[[1L]] %in% c("--version", "-V")) {
+  project_root <- getOption(
+    "cancerppir.project_root",
+    default = "."
+  )
+  version_file <- file.path(project_root, "VERSION")
+
+  version <- if (file.exists(version_file)) {
+    trimws(
+      readLines(
+        version_file,
+        n = 1L,
+        warn = FALSE,
+        encoding = "UTF-8"
+      )
+    )
+  } else {
+    "unknown"
+  }
+
+  cat("CancerPPIr ", version, "\n", sep = "")
+  quit(save = "no", status = 0L)
+}
+
+.cancerppir_extract_case_id <- function(arguments) {
+  equals_indices <- grep(
+    "^--case-id=",
+    arguments
+  )
+  separate_indices <- which(
+    arguments == "--case-id"
+  )
+
+  if (length(c(equals_indices, separate_indices)) > 1L) {
+    stop("--case-id may be supplied only once.", call. = FALSE)
+  }
+
+  if (!length(c(equals_indices, separate_indices))) {
+    return(
+      list(
+        arguments = arguments,
+        case_id = NULL
+      )
+    )
+  }
+
+  if (length(equals_indices) == 1L) {
+    index <- equals_indices[[1L]]
+    case_id <- sub(
+      "^--case-id=",
+      "",
+      arguments[[index]]
+    )
+    arguments <- arguments[-index]
+  } else {
+    index <- separate_indices[[1L]]
+
+    if (index == length(arguments)) {
+      stop("--case-id requires a value.", call. = FALSE)
+    }
+
+    case_id <- arguments[[index + 1L]]
+    arguments <- arguments[-c(index, index + 1L)]
+  }
+
+  list(
+    arguments = arguments,
+    case_id = cancerppir_validate_case_id(case_id)
+  )
+}
+
+case_id_option <- .cancerppir_extract_case_id(args)
+args <- case_id_option$arguments
+case_id <- case_id_option$case_id
 
 if (length(args) < 3L) {
   stop(.cancerppir_usage_text, call. = FALSE)
@@ -181,6 +266,7 @@ invisible(
     cache_dir = cache_dir,
     score_threshold = score_threshold,
     top_n = top_n,
-    run_enrichment = run_enrichment
+    run_enrichment = run_enrichment,
+    case_id = case_id
   )
 )

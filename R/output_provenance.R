@@ -9,9 +9,10 @@
 # manifest itself. The checksum file deliberately does not contain its own hash.
 
 CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "2.0.0"
+CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "2.1.0"
 CANCERPPIR_SUPPORTED_OUTPUT_MANIFEST_SCHEMA_VERSIONS <- c(
   "1.0.0",
+  "2.0.0",
   CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION
 )
 CANCERPPIR_OUTPUT_CHECKSUMS_SCHEMA_VERSION <- "1.0.0"
@@ -316,6 +317,48 @@ cancerppir_build_output_manifest <- function(
     stop(
       "Input file does not exist: ",
       input_file,
+      call. = FALSE
+    )
+  }
+
+  case_id_present <- "case_id" %in% names(input_summary)
+  case_id_source_present <-
+    "case_id_source" %in% names(input_summary)
+
+  if (!case_id_present && !case_id_source_present) {
+    input_summary$case_id <- "not_recorded"
+    input_summary$case_id_source <-
+      "legacy_input_basename"
+  } else if (xor(case_id_present, case_id_source_present)) {
+    stop(
+      paste(
+        "input_summary must provide case_id and case_id_source",
+        "together or omit both."
+      ),
+      call. = FALSE
+    )
+  }
+
+  if (identical(input_summary$case_id_source, "explicit_case_id")) {
+    cancerppir_validate_case_id(input_summary$case_id)
+  } else if (
+    identical(
+      input_summary$case_id_source,
+      "legacy_input_basename"
+    )
+  ) {
+    if (!identical(input_summary$case_id, "not_recorded")) {
+      stop(
+        paste(
+          "Legacy input-basename identity must use",
+          "case_id='not_recorded'."
+        ),
+        call. = FALSE
+      )
+    }
+  } else {
+    stop(
+      "Unsupported case_id_source in input_summary.",
       call. = FALSE
     )
   }
@@ -882,6 +925,68 @@ cancerppir_validate_output_provenance <- function(
     } else {
       "manifest unavailable"
     }
+  )
+
+  case_id_privacy_valid <- FALSE
+  case_id_details <- "manifest unavailable"
+
+  if (sections_present) {
+    observed_manifest_schema <- as.character(
+      manifest$manifest_schema_version
+    )
+    observed_case_id <- as.character(
+      manifest$input$case_id
+    )
+    observed_case_id_source <- as.character(
+      manifest$input$case_id_source
+    )
+
+    if (
+      length(observed_manifest_schema) == 1L &&
+        observed_manifest_schema %in% c("1.0.0", "2.0.0")
+    ) {
+      case_id_privacy_valid <-
+        length(observed_case_id) == 0L &&
+        length(observed_case_id_source) == 0L
+    } else if (
+      identical(
+        observed_case_id_source,
+        "explicit_case_id"
+      )
+    ) {
+      case_id_privacy_valid <- tryCatch(
+        {
+          cancerppir_validate_case_id(observed_case_id)
+          TRUE
+        },
+        error = function(error) FALSE
+      )
+    } else if (
+      identical(
+        observed_case_id_source,
+        "legacy_input_basename"
+      )
+    ) {
+      case_id_privacy_valid <- identical(
+        observed_case_id,
+        "not_recorded"
+      )
+    }
+
+    case_id_details <- paste0(
+      "schema=",
+      observed_manifest_schema,
+      "; source=",
+      paste(observed_case_id_source, collapse = ""),
+      "; case_id=",
+      paste(observed_case_id, collapse = "")
+    )
+  }
+
+  add_check(
+    "case_id_privacy_is_valid",
+    case_id_privacy_valid,
+    case_id_details
   )
 
   validation <- do.call(rbind, checks)

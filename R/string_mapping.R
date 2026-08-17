@@ -525,6 +525,15 @@ cancerppir_ensure_string_v12_resources <- function(
       )
     }
 
+    msg(
+      paste(
+        "Validating the complete downloaded STRING resource;",
+        "large files can take several minutes:"
+      ),
+      " ",
+      resource$filename[[1L]]
+    )
+
     if (!cancerppir_string_resource_file_valid(
       path = partial,
       role = role,

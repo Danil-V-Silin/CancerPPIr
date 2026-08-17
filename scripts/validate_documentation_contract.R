@@ -155,7 +155,7 @@ cancerppir_validate_documentation_contract <- function(
     analytical_workbook = "2.0.0",
     technical_workbook = "1.0.0",
     graphml = "1.0.0",
-    output_manifest = "2.0.0",
+    output_manifest = "2.1.0",
     output_checksums = "1.0.0"
   )
   reproducibility_text <- read_utf8("docs/user-guide/reproducibility.md")
@@ -283,7 +283,9 @@ cancerppir_validate_documentation_contract <- function(
   add_check(
     "cli_help_contract_is_present",
     grepl("--help", cli_text, fixed = TRUE) &&
+      grepl("--version", cli_text, fixed = TRUE) &&
       grepl("Rscript cancerppir.R", cli_text, fixed = TRUE) &&
+      grepl("case_id", cli_text, fixed = TRUE) &&
       all(vapply(required_output_files, grepl, x = cli_text, fixed = TRUE, FUN.VALUE = logical(1))),
     "CLI must expose current invocation and output inventory."
   )

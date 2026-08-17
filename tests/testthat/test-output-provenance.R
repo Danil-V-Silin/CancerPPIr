@@ -9,7 +9,7 @@ testthat::test_that(
         analytical_workbook = "2.0.0",
         technical_workbook = "1.0.0",
         graphml = "1.0.0",
-        output_manifest = "2.0.0",
+        output_manifest = "2.1.0",
         output_checksums = "1.0.0"
       )
     )
@@ -92,6 +92,8 @@ testthat::test_that(
         graphml = "1.0.0"
       ),
       input_summary = list(
+        case_id = "A01",
+        case_id_source = "explicit_case_id",
         input_rows = 1L,
         normalized_unique_genes = 1L,
         mapped_input_rows = 1L,
@@ -158,6 +160,16 @@ testthat::test_that(
     )
 
     testthat::expect_identical(
+      manifest$input$case_id,
+      "A01"
+    )
+
+    testthat::expect_identical(
+      manifest$input$case_id_source,
+      "explicit_case_id"
+    )
+
+    testthat::expect_identical(
       manifest$input$sha256,
       cancerppir_sha256_file(input_file)
     )
@@ -219,9 +231,82 @@ testthat::test_that(
         checksum_table$file_name
     )
 
+    current_legacy_manifest <- manifest
+    current_legacy_manifest$input$case_id <- "not_recorded"
+    current_legacy_manifest$input$case_id_source <-
+      "legacy_input_basename"
+
+    jsonlite::write_json(
+      current_legacy_manifest,
+      path = provenance$manifest_file,
+      pretty = TRUE,
+      auto_unbox = TRUE,
+      null = "null",
+      na = "null",
+      digits = NA
+    )
+
+    cancerppir_write_checksum_file(
+      files = c(
+        output_files,
+        output_manifest = provenance$manifest_file
+      ),
+      path = provenance$checksums_file
+    )
+
+    current_legacy_validation <-
+      cancerppir_validate_output_provenance(
+        manifest_file = provenance$manifest_file,
+        checksums_file = provenance$checksums_file,
+        output_dir = fixture_dir,
+        forbidden_paths = fixture_dir
+      )
+
+    testthat::expect_true(
+      all(current_legacy_validation$status == "PASS")
+    )
+
+    schema_2_manifest <- manifest
+    schema_2_manifest$manifest_schema_version <- "2.0.0"
+    schema_2_manifest$schemas$output_manifest <- "2.0.0"
+    schema_2_manifest$input$case_id <- NULL
+    schema_2_manifest$input$case_id_source <- NULL
+
+    jsonlite::write_json(
+      schema_2_manifest,
+      path = provenance$manifest_file,
+      pretty = TRUE,
+      auto_unbox = TRUE,
+      null = "null",
+      na = "null",
+      digits = NA
+    )
+
+    cancerppir_write_checksum_file(
+      files = c(
+        output_files,
+        output_manifest = provenance$manifest_file
+      ),
+      path = provenance$checksums_file
+    )
+
+    schema_2_validation <-
+      cancerppir_validate_output_provenance(
+        manifest_file = provenance$manifest_file,
+        checksums_file = provenance$checksums_file,
+        output_dir = fixture_dir,
+        forbidden_paths = fixture_dir
+      )
+
+    testthat::expect_true(
+      all(schema_2_validation$status == "PASS")
+    )
+
     legacy_manifest <- manifest
     legacy_manifest$manifest_schema_version <- "1.0.0"
     legacy_manifest$schemas$output_manifest <- "1.0.0"
+    legacy_manifest$input$case_id <- NULL
+    legacy_manifest$input$case_id_source <- NULL
     legacy_manifest$input$file_name <- basename(input_file)
     legacy_manifest$privacy$original_input_file_name_recorded <- NULL
 
@@ -312,6 +397,16 @@ testthat::test_that(
       run_summary = list(nodes = 1L),
       project_root = fixture_dir,
       forbidden_paths = fixture_dir
+    )
+
+    testthat::expect_identical(
+      provenance$manifest$input$case_id,
+      "not_recorded"
+    )
+
+    testthat::expect_identical(
+      provenance$manifest$input$case_id_source,
+      "legacy_input_basename"
     )
 
     cat(

@@ -54,7 +54,160 @@ normalize_path_for_compare <- function(x) {
 }
 
 ##############################################################################
-msg <- function(...) message("[CancerPPIr] ", ...)
+cancerppir_elapsed_label <- function(
+  started_at = getOption(
+    "cancerppir.progress_started_at",
+    default = NULL
+  )
+) {
+  if (
+    is.null(started_at) ||
+      length(started_at) != 1L ||
+      is.na(started_at) ||
+      !inherits(started_at, "POSIXt")
+  ) {
+    return("")
+  }
+
+  elapsed_seconds <- max(
+    0,
+    floor(
+      as.numeric(
+        difftime(
+          Sys.time(),
+          started_at,
+          units = "secs"
+        )
+      )
+    )
+  )
+
+  hours <- elapsed_seconds %/% 3600L
+  minutes <- (elapsed_seconds %% 3600L) %/% 60L
+  seconds <- elapsed_seconds %% 60L
+
+  sprintf(
+    "[+%02d:%02d:%02d] ",
+    hours,
+    minutes,
+    seconds
+  )
+}
+
+##############################################################################
+msg <- function(...) {
+  message(
+    "[CancerPPIr] ",
+    cancerppir_elapsed_label(),
+    ...
+  )
+}
+
+##############################################################################
+cancerppir_validate_case_id <- function(case_id) {
+  case_id <- as.character(case_id)
+
+  valid <- length(case_id) == 1L &&
+    !is.na(case_id) &&
+    grepl(
+      "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+      case_id
+    ) &&
+    !grepl("\\.$", case_id)
+
+  windows_device_name <- if (isTRUE(valid)) {
+    toupper(sub("\\..*$", "", case_id)) %in%
+      c(
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        paste0("COM", 1:9),
+        paste0("LPT", 1:9)
+      )
+  } else {
+    FALSE
+  }
+
+  valid <- isTRUE(valid) && !windows_device_name
+
+  if (!isTRUE(valid)) {
+    stop(
+      paste(
+        "case_id must contain 1-64 ASCII characters, start with a",
+        "letter or digit, use only letters, digits, '.', '_' or '-',",
+        "not end in '.', and not use a reserved Windows device name."
+      ),
+      call. = FALSE
+    )
+  }
+
+  case_id
+}
+
+##############################################################################
+cancerppir_resolve_case_id <- function(
+  input_file,
+  case_id = NULL
+) {
+  if (!is.null(case_id)) {
+    return(
+      list(
+        value = cancerppir_validate_case_id(case_id),
+        source = "explicit_case_id"
+      )
+    )
+  }
+
+  derived <- tools::file_path_sans_ext(
+    basename(input_file)
+  )
+  derived <- gsub("[<>:\"/\\|?*]+", "_", derived)
+  derived <- trimws(derived)
+
+  if (!nzchar(derived) || derived %in% c(".", "..")) {
+    stop(
+      paste(
+        "Could not derive a valid case ID from the input filename.",
+        "Supply an explicit pseudonymous case_id."
+      ),
+      call. = FALSE
+    )
+  }
+
+  list(
+    value = derived,
+    source = "legacy_input_basename"
+  )
+}
+
+##############################################################################
+cancerppir_resolve_output_directory <- function(
+  results_root,
+  case_id,
+  preserve_legacy_variant_redirect = FALSE
+) {
+  results_root_cmp <- normalize_path_for_compare(
+    results_root
+  )
+  results_root_base <- basename(results_root_cmp)
+  results_root_parent <- dirname(results_root_cmp)
+
+  if (identical(results_root_base, case_id)) {
+    return(results_root)
+  }
+
+  if (
+    isTRUE(preserve_legacy_variant_redirect) &&
+      startsWith(results_root_base, paste0(case_id, "_")) &&
+      basename(results_root_parent) %in%
+        c("results", "result", "reults")
+  ) {
+    return(file.path(results_root_parent, case_id))
+  }
+
+  file.path(results_root, case_id)
+}
 
 ##############################################################################
 as_number <- function(x) {
@@ -197,4 +350,3 @@ metric_value <- function(tbl, metric_name) {
   }
   as.character(tbl$value[[idx]])
 }
-
