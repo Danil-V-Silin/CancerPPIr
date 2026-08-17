@@ -1127,12 +1127,8 @@ for (case_index in seq_len(
     encoding = "UTF-8"
   )
 
-  pipeline_done <- any(
-    grepl(
-      "[CancerPPIr] Done.",
-      log_lines,
-      fixed = TRUE
-    )
+  pipeline_done <- cancerppir_log_has_completion_marker(
+    log_lines
   )
 
   internal_validation <- expected_evidence$validation

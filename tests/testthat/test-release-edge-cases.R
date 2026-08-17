@@ -196,6 +196,47 @@ testthat::test_that(
 )
 
 testthat::test_that(
+  "release qualification validates inputs before tests or cases",
+  {
+    project_root <- Sys.getenv("CANCERPPIR_PROJECT_ROOT")
+    testthat::expect_true(nzchar(project_root))
+
+    release_text <- paste(
+      readLines(
+        file.path(
+          project_root,
+          "scripts",
+          "run_release_qualification.R"
+        ),
+        warn = FALSE,
+        encoding = "UTF-8"
+      ),
+      collapse = "\n"
+    )
+
+    input_position <- regexpr(
+      "Validating the strict input contract for all seven cases.",
+      release_text,
+      fixed = TRUE
+    )[[1L]]
+
+    unit_position <- regexpr(
+      "Running the complete unit-test suite once.",
+      release_text,
+      fixed = TRUE
+    )[[1L]]
+
+    testthat::expect_gt(input_position, 0L)
+    testthat::expect_gt(unit_position, input_position)
+    testthat::expect_match(
+      release_text,
+      "validate_input_contract.R",
+      fixed = TRUE
+    )
+  }
+)
+
+testthat::test_that(
   "release edge case: zero p-values remain finite and parser-safe in GraphML",
   {
     safe <- prepare_graphml_pvalue_export(

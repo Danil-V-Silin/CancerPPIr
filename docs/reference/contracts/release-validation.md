@@ -4,7 +4,9 @@
 
 The release qualification is the single production qualification gate for a
 CancerPPIr release candidate. It runs repository preflight checks, one complete
-unit-test suite, and one seven-case production regression.
+unit-test suite, and one seven-case production regression. Before any tests or
+production cases start, all seven inputs must pass the strict scientific input
+contract.
 
 ## Command
 
@@ -46,6 +48,10 @@ The qualification requires all static release, documentation, publication
 readiness, reproducible-environment, repository-quality, and CLI checks to pass
 before the seven-case run begins.
 
+The input-contract preflight validates all seven files together and fails before
+unit tests or case execution if any file is incomplete, malformed, ambiguous, or
+contains duplicate gene symbols.
+
 ## Release evidence
 
 The output root contains:
@@ -54,6 +60,7 @@ The output root contains:
 - `release_case_summary.csv`
 - `release_validation.csv`
 - `release_preflight_validation.csv`
+- `release_input_contract.log`
 - `release_unit_tests.log`
 - `release_multicase.log`
 
