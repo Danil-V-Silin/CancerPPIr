@@ -18,6 +18,7 @@ load_cancerppir_modules <- function(
     "R",
     c(
       "utils.R",
+      "schema_registry.R",
       "input.R",
       "string_mapping.R",
       "enrichment.R",
@@ -80,4 +81,3 @@ load_cancerppir_modules <- function(
 
   invisible(normalized_paths)
 }
-

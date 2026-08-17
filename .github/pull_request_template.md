@@ -13,10 +13,8 @@ Describe the problem and the exact scope of the proposed change.
 
 ## Validation
 
-- [ ] `Rscript scripts/validate_repository_quality.R`
-- [ ] `Rscript scripts/run_unit_tests.R`
-- [ ] `Rscript scripts/validate_publication_readiness.R`
-- [ ] `git diff --check`
+- [ ] `Rscript scripts/run_quality_checks.R full`
+- [ ] Seven-case qualification was run when analytically required, or its omission is justified
 - [ ] Public documentation was updated when required
 - [ ] No patient-identifiable or restricted clinical data were added
 

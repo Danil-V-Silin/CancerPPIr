@@ -8,27 +8,6 @@
 # The separate SHA-256 file contains checksums for those outputs plus the JSON
 # manifest itself. The checksum file deliberately does not contain its own hash.
 
-CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "2.1.0"
-CANCERPPIR_SUPPORTED_OUTPUT_MANIFEST_SCHEMA_VERSIONS <- c(
-  "1.0.0",
-  "2.0.0",
-  CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION
-)
-CANCERPPIR_OUTPUT_CHECKSUMS_SCHEMA_VERSION <- "1.0.0"
-
-cancerppir_schema_versions <- function() {
-  list(
-    pipeline_result = CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION,
-    biological_evidence = CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION,
-    analytical_workbook = CANCERPPIR_ANALYTICAL_SCHEMA_VERSION,
-    technical_workbook = CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION,
-    graphml = CANCERPPIR_GRAPHML_SCHEMA_VERSION,
-    output_manifest = CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION,
-    output_checksums = CANCERPPIR_OUTPUT_CHECKSUMS_SCHEMA_VERSION
-  )
-}
-
 cancerppir_sha256_file <- function(path) {
   if (!requireNamespace("digest", quietly = TRUE)) {
     stop(

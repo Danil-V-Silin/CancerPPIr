@@ -59,13 +59,19 @@ Do not combine a path-only refactor with an analytical behavior change.
 
 ## Validation
 
-Run from the repository root:
+Run the fast checks during development:
 
 ```bash
-Rscript scripts/run_unit_tests.R
-Rscript scripts/validate_publication_readiness.R
-Rscript cancerppir.R --help
+Rscript scripts/run_quality_checks.R fast
 ```
+
+Before opening a pull request, run the complete local quality gate:
+
+```bash
+Rscript scripts/run_quality_checks.R full
+```
+
+Neither mode runs the seven-case production regression.
 
 A full seven-case regression is required when analytical behavior or a public
 output contract can change. Routine documentation and path-only changes do not
@@ -76,10 +82,7 @@ require recomputing the seven clinical networks.
 Before opening a pull request, run:
 
 ```text
-Rscript scripts/validate_repository_quality.R
-Rscript scripts/run_unit_tests.R
-Rscript scripts/validate_publication_readiness.R
-git diff --check
+Rscript scripts/run_quality_checks.R full
 ```
 
 Pull requests must state whether they affect analytical behavior, public
