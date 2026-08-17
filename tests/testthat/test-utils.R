@@ -17,6 +17,104 @@ testthat::test_that("boolean and enrichment-mode parsing is stable", {
   )
 })
 
+testthat::test_that("case IDs are safe, explicit and path-free", {
+  testthat::expect_identical(
+    cancerppir_validate_case_id("A01_case-2.1"),
+    "A01_case-2.1"
+  )
+
+  invalid_ids <- c(
+    "",
+    ".hidden",
+    "Patient Ivanov",
+    "../A01",
+    "A01/second",
+    "A01.",
+    "CON",
+    "LPT1.txt",
+    paste(rep("A", 65L), collapse = "")
+  )
+
+  for (case_id in invalid_ids) {
+    testthat::expect_error(
+      cancerppir_validate_case_id(case_id),
+      regexp = "case_id must contain 1-64 ASCII characters"
+    )
+  }
+
+  explicit <- cancerppir_resolve_case_id(
+    input_file = "Patient_Ivanov.csv",
+    case_id = "A01"
+  )
+
+  testthat::expect_identical(
+    explicit,
+    list(
+      value = "A01",
+      source = "explicit_case_id"
+    )
+  )
+
+  legacy <- cancerppir_resolve_case_id(
+    input_file = "Genes_A.csv"
+  )
+
+  testthat::expect_identical(
+    legacy,
+    list(
+      value = "Genes_A",
+      source = "legacy_input_basename"
+    )
+  )
+
+  testthat::expect_identical(
+    cancerppir_resolve_output_directory(
+      results_root = "results",
+      case_id = "A01"
+    ),
+    file.path("results", "A01")
+  )
+
+  testthat::expect_identical(
+    cancerppir_resolve_output_directory(
+      results_root = file.path(
+        "results",
+        "Genes_A_variant"
+      ),
+      case_id = "Genes_A",
+      preserve_legacy_variant_redirect = TRUE
+    ),
+    file.path("results", "Genes_A")
+  )
+})
+
+testthat::test_that("progress messages include elapsed time", {
+  old_option <- getOption(
+    "cancerppir.progress_started_at",
+    default = NULL
+  )
+
+  on.exit(
+    options(
+      cancerppir.progress_started_at = old_option
+    ),
+    add = TRUE
+  )
+
+  options(
+    cancerppir.progress_started_at = Sys.time() - 65
+  )
+
+  testthat::expect_message(
+    msg("Stage 1/8: fixture."),
+    regexp = paste0(
+      "^\\[CancerPPIr\\] ",
+      "\\[\\+00:01:[0-9]{2}\\] ",
+      "Stage 1/8: fixture\\.\n?$"
+    )
+  )
+})
+
 testthat::test_that("shared normalization and numeric helpers are deterministic", {
   testthat::expect_identical(
     normalize_path_for_compare("C:\\data\\Genes_R.csv"),

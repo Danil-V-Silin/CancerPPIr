@@ -173,7 +173,8 @@ testthat::test_that(
         "cache_dir",
         "score_threshold",
         "top_n",
-        "run_enrichment"
+        "run_enrichment",
+        "case_id"
       )
     )
   }

@@ -271,7 +271,7 @@ cancerppir_validate_publication_readiness <- function(
         "2.0.0",
         "1.0.0",
         "1.0.0",
-        "2.0.0",
+        "2.1.0",
         "1.0.0"
       ),
       c(
@@ -336,11 +336,17 @@ cancerppir_validate_publication_readiness <- function(
   )
 
   cli_text <- read_utf8(file.path(project_root, "cancerppir.R"))
+  cli_validation_text <- paste(
+    cli_text,
+    read_utf8(file.path(project_root, "R", "utils.R")),
+    sep = "\n"
+  )
   cli_tokens <- c(
     "Too many arguments.",
     "score_threshold must be an integer from 1 to 1000.",
     "top_n must be a positive integer.",
-    "run_enrichment must be TRUE or FALSE."
+    "run_enrichment must be TRUE or FALSE.",
+    "case_id must contain 1-64 ASCII characters"
   )
 
   add_check(
@@ -348,7 +354,7 @@ cancerppir_validate_publication_readiness <- function(
     all(vapply(
       cli_tokens,
       grepl,
-      x = cli_text,
+      x = cli_validation_text,
       fixed = TRUE,
       FUN.VALUE = logical(1)
     )) &&

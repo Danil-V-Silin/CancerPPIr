@@ -3,6 +3,7 @@ testthat::test_that(
   {
     expected_functions <- c(
       "parse_bool",
+      "cancerppir_validate_case_id",
       "read_gene_table",
       "run_local_string_enrichment",
       "label_module_by_markers",
@@ -42,7 +43,8 @@ testthat::test_that(
         "cache_dir",
         "score_threshold",
         "top_n",
-        "run_enrichment"
+        "run_enrichment",
+        "case_id"
       )
     )
   }

@@ -85,12 +85,13 @@ Display the executable CLI contract:
 
 ```bash
 Rscript cancerppir.R --help
+Rscript cancerppir.R --version
 ```
 
 Run an analysis:
 
 ```bash
-Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE
+Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE --case-id DEMO01
 ```
 
 | Position | Argument | Requirement |
@@ -102,13 +103,16 @@ Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE
 | 5 | `top_n` | Optional positive integer; default `30` |
 | 6 | `run_enrichment` | Optional `TRUE` or `FALSE`; default `TRUE` |
 
-The case folder is derived from the input basename. For example,
-`examples/minimal_input.csv` is written to `results/minimal_input/`.
-CancerPPIr refuses to write if the derived case folder already exists. A
+Named option: `--case-id ID` sets a pseudonymous identifier and is recommended
+for patient data. It can be supplied without positions 4-6.
+
+With `--case-id DEMO01`, the example writes to `results/DEMO01/`.
+CancerPPIr refuses to write if the selected case folder already exists. A
 completed run is built in a sibling staging directory and published only after
 output validation succeeds, so existing or partial results are never changed.
-The original input filename is omitted from the output manifest. Because the
-local case-folder name is derived from it, use a pseudonymous input basename.
+The original input filename is omitted from the output manifest. If `case_id`
+is omitted, the legacy input-basename folder behavior remains available, with a
+privacy reminder printed at startup.
 
 See the complete [CLI contract](docs/reference/cli.md).
 
@@ -124,7 +128,8 @@ result <- run_cancerppir(
   cache_dir = "string_cache",
   score_threshold = 400L,
   top_n = 30L,
-  run_enrichment = TRUE
+  run_enrichment = TRUE,
+  case_id = "DEMO01"
 )
 ```
 
@@ -204,13 +209,13 @@ multi-gigabyte resources solely to hash them.
 
 ## Reproducibility
 
-The JSON manifest records public schema versions, input SHA-256, Git metadata
-when available, R and package versions, analysis parameters, run summary, and
-SHA-256 values for the four principal analysis outputs. The checksum file also
-hashes the manifest.
+The JSON manifest records public schema versions, the explicit pseudonymous
+case ID when supplied, input SHA-256, Git metadata when available, R and package
+versions, analysis parameters, run summary, and SHA-256 values for the four
+principal analysis outputs. The checksum file also hashes the manifest.
 
-All public output schemas begin at `1.0.0` for the first public release line and
-are versioned independently. See
+Public output schemas are versioned independently; the current registry and
+backward-compatibility rules are documented under
 [schema versioning](docs/reference/schema-versioning.md).
 
 Additional guidance:

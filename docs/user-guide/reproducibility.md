@@ -58,7 +58,8 @@ The JSON manifest contains:
 - software and Git metadata when available;
 - R, platform, operating system, and package versions;
 - public schema versions;
-- input size, SHA-256, and mapping summary (the original filename is omitted);
+- pseudonymous case ID when supplied, input size, SHA-256, and mapping summary
+  (the original filename is omitted);
 - STRING version, threshold, enrichment mode, seed, FDR, and candidate limit;
 - graph and module counts;
 - output roles, sizes, schema versions, and SHA-256 values;
@@ -76,7 +77,7 @@ and output paths are excluded.
 | Analytical workbook | `2.0.0` |
 | Technical workbook | `1.0.0` |
 | GraphML | `1.0.0` |
-| Output manifest | `2.0.0` |
+| Output manifest | `2.1.0` |
 | Output checksums | `1.0.0` |
 
 A schema version describes structure and interpretation. A Git commit identifies

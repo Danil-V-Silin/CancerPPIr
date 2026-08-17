@@ -11,12 +11,13 @@ CancerPPIr versions each public output contract independently.
 | Analytical workbook | `2.0.0` |
 | Technical workbook | `1.0.0` |
 | GraphML | `1.0.0` |
-| Output manifest | `2.0.0` |
+| Output manifest | `2.1.0` |
 | Output checksums | `1.0.0` |
 
-Most public contracts began at `1.0.0`. The output manifest is now `2.0.0`
-because original input filenames were removed for privacy. Manifest `1.0.0`
-remains supported when validating existing results.
+Most public contracts began at `1.0.0`. Output manifest `2.0.0` removed original
+input filenames for privacy; `2.1.0` adds an optional pseudonymous case ID and
+its source. Manifest versions `1.0.0` and `2.0.0` remain supported when
+validating existing results.
 
 ## Change rules
 

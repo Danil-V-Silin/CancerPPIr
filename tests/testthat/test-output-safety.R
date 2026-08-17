@@ -1,4 +1,83 @@
 testthat::test_that(
+  "pipeline path preflight fails before analytical initialization",
+  {
+    fixture_dir <- tempfile(
+      pattern = "cancerppir_path_preflight_"
+    )
+
+    dir.create(fixture_dir, recursive = TRUE)
+    on.exit(
+      unlink(fixture_dir, recursive = TRUE, force = TRUE),
+      add = TRUE
+    )
+
+    input_file <- file.path(fixture_dir, "input.csv")
+    writeLines(
+      c(
+        "gene,pvalue,logFC",
+        "TP53,0.01,1"
+      ),
+      input_file
+    )
+
+    testthat::expect_error(
+      run_cancerppir(
+        input_file = fixture_dir,
+        results_root = file.path(fixture_dir, "results"),
+        cache_dir = file.path(fixture_dir, "cache"),
+        case_id = "DIRECTORY01"
+      ),
+      regexp = "input_file is a directory"
+    )
+
+    invalid_results_root <- file.path(
+      fixture_dir,
+      "results.txt"
+    )
+    writeLines("not a directory", invalid_results_root)
+
+    testthat::expect_error(
+      run_cancerppir(
+        input_file = input_file,
+        results_root = invalid_results_root,
+        cache_dir = file.path(fixture_dir, "cache"),
+        case_id = "A01"
+      ),
+      regexp = "results_root exists and is not a directory"
+    )
+
+    invalid_cache <- file.path(fixture_dir, "cache.txt")
+    writeLines("not a directory", invalid_cache)
+
+    testthat::expect_error(
+      run_cancerppir(
+        input_file = input_file,
+        results_root = file.path(fixture_dir, "results"),
+        cache_dir = invalid_cache,
+        case_id = "A01"
+      ),
+      regexp = "cache_dir exists and is not a directory"
+    )
+
+    existing_output <- file.path(
+      fixture_dir,
+      "EXISTING01"
+    )
+    dir.create(existing_output)
+
+    testthat::expect_error(
+      run_cancerppir(
+        input_file = input_file,
+        results_root = fixture_dir,
+        cache_dir = file.path(fixture_dir, "cache"),
+        case_id = "EXISTING01"
+      ),
+      regexp = "Output directory already exists"
+    )
+  }
+)
+
+testthat::test_that(
   "Excel output writers refuse to overwrite existing files",
   {
     output_dir <- tempfile(

@@ -48,8 +48,32 @@ testthat::test_that("CLI --help reports the public contract", {
   testthat::expect_identical(result$status, 0L)
   testthat::expect_true(any(grepl("Rscript cancerppir.R", result$output, fixed = TRUE)))
   testthat::expect_true(any(grepl("integer, 1-1000", result$output, fixed = TRUE)))
+  testthat::expect_true(any(grepl("case_id", result$output, fixed = TRUE)))
+  testthat::expect_true(any(grepl("never overwritten", result$output, fixed = TRUE)))
   testthat::expect_true(any(grepl("CancerPPIr_Output_Manifest.json", result$output, fixed = TRUE)))
   testthat::expect_true(any(grepl("CancerPPIr_Output_Checksums.sha256", result$output, fixed = TRUE)))
+})
+
+testthat::test_that("CLI --version reports the repository version", {
+  result <- run_cli("--version")
+  expected_version <- trimws(
+    readLines(
+      file.path(project_root, "VERSION"),
+      n = 1L,
+      warn = FALSE
+    )
+  )
+
+  testthat::expect_identical(result$status, 0L)
+  testthat::expect_true(
+    any(
+      grepl(
+        paste("CancerPPIr", expected_version),
+        result$output,
+        fixed = TRUE
+      )
+    )
+  )
 })
 
 testthat::test_that("CLI rejects missing and extra arguments", {
@@ -57,6 +81,50 @@ testthat::test_that("CLI rejects missing and extra arguments", {
   expect_cli_failure(
     c("a", "b", "c", "400", "30", "TRUE", "extra"),
     "Too many arguments."
+  )
+})
+
+testthat::test_that("CLI validates an optional pseudonymous case_id", {
+  common <- c(
+    "missing.csv",
+    tempdir(),
+    tempdir()
+  )
+
+  expect_cli_failure(
+    c(common, "--case-id", "Patient Ivanov"),
+    "case_id must contain 1-64 ASCII characters"
+  )
+
+  expect_cli_failure(
+    c(common, "--case-id=../A01"),
+    "case_id must contain 1-64 ASCII characters"
+  )
+
+  expect_cli_failure(
+    c(common, "--case-id"),
+    "--case-id requires a value."
+  )
+
+  expect_cli_failure(
+    c(common, "--case-id=A01", "--case-id", "A02"),
+    "--case-id may be supplied only once."
+  )
+
+  valid <- run_cli(c(common, "--case-id", "A01"))
+  valid_equals <- run_cli(c(common, "--case-id=A01"))
+
+  testthat::expect_true(
+    any(grepl("Input file not found:", valid$output, fixed = TRUE))
+  )
+  testthat::expect_true(
+    any(
+      grepl(
+        "Input file not found:",
+        valid_equals$output,
+        fixed = TRUE
+      )
+    )
   )
 })
 
