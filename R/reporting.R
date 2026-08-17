@@ -4,6 +4,19 @@
 # Functions below were extracted from cancerppir.R without semantic rewriting.
 
 ##############################################################################
+cancerppir_assert_output_file_available <- function(path) {
+  if (file.exists(path)) {
+    stop(
+      "Refusing to overwrite an existing output file: ",
+      path,
+      call. = FALSE
+    )
+  }
+
+  invisible(path)
+}
+
+##############################################################################
 write_excel <- function(path, sheets) {
   if (!requireNamespace("openxlsx", quietly = TRUE)) {
     stop(
@@ -11,6 +24,8 @@ write_excel <- function(path, sheets) {
       call. = FALSE
     )
   }
+
+  cancerppir_assert_output_file_available(path)
 
   wb <- openxlsx::createWorkbook()
 
@@ -22,7 +37,7 @@ write_excel <- function(path, sheets) {
     }
   }
 
-  openxlsx::saveWorkbook(wb, path, overwrite = TRUE)
+  openxlsx::saveWorkbook(wb, path, overwrite = FALSE)
 }
 
 ##############################################################################
@@ -113,6 +128,8 @@ write_readable_xlsx <- function(path, sheets) {
     )
   }
 
+  cancerppir_assert_output_file_available(path)
+
   # Stable Excel writer for CancerPPIr.
   # IMPORTANT: no manual post-processing of the XLSX zip archive is performed here.
   # Earlier compatibility-repair code could introduce invalid relationships in Excel files.
@@ -156,7 +173,7 @@ write_readable_xlsx <- function(path, sheets) {
   }
 
   ok <- tryCatch({
-    openxlsx::saveWorkbook(wb, path, overwrite = TRUE)
+    openxlsx::saveWorkbook(wb, path, overwrite = FALSE)
     TRUE
   }, error = function(e) {
     stop("Could not write Excel workbook: ", path, "\nReason: ", conditionMessage(e), call. = FALSE)
@@ -168,4 +185,3 @@ write_readable_xlsx <- function(path, sheets) {
 
   invisible(TRUE)
 }
-

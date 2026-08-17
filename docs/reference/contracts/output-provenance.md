@@ -1,6 +1,6 @@
 # Output provenance contract
 
-Output-manifest schema version: `1.0.0`
+Output-manifest schema version: `2.0.0`
 Output-checksums schema version: `1.0.0`
 
 ## Purpose
@@ -39,7 +39,8 @@ identity is recorded separately.
 - `software`: software version and best-effort Git metadata.
 - `runtime`: R, platform, operating system, and package versions.
 - `schemas`: all public schema versions.
-- `input`: input basename, size, SHA-256, validated-row summary, and zero-p-value count.
+- `input`: size, SHA-256, validated-row summary, and zero-p-value count. The
+  original filename is not recorded.
 - `analysis`: versioned scientific input contract, selected source headers,
   STRING version, threshold, offline enrichment, seed, FDR, top-N, and cache
   basenames and sizes.
@@ -47,7 +48,8 @@ identity is recorded separately.
 - `outputs`: role, schema version, size, and SHA-256 for each principal output.
 - `privacy`: path-handling and cache-hashing policies.
 
-Absolute input, project, cache, results, and output paths are excluded.
+The original input filename and all absolute input, project, cache, results,
+and output paths are excluded. Input bytes remain identifiable by SHA-256.
 
 ## Checksum semantics
 
@@ -59,6 +61,7 @@ sheet names, columns, row counts, and values separately.
 ## Validation
 
 `cancerppir_validate_output_provenance()` verifies required files and sections,
-schema registry equality, all recorded hashes, checksum membership, path
-privacy, and basename-only input identity. A failed provenance check stops the
-pipeline before a successful result is returned.
+schema compatibility, all recorded hashes, checksum membership, path privacy,
+and schema-aware input-name privacy. Manifest `1.0.0` remains readable for
+validation of existing results; newly written manifests use `2.0.0`. A failed
+provenance check stops the pipeline before a successful result is returned.

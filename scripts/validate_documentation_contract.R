@@ -155,7 +155,7 @@ cancerppir_validate_documentation_contract <- function(
     analytical_workbook = "2.0.0",
     technical_workbook = "1.0.0",
     graphml = "1.0.0",
-    output_manifest = "1.0.0",
+    output_manifest = "2.0.0",
     output_checksums = "1.0.0"
   )
   reproducibility_text <- read_utf8("docs/user-guide/reproducibility.md")

@@ -9,7 +9,7 @@ testthat::test_that(
         analytical_workbook = "2.0.0",
         technical_workbook = "1.0.0",
         graphml = "1.0.0",
-        output_manifest = "1.0.0",
+        output_manifest = "2.0.0",
         output_checksums = "1.0.0"
       )
     )
@@ -148,9 +148,13 @@ testthat::test_that(
       simplifyVector = FALSE
     )
 
+    testthat::expect_null(
+      manifest$input$file_name
+    )
+
     testthat::expect_identical(
-      manifest$input$file_name,
-      "fixture_input.csv"
+      manifest$privacy$original_input_file_name_recorded,
+      FALSE
     )
 
     testthat::expect_identical(
@@ -190,6 +194,14 @@ testthat::test_that(
       )
     )
 
+    testthat::expect_false(
+      grepl(
+        basename(input_file),
+        manifest_text,
+        fixed = TRUE
+      )
+    )
+
     checksum_table <- cancerppir_parse_checksum_file(
       provenance$checksums_file
     )
@@ -205,6 +217,41 @@ testthat::test_that(
     testthat::expect_false(
       basename(provenance$checksums_file) %in%
         checksum_table$file_name
+    )
+
+    legacy_manifest <- manifest
+    legacy_manifest$manifest_schema_version <- "1.0.0"
+    legacy_manifest$schemas$output_manifest <- "1.0.0"
+    legacy_manifest$input$file_name <- basename(input_file)
+    legacy_manifest$privacy$original_input_file_name_recorded <- NULL
+
+    jsonlite::write_json(
+      legacy_manifest,
+      path = provenance$manifest_file,
+      pretty = TRUE,
+      auto_unbox = TRUE,
+      null = "null",
+      na = "null",
+      digits = NA
+    )
+
+    cancerppir_write_checksum_file(
+      files = c(
+        output_files,
+        output_manifest = provenance$manifest_file
+      ),
+      path = provenance$checksums_file
+    )
+
+    legacy_validation <- cancerppir_validate_output_provenance(
+      manifest_file = provenance$manifest_file,
+      checksums_file = provenance$checksums_file,
+      output_dir = fixture_dir,
+      forbidden_paths = fixture_dir
+    )
+
+    testthat::expect_true(
+      all(legacy_validation$status == "PASS")
     )
   }
 )

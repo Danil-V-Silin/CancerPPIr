@@ -9,6 +9,123 @@
 # End-to-end CancerPPIr workflow
 # -----------------------------------------------------------------------------
 
+cancerppir_prepare_output_staging <- function(
+  final_output_dir
+) {
+  if (
+    file.exists(final_output_dir) &&
+      !dir.exists(final_output_dir)
+  ) {
+    stop(
+      "Output path exists and is not a directory: ",
+      final_output_dir,
+      call. = FALSE
+    )
+  }
+
+  if (dir.exists(final_output_dir)) {
+    stop(
+      paste0(
+        "Output directory already exists: ",
+        final_output_dir,
+        "\nCancerPPIr does not overwrite or mix existing results. ",
+        "Move the existing directory or choose a different results root."
+      ),
+      call. = FALSE
+    )
+  }
+
+  output_parent <- dirname(final_output_dir)
+
+  if (!dir.exists(output_parent)) {
+    created <- dir.create(
+      output_parent,
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
+
+    if (!isTRUE(created) && !dir.exists(output_parent)) {
+      stop(
+        "Could not create output parent directory: ",
+        output_parent,
+        call. = FALSE
+      )
+    }
+  }
+
+  staging_output_dir <- tempfile(
+    pattern = paste0(
+      ".",
+      basename(final_output_dir),
+      ".cancerppir-staging-"
+    ),
+    tmpdir = output_parent
+  )
+
+  created <- dir.create(
+    staging_output_dir,
+    recursive = FALSE,
+    showWarnings = FALSE
+  )
+
+  if (!isTRUE(created) || !dir.exists(staging_output_dir)) {
+    stop(
+      "Could not create staging output directory: ",
+      staging_output_dir,
+      call. = FALSE
+    )
+  }
+
+  list(
+    final_output_dir = final_output_dir,
+    staging_output_dir = staging_output_dir
+  )
+}
+
+cancerppir_publish_output_staging <- function(
+  staging_output_dir,
+  final_output_dir
+) {
+  if (!dir.exists(staging_output_dir)) {
+    stop(
+      "Staging output directory does not exist: ",
+      staging_output_dir,
+      call. = FALSE
+    )
+  }
+
+  if (dir.exists(final_output_dir)) {
+    stop(
+      "Final output directory appeared before publication: ",
+      final_output_dir,
+      call. = FALSE
+    )
+  }
+
+  if (file.exists(final_output_dir)) {
+    stop(
+      "Final output path appeared before publication: ",
+      final_output_dir,
+      call. = FALSE
+    )
+  }
+
+  published <- file.rename(
+    staging_output_dir,
+    final_output_dir
+  )
+
+  if (!isTRUE(published) || !dir.exists(final_output_dir)) {
+    stop(
+      "Could not atomically publish the completed output directory: ",
+      final_output_dir,
+      call. = FALSE
+    )
+  }
+
+  invisible(final_output_dir)
+}
+
 run_cancerppir <- function(
   input_file,
   results_root,
@@ -53,14 +170,14 @@ run_cancerppir <- function(
   results_root_parent <- dirname(results_root_cmp)
 
   if (identical(results_root_base, sample_name)) {
-    output_dir <- results_root
+    final_output_dir <- results_root
   } else if (startsWith(results_root_base, paste0(sample_name, "_")) &&
              basename(results_root_parent) %in% c("results", "result", "reults")) {
     # Backward-safety: if a previous command used results/Genes_R_variant as output,
     # redirect to the canonical patient folder results/Genes_R.
-    output_dir <- file.path(results_root_parent, sample_name)
+    final_output_dir <- file.path(results_root_parent, sample_name)
   } else {
-    output_dir <- file.path(results_root, sample_name)
+    final_output_dir <- file.path(results_root, sample_name)
   }
 
   enrichment_mode <- "local_STRING_cache"
@@ -105,8 +222,30 @@ run_cancerppir <- function(
     stop("run_enrichment must be TRUE or FALSE.", call. = FALSE)
   }
 
-  if (!dir.exists(output_dir)) dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
+
+  output_paths <- cancerppir_prepare_output_staging(
+    final_output_dir
+  )
+
+  output_dir <- output_paths$staging_output_dir
+  output_published <- FALSE
+
+  on.exit(
+    {
+      if (
+        !isTRUE(output_published) &&
+          dir.exists(output_dir)
+      ) {
+        unlink(
+          output_dir,
+          recursive = TRUE,
+          force = TRUE
+        )
+      }
+    },
+    add = TRUE
+  )
 
   options(timeout = max(600, getOption("timeout", 60)))
   Sys.setenv(R_DEFAULT_INTERNET_TIMEOUT = "600")
@@ -1236,6 +1375,32 @@ run_cancerppir <- function(
     primary_output_files,
     output_manifest = output_provenance$manifest_file,
     output_checksums = output_provenance$checksums_file
+  )
+
+  cancerppir_publish_output_staging(
+    staging_output_dir = output_dir,
+    final_output_dir = final_output_dir
+  )
+
+  output_published <- TRUE
+  output_dir <- final_output_dir
+
+  all_output_files <- stats::setNames(
+    file.path(
+      output_dir,
+      basename(all_output_files)
+    ),
+    names(all_output_files)
+  )
+
+  output_provenance$manifest_file <- file.path(
+    output_dir,
+    basename(output_provenance$manifest_file)
+  )
+
+  output_provenance$checksums_file <- file.path(
+    output_dir,
+    basename(output_provenance$checksums_file)
   )
 
   msg("Done.")

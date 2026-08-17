@@ -104,6 +104,11 @@ Rscript cancerppir.R examples/minimal_input.csv results string_cache 400 30 TRUE
 
 The case folder is derived from the input basename. For example,
 `examples/minimal_input.csv` is written to `results/minimal_input/`.
+CancerPPIr refuses to write if the derived case folder already exists. A
+completed run is built in a sibling staging directory and published only after
+output validation succeeds, so existing or partial results are never changed.
+The original input filename is omitted from the output manifest. Because the
+local case-folder name is derived from it, use a pseudonymous input basename.
 
 See the complete [CLI contract](docs/reference/cli.md).
 
