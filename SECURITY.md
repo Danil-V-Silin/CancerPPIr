@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-`1.1.0` is the current supported stable release. Security fixes are provided
+`1.1.1` is the current supported stable release. Security fixes are provided
 for the latest supported release line.
 
 ## Reporting a vulnerability
