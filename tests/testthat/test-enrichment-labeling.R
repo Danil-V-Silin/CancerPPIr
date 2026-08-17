@@ -133,6 +133,76 @@ testthat::test_that("local STRING enrichment uses one annotated universe", {
   testthat::expect_equal(nrow(insufficient_query), 0L)
 })
 
+testthat::test_that("local STRING enrichment cache reader fails closed", {
+  cache_dir <- tempfile(
+    pattern = "cancerppir_enrichment_reader_"
+  )
+
+  dir.create(cache_dir, recursive = TRUE)
+  on.exit(
+    unlink(cache_dir, recursive = TRUE, force = TRUE),
+    add = TRUE
+  )
+
+  path <- file.path(
+    cache_dir,
+    "9606.protein.enrichment.terms.v12.0.txt.gz"
+  )
+
+  write_gzip_lines <- function(lines) {
+    connection <- gzfile(
+      path,
+      open = "wt",
+      encoding = "UTF-8"
+    )
+    on.exit(close(connection), add = TRUE)
+    writeLines(lines, connection)
+  }
+
+  write_gzip_lines(
+    c(
+      "wrong_id\twrong_category\twrong_term\twrong_description",
+      "9606.ENSPTEST0001\tTest category\tTEST:1\tTest term"
+    )
+  )
+
+  testthat::expect_error(
+    read_string_enrichment_terms_file(path),
+    regexp = "invalid header or format"
+  )
+
+  valid_lines <- c(
+    "#string_protein_id\tcategory\tterm\tdescription",
+    "9606.ENSPTEST0001\tTest category\tTEST:1\tTest term"
+  )
+
+  write_gzip_lines(valid_lines)
+
+  valid <- read_string_enrichment_terms_file(path)
+
+  testthat::expect_equal(nrow(valid), 1L)
+  testthat::expect_identical(
+    valid$string_protein_id[[1L]],
+    "9606.ENSPTEST0001"
+  )
+
+  bytes <- readBin(
+    path,
+    what = "raw",
+    n = file.info(path)$size[[1L]]
+  )
+
+  writeBin(
+    head(bytes, max(2L, length(bytes) - 8L)),
+    path
+  )
+
+  testthat::expect_error(
+    read_string_enrichment_terms_file(path),
+    regexp = "invalid header or format|Could not read"
+  )
+})
+
 testthat::test_that("module labeling recognizes curated biological programs", {
   cell_cycle <- label_module_by_markers(
     c("CDK1", "TOP2A", "CDC20", "CCNB1")

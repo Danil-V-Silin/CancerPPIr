@@ -178,9 +178,36 @@ testthat::test_that(
     ) {
       download_calls <<- c(download_calls, url)
 
+      filename <- basename(url)
+      lines <- if (grepl("protein.info", filename, fixed = TRUE)) {
+        c(
+          "#string_protein_id\tpreferred_name\tprotein_size\tannotation",
+          "9606.ENSPTEST0001\tGENE1\t100\tTest protein"
+        )
+      } else if (grepl("protein.aliases", filename, fixed = TRUE)) {
+        c(
+          "#string_protein_id\talias\tsource",
+          "9606.ENSPTEST0001\tGENE1\tEnsembl_HGNC_symbol"
+        )
+      } else if (grepl("protein.links", filename, fixed = TRUE)) {
+        c(
+          "protein1 protein2 combined_score",
+          "9606.ENSPTEST0001 9606.ENSPTEST0002 900"
+        )
+      } else if (
+        grepl("protein.enrichment.terms", filename, fixed = TRUE)
+      ) {
+        c(
+          "#string_protein_id\tcategory\tterm\tdescription",
+          "9606.ENSPTEST0001\tTest category\tTEST:1\tTest term"
+        )
+      } else {
+        stop("Unexpected test resource: ", filename)
+      }
+
       connection <- gzfile(destfile, open = "wt", encoding = "UTF-8")
       on.exit(close(connection), add = TRUE)
-      writeLines(c("header", "data"), connection)
+      writeLines(lines, connection)
       invisible(0L)
     }
 
@@ -212,6 +239,86 @@ testthat::test_that(
 
     testthat::expect_true(all(reused$valid))
     testthat::expect_equal(length(download_calls), 4L)
+  }
+)
+
+testthat::test_that(
+  "STRING resource validation rejects wrong schemas and incomplete gzip files",
+  {
+    cache_dir <- tempfile(
+      pattern = "cancerppir_resource_validation_"
+    )
+
+    dir.create(cache_dir, recursive = TRUE)
+    on.exit(
+      unlink(cache_dir, recursive = TRUE, force = TRUE),
+      add = TRUE
+    )
+
+    path <- file.path(
+      cache_dir,
+      "9606.protein.enrichment.terms.v12.0.txt.gz"
+    )
+
+    write_gzip_lines <- function(lines) {
+      connection <- gzfile(
+        path,
+        open = "wt",
+        encoding = "UTF-8"
+      )
+      on.exit(close(connection), add = TRUE)
+      writeLines(lines, connection)
+    }
+
+    valid_lines <- c(
+      "#string_protein_id\tcategory\tterm\tdescription",
+      "9606.ENSPTEST0001\tTest category\tTEST:1\tTest term"
+    )
+
+    write_gzip_lines(valid_lines)
+
+    testthat::expect_true(
+      cancerppir_string_resource_file_valid(
+        path = path,
+        role = "enrichment_terms",
+        verify_complete = TRUE
+      )
+    )
+
+    write_gzip_lines(
+      c(
+        "wrong_id\twrong_category\twrong_term\twrong_description",
+        "9606.ENSPTEST0001\tTest category\tTEST:1\tTest term"
+      )
+    )
+
+    testthat::expect_false(
+      cancerppir_string_resource_file_valid(
+        path = path,
+        role = "enrichment_terms"
+      )
+    )
+
+    write_gzip_lines(valid_lines)
+
+    bytes <- readBin(
+      path,
+      what = "raw",
+      n = file.info(path)$size[[1L]]
+    )
+
+    writeBin(
+      head(bytes, max(2L, length(bytes) - 8L)),
+      path
+    )
+
+    testthat::expect_false(
+      cancerppir_string_resource_file_valid(
+        path = path,
+        role = "enrichment_terms",
+        verify_complete = TRUE
+      )
+    )
   }
 )
 

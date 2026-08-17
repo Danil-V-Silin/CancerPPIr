@@ -193,7 +193,120 @@ map_to_string <- function(db, data, gene_col = "gene", removeUnmappedRows = FALS
   parent = emptyenv()
 )
 
-cancerppir_string_resource_file_valid <- function(path) {
+cancerppir_string_resource_expected_header <- function(role) {
+  headers <- c(
+    protein_info =
+      "#string_protein_id\tpreferred_name\tprotein_size\tannotation",
+    protein_aliases =
+      "#string_protein_id\talias\tsource",
+    protein_links =
+      "protein1 protein2 combined_score",
+    enrichment_terms =
+      "#string_protein_id\tcategory\tterm\tdescription"
+  )
+
+  role <- as.character(role)
+
+  if (
+    length(role) != 1L ||
+      is.na(role) ||
+      !(role %in% names(headers))
+  ) {
+    return(NA_character_)
+  }
+
+  unname(headers[[role]])
+}
+
+cancerppir_string_resource_role_from_path <- function(path) {
+  filename <- basename(as.character(path))
+  patterns <- c(
+    protein_info = ".protein.info.v12.0.txt.gz",
+    protein_aliases = ".protein.aliases.v12.0.txt.gz",
+    protein_links = ".protein.links.v12.0.txt.gz",
+    enrichment_terms = ".protein.enrichment.terms.v12.0.txt.gz"
+  )
+
+  matches <- names(patterns)[
+    vapply(
+      patterns,
+      grepl,
+      logical(1),
+      x = filename,
+      fixed = TRUE
+    )
+  ]
+
+  if (length(matches) != 1L) {
+    return(NA_character_)
+  }
+
+  matches[[1L]]
+}
+
+cancerppir_read_gzip_header <- function(path) {
+  connection <- gzfile(
+    path,
+    open = "rt",
+    encoding = "UTF-8"
+  )
+  on.exit(close(connection), add = TRUE)
+
+  tryCatch(
+    withCallingHandlers(
+      readLines(
+        connection,
+        n = 1L,
+        warn = TRUE
+      ),
+      warning = function(warning) {
+        stop(
+          conditionMessage(warning),
+          call. = FALSE
+        )
+      }
+    ),
+    error = function(error) character()
+  )
+}
+
+cancerppir_gzip_file_complete <- function(path) {
+  connection <- gzfile(path, open = "rb")
+
+  tryCatch(
+    withCallingHandlers(
+      {
+        repeat {
+          chunk <- readBin(
+            connection,
+            what = "raw",
+            n = 1024L * 1024L
+          )
+
+          if (!length(chunk)) {
+            break
+          }
+        }
+
+        TRUE
+      },
+      warning = function(warning) {
+        stop(
+          conditionMessage(warning),
+          call. = FALSE
+        )
+      }
+    ),
+    error = function(error) FALSE,
+    finally = close(connection)
+  )
+}
+
+cancerppir_string_resource_file_valid <- function(
+  path,
+  role = NULL,
+  verify_complete = FALSE
+) {
   if (
     length(path) != 1L ||
       is.na(path) ||
@@ -216,7 +329,39 @@ cancerppir_string_resource_file_valid <- function(path) {
     error = function(error) raw()
   )
 
-  identical(magic, as.raw(c(0x1f, 0x8b)))
+  if (!identical(magic, as.raw(c(0x1f, 0x8b)))) {
+    return(FALSE)
+  }
+
+  if (is.null(role)) {
+    role <- cancerppir_string_resource_role_from_path(path)
+  }
+
+  expected_header <- cancerppir_string_resource_expected_header(
+    role
+  )
+
+  if (is.na(expected_header)) {
+    return(FALSE)
+  }
+
+  observed_header <- cancerppir_read_gzip_header(path)
+
+  if (
+    length(observed_header) != 1L ||
+      !identical(observed_header, expected_header)
+  ) {
+    return(FALSE)
+  }
+
+  if (
+    isTRUE(verify_complete) &&
+      !cancerppir_gzip_file_complete(path)
+  ) {
+    return(FALSE)
+  }
+
+  TRUE
 }
 
 cancerppir_string_v12_resource_manifest <- function(
@@ -276,8 +421,13 @@ cancerppir_string_v12_resource_manifest <- function(
   exists <- file.exists(paths)
   sizes <- ifelse(exists, file.info(paths)$size, NA_real_)
   valid <- vapply(
-    paths,
-    cancerppir_string_resource_file_valid,
+    seq_along(paths),
+    function(index) {
+      cancerppir_string_resource_file_valid(
+        path = paths[[index]],
+        role = names(resource_groups)[[index]]
+      )
+    },
     logical(1)
   )
 
@@ -375,10 +525,14 @@ cancerppir_ensure_string_v12_resources <- function(
       )
     }
 
-    if (!cancerppir_string_resource_file_valid(partial)) {
+    if (!cancerppir_string_resource_file_valid(
+      path = partial,
+      role = role,
+      verify_complete = TRUE
+    )) {
       unlink(partial, force = TRUE)
       stop(
-        "Downloaded STRING v12.0 resource is empty, incomplete, or not gzip: ",
+        "Downloaded STRING v12.0 resource failed gzip or schema validation: ",
         resource$filename[[1L]],
         call. = FALSE
       )
@@ -407,7 +561,10 @@ cancerppir_ensure_string_v12_resources <- function(
       }
     }
 
-    if (!cancerppir_string_resource_file_valid(destination)) {
+    if (!cancerppir_string_resource_file_valid(
+      path = destination,
+      role = role
+    )) {
       stop(
         "Cached STRING resource failed validation after download: ",
         resource$filename[[1L]],
