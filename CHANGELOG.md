@@ -6,6 +6,46 @@ CancerPPIr follows Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-08-17
+
+### Added
+
+- Added validated optional pseudonymous case identifiers for privacy-safe output
+  folders and provenance.
+- Added eight-stage elapsed-time progress reporting and CLI version output.
+- Added a central public schema registry, autonomous test bootstrap, and unified
+  `fast` and `full` quality commands.
+
+### Fixed
+
+- Corrected local enrichment query and background sizes to use proteins present
+  in the local STRING term map.
+- Made STRING cache validation fail closed on malformed headers, schemas, and
+  incomplete newly downloaded gzip resources.
+- Prevented implicit reuse or overwriting of existing result folders and Excel
+  reports; successful runs are published atomically from staging directories.
+- Removed original input filenames from newly generated output manifests.
+
+### Changed
+
+- Advanced the output-manifest schema from `1.0.0` to `2.1.0` for filename
+  privacy and optional pseudonymous case identity. Validators retain support for
+  manifest schemas `1.0.0` and `2.0.0`.
+- Added early input, cache, case-ID, and output-target preflight checks.
+- Preserved legacy input-basename output behavior when `case_id` is omitted,
+  while emitting an explicit privacy reminder.
+
+### Compatibility
+
+- CancerPPIr product version advances from `1.1.0` to `1.1.1`.
+- STRING mapping, network construction, candidate scoring, Louvain membership,
+  and canonical biological interpretation are not intentionally changed.
+- Inputs containing proteins absent from the local STRING annotation map can
+  receive corrected enrichment universe sizes.
+- Impact audits found no enrichment-universe changes in the seven qualified
+  regression cases.
+
+
 ## [1.1.0] - 2026-08-16
 
 ### Added
