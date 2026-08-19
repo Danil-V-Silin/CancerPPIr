@@ -23,7 +23,9 @@ Release preparation and immutable publication are separate operations.
 2. Verify the canonical release-input provenance and checksums.
 3. Restore the locked environment in a clean detached clone of the exact final
    `main` commit.
-4. Run the complete seven-case release qualification once.
+4. Run the complete seven-case release qualification once with output and cache
+   roots outside the clone. Every generated manifest must match the product
+   version, final commit, clean-tree state, and current input SHA-256.
 5. Audit all seven analytical and technical workbooks and explicitly resolve or
    accept every non-blocking `REVIEW` finding.
 6. Preserve private source, environment, input-provenance, validation, and

@@ -31,6 +31,9 @@ non-generic local STRING enrichment. The qualifying term with the lowest FDR
 provides the primary interpretation; up to two additional qualifying terms
 provide secondary context. A technical/covariate signature overrides automatic
 biological priority, and a module without a qualifying term remains unresolved.
+Benjamini-Hochberg adjustment is calculated over every term meeting the
+query-independent background-size bounds before the minimum support threshold
+is applied for reporting.
 
 Supported biological modules receive `moderate` confidence. Compartment,
 lineage, state, process, marker, and conflict fields remain in the schema for

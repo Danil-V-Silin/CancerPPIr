@@ -1,6 +1,6 @@
 # Output quality and biological interpretation specification
 
-**Status:** Current implemented contract for the supported 1.1.x release line.
+**Status:** Current implemented contract for the supported 1.2.x release line.
 **Scope:** Input semantics, biological interpretation, output architecture,
 provenance, reproducibility, and publication safeguards.
 
@@ -48,6 +48,8 @@ Canonical module interpretation is derived from statistically significant,
 non-generic local STRING enrichment. The default FDR threshold is `0.05`.
 The qualifying term with the lowest FDR provides the primary interpretation;
 up to two additional qualifying terms provide secondary context.
+Benjamini-Hochberg adjustment covers all background-size-eligible terms in the
+query before the minimum two-protein reporting threshold is applied.
 
 A technical/covariate signature overrides biological priority. Modules without
 qualifying enrichment remain unresolved. Supported biological modules receive
@@ -92,9 +94,9 @@ browser compatibility. GraphML remains the complete network representation.
 ## Provenance and compatibility
 
 Public schemas are versioned independently in `R/schema_registry.R`. The
-biological-evidence, analytical-workbook, and technical-workbook schemas are
-`2.0.0`; the output-manifest schema is `2.1.0`; the pipeline-result, GraphML,
-and output-checksum schemas remain `1.0.0`.
+biological-evidence and analytical-workbook schemas are `2.0.0`; the technical-
+workbook schema is `2.1.0`; the output-manifest schema is `2.2.0`; the pipeline-
+result, GraphML, and output-checksum schemas remain `1.0.0`.
 
 The manifest records run configuration, software and schema versions, input and
 output hashes, and a pseudonymous case ID when explicitly supplied. Original

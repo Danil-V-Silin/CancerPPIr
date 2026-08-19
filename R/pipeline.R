@@ -489,9 +489,10 @@ run_cancerppir <- function(
       )
   }
 
-  mapped_final <- mapped_final_raw %>%
-    filter(!is.na(STRING_id), grepl("^9606\\.", STRING_id)) %>%
-    distinct(STRING_id, .keep_all = TRUE)
+  string_mapping_resolution <-
+    resolve_string_mapping_collisions(mapped_final_raw)
+
+  mapped_final <- string_mapping_resolution$mapped
 
   if (nrow(mapped_final) < 2) {
     stop("Fewer than two unique STRING identifiers were mapped.", call. = FALSE)
@@ -517,6 +518,12 @@ run_cancerppir <- function(
     after_mapped = after_mapped,
     after_unmapped = after_unmapped,
     after_pct = after_pct,
+    string_mapping_collision_proteins =
+      string_mapping_resolution$collision_proteins,
+    string_mapping_collision_rows_dropped =
+      string_mapping_resolution$dropped_rows,
+    string_mapping_collision_policy =
+      string_mapping_resolution$policy,
     score_threshold = score_threshold,
     top_n = top_n
   )
@@ -1145,6 +1152,12 @@ run_cancerppir <- function(
       mapped_input_rows = after_mapped,
       unmapped_input_rows = after_unmapped,
       unique_mapped_proteins = nrow(mapped_final),
+      STRING_mapping_collision_proteins =
+        string_mapping_resolution$collision_proteins,
+      STRING_mapping_collision_rows_dropped =
+        string_mapping_resolution$dropped_rows,
+      STRING_mapping_collision_policy =
+        string_mapping_resolution$policy,
       successful_alias_corrections = sum(
         alias_corrections$mapped_after,
         na.rm = TRUE

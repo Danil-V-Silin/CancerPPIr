@@ -2,7 +2,7 @@
 
 [![R tests](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml/badge.svg)](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.1.1-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 
 CancerPPIr is an R workflow for patient-specific protein-protein interaction
 (PPI) subnetwork profiling from bulk RNA-seq-derived gene tables. It maps gene
@@ -69,6 +69,9 @@ reference condition. Recognized aliases include `gene_symbol`, `symbol`,
 `raw_pval`. Positional fallback is disabled. Missing, non-finite, out-of-range
 or duplicate values fail before HGNC normalization. Adjusted p-values, FDR and
 q-values are not accepted as substitutes for the canonical raw `pvalue`.
+If distinct normalized rows map to one STRING protein, the retained row is
+selected deterministically by minimum raw p-value, maximum absolute logFC, and
+earliest validated input row; counts and policy are written to provenance.
 
 Minimal example:
 
@@ -242,7 +245,7 @@ release used in the analysis and the associated article when available.
 
 ## Development and governance
 
-Current stable version: `1.1.1`.
+Current stable version: `1.2.0`.
 
 - [Quick start](docs/user-guide/quick-start.md)
 - [Contributing](CONTRIBUTING.md)

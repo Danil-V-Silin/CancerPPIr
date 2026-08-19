@@ -355,6 +355,7 @@ cancerppir_build_output_manifest <- function(
     ),
     software = list(
       name = "CancerPPIr",
+      version = cancerppir_product_version(project_root),
       git_commit = git_metadata$commit,
       git_branch = git_metadata$branch,
       working_tree_clean = git_metadata$working_tree_clean,
@@ -623,6 +624,108 @@ cancerppir_validate_output_provenance <- function(
     } else {
       "manifest unavailable"
     }
+  )
+
+  software_identity_valid <- FALSE
+  software_identity_details <- "manifest unavailable"
+
+  if (sections_present && is.list(manifest$software)) {
+    manifest_schema <- as.character(
+      manifest$manifest_schema_version
+    )
+    observed_name <- as.character(manifest$software$name)
+    observed_version <- as.character(manifest$software$version)
+    version_required <- identical(manifest_schema, "2.2.0")
+    version_valid <- length(observed_version) == 1L &&
+      grepl(
+        "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+        observed_version
+      )
+
+    software_identity_valid <-
+      identical(observed_name, "CancerPPIr") &&
+      (!version_required || version_valid)
+
+    software_identity_details <- paste0(
+      "name=",
+      paste(observed_name, collapse = ""),
+      "; version=",
+      paste(observed_version, collapse = ""),
+      "; required=",
+      version_required
+    )
+  }
+
+  add_check(
+    "manifest_software_identity_is_valid",
+    software_identity_valid,
+    software_identity_details
+  )
+
+  collision_metadata_valid <- FALSE
+  collision_metadata_details <- "manifest unavailable"
+
+  if (sections_present && is.list(manifest$input)) {
+    manifest_schema <- as.character(
+      manifest$manifest_schema_version
+    )
+    collision_metadata_required <-
+      identical(manifest_schema, "2.2.0")
+    required_collision_fields <- c(
+      "STRING_mapping_collision_proteins",
+      "STRING_mapping_collision_rows_dropped",
+      "STRING_mapping_collision_policy"
+    )
+    collision_fields_present <- all(
+      required_collision_fields %in% names(manifest$input)
+    )
+
+    collision_metadata_valid <- if (!collision_metadata_required) {
+      TRUE
+    } else if (!collision_fields_present) {
+      FALSE
+    } else {
+      collision_proteins <- suppressWarnings(
+        as.integer(
+          manifest$input$STRING_mapping_collision_proteins
+        )
+      )
+      dropped_rows <- suppressWarnings(
+        as.integer(
+          manifest$input$STRING_mapping_collision_rows_dropped
+        )
+      )
+      policy <- as.character(
+        manifest$input$STRING_mapping_collision_policy
+      )
+
+      length(collision_proteins) == 1L &&
+        !is.na(collision_proteins) &&
+        collision_proteins >= 0L &&
+        length(dropped_rows) == 1L &&
+        !is.na(dropped_rows) &&
+        dropped_rows >= 0L &&
+        identical(
+          policy,
+          paste(
+            "minimum raw pvalue; maximum absolute logFC;",
+            "earliest input row"
+          )
+        )
+    }
+
+    collision_metadata_details <- paste0(
+      "required=",
+      collision_metadata_required,
+      "; fields_present=",
+      collision_fields_present
+    )
+  }
+
+  add_check(
+    "manifest_STRING_collision_metadata_is_valid",
+    collision_metadata_valid,
+    collision_metadata_details
   )
 
   output_entries_valid <- FALSE

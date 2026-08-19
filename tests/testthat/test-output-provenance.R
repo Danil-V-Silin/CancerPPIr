@@ -7,9 +7,9 @@ testthat::test_that(
         pipeline_result = "1.0.0",
         biological_evidence = "2.0.0",
         analytical_workbook = "2.0.0",
-        technical_workbook = "2.0.0",
+        technical_workbook = "2.1.0",
         graphml = "1.0.0",
-        output_manifest = "2.1.0",
+        output_manifest = "2.2.0",
         output_checksums = "1.0.0"
       )
     )
@@ -28,6 +28,8 @@ testthat::test_that(
       recursive = TRUE,
       showWarnings = FALSE
     )
+
+    writeLines("1.2.0", file.path(fixture_dir, "VERSION"))
 
     on.exit(
       unlink(
@@ -95,6 +97,12 @@ testthat::test_that(
         mapped_input_rows = 1L,
         unmapped_input_rows = 0L,
         unique_mapped_proteins = 1L,
+        STRING_mapping_collision_proteins = 0L,
+        STRING_mapping_collision_rows_dropped = 0L,
+        STRING_mapping_collision_policy = paste(
+          "minimum raw pvalue; maximum absolute logFC;",
+          "earliest input row"
+        ),
         successful_alias_corrections = 0L
       ),
       analysis_configuration = list(
@@ -168,6 +176,11 @@ testthat::test_that(
     testthat::expect_identical(
       manifest$input$sha256,
       cancerppir_sha256_file(input_file)
+    )
+
+    testthat::expect_identical(
+      manifest$software$version,
+      "1.2.0"
     )
 
     testthat::expect_identical(
@@ -278,6 +291,7 @@ testthat::test_that(
     schema_2_manifest$schemas$output_manifest <- "2.0.0"
     schema_2_manifest$input$case_id <- NULL
     schema_2_manifest$input$case_id_source <- NULL
+    schema_2_manifest$software$version <- NULL
 
     jsonlite::write_json(
       schema_2_manifest,
@@ -316,6 +330,7 @@ testthat::test_that(
     legacy_manifest$input$case_id_source <- NULL
     legacy_manifest$input$file_name <- basename(input_file)
     legacy_manifest$privacy$original_input_file_name_recorded <- NULL
+    legacy_manifest$software$version <- NULL
 
     jsonlite::write_json(
       legacy_manifest,
@@ -401,6 +416,8 @@ testthat::test_that(
       showWarnings = FALSE
     )
 
+    writeLines("1.2.0", file.path(fixture_dir, "VERSION"))
+
     on.exit(
       unlink(
         fixture_dir,
@@ -437,7 +454,15 @@ testthat::test_that(
       ),
       output_schema_versions =
         cancerppir_output_file_schema_versions(),
-      input_summary = list(input_rows = 1L),
+      input_summary = list(
+        input_rows = 1L,
+        STRING_mapping_collision_proteins = 0L,
+        STRING_mapping_collision_rows_dropped = 0L,
+        STRING_mapping_collision_policy = paste(
+          "minimum raw pvalue; maximum absolute logFC;",
+          "earliest input row"
+        )
+      ),
       analysis_configuration = list(mode = "fixture"),
       run_summary = list(nodes = 1L),
       project_root = fixture_dir,

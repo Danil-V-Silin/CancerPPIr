@@ -969,6 +969,9 @@ for (case_index in seq_len(
         "input_rows",
         "final_unmapped",
         "final_mapped_percent",
+        "STRING_mapping_collision_proteins",
+        "STRING_mapping_collision_rows_dropped",
+        "STRING_mapping_collision_policy",
         "nodes_in_network"
       )
 
@@ -1336,7 +1339,27 @@ for (case_index in seq_len(
           ]] >= 0 &&
           mapping_metric_values[[
             "final_mapped_percent"
-          ]] <= 100
+          ]] <= 100 &&
+          mapping_metric_values[[
+            "STRING_mapping_collision_proteins"
+          ]] >= 0 &&
+          mapping_metric_values[[
+            "STRING_mapping_collision_rows_dropped"
+          ]] >= 0 &&
+          identical(
+            as.character(
+              mapping_summary$value[
+                match(
+                  "STRING_mapping_collision_policy",
+                  mapping_summary$metric
+                )
+              ]
+            ),
+            paste(
+              "minimum raw pvalue; maximum absolute logFC;",
+              "earliest input row"
+            )
+          )
       )
 
       add_check(
@@ -1363,6 +1386,14 @@ for (case_index in seq_len(
           "; final_mapped_percent=",
           mapping_metric_values[[
             "final_mapped_percent"
+          ]],
+          "; STRING_collision_proteins=",
+          mapping_metric_values[[
+            "STRING_mapping_collision_proteins"
+          ]],
+          "; STRING_collision_rows_dropped=",
+          mapping_metric_values[[
+            "STRING_mapping_collision_rows_dropped"
           ]]
         )
       )

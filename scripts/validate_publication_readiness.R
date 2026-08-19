@@ -267,9 +267,9 @@ cancerppir_validate_publication_readiness <- function(
     pipeline_result = "1.0.0",
     biological_evidence = "2.0.0",
     analytical_workbook = "2.0.0",
-    technical_workbook = "2.0.0",
+    technical_workbook = "2.1.0",
     graphml = "1.0.0",
-    output_manifest = "2.1.0",
+    output_manifest = "2.2.0",
     output_checksums = "1.0.0"
   )
 
@@ -365,7 +365,12 @@ cancerppir_validate_publication_readiness <- function(
     "CANCERPPIR RELEASE QUALIFICATION",
     "CANCERPPIR RELEASE QUALIFICATION: PASSED",
     "validate_publication_readiness.R",
-    'section = "publication"'
+    'section = "publication"',
+    "manifest_product_version_matches_release",
+    "manifest_git_commit_matches_release",
+    "manifest_records_clean_release_tree",
+    "manifest_input_sha256_matches_release_input",
+    "STRING_collision_metadata_matches_outputs"
   )
 
   obsolete_release_tokens <- c(

@@ -84,8 +84,16 @@ testthat::test_that("local STRING enrichment works on a synthetic fixture", {
   testthat::expect_equal(nrow(result), 1L)
   testthat::expect_identical(result$term[[1]], "GO:IMMUNE")
   testthat::expect_equal(result$number_of_genes[[1]], 3L)
-  testthat::expect_true(is.finite(result$pvalue[[1]]))
-  testthat::expect_true(is.finite(result$fdr[[1]]))
+  testthat::expect_equal(
+    result$pvalue[[1]],
+    1 / 12,
+    tolerance = 1e-12
+  )
+  testthat::expect_equal(
+    result$fdr[[1]],
+    1 / 6,
+    tolerance = 1e-12
+  )
 })
 
 testthat::test_that("local STRING enrichment uses one annotated universe", {

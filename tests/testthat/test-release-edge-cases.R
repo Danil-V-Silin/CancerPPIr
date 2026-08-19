@@ -237,6 +237,40 @@ testthat::test_that(
 )
 
 testthat::test_that(
+  "release qualification binds outputs to source and input identity",
+  {
+    project_root <- Sys.getenv("CANCERPPIR_PROJECT_ROOT")
+    release_text <- paste(
+      readLines(
+        file.path(project_root, "scripts", "run_release_qualification.R"),
+        warn = FALSE,
+        encoding = "UTF-8"
+      ),
+      collapse = "\n"
+    )
+
+    required_checks <- c(
+      "manifest_product_version_matches_release",
+      "manifest_git_commit_matches_release",
+      "manifest_records_clean_release_tree",
+      "manifest_input_sha256_matches_release_input",
+      "STRING_collision_metadata_matches_outputs",
+      "Release qualification requires a clean Git working tree."
+    )
+
+    testthat::expect_true(
+      all(vapply(
+        required_checks,
+        grepl,
+        x = release_text,
+        fixed = TRUE,
+        FUN.VALUE = logical(1)
+      ))
+    )
+  }
+)
+
+testthat::test_that(
   "release edge case: zero p-values remain finite and parser-safe in GraphML",
   {
     safe <- prepare_graphml_pvalue_export(
@@ -286,9 +320,9 @@ testthat::test_that(
         pipeline_result = "1.0.0",
         biological_evidence = "2.0.0",
         analytical_workbook = "2.0.0",
-        technical_workbook = "2.0.0",
+        technical_workbook = "2.1.0",
         graphml = "1.0.0",
-        output_manifest = "2.1.0",
+        output_manifest = "2.2.0",
         output_checksums = "1.0.0"
       )
     )

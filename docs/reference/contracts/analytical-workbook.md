@@ -47,6 +47,10 @@ significant, non-generic STRING/database enrichment terms. The primary term is
 the qualifying term with the lowest FDR; up to two additional qualifying terms
 are retained as secondary context.
 
+Benjamini-Hochberg adjustment is calculated within each query over all terms
+meeting the background-size bounds before the minimum two-protein support
+threshold is applied for reporting.
+
 Ordering is deterministic: module size, primary-term FDR, and module
 identifier.
 

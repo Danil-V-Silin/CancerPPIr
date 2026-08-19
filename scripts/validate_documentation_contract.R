@@ -155,7 +155,9 @@ cancerppir_validate_documentation_contract <- function(
     "A numeric p-value of zero is accepted",
     "Exactly one recognized column",
     "three equally weighted evidence domains",
-    "All five components must be finite"
+    "All five components must be finite",
+    "minimum raw `pvalue`, maximum absolute `logFC`",
+    "STRING collision counts and policy"
   )
   missing_input_contract_terms <- required_input_contract_terms[
     !vapply(
@@ -258,7 +260,8 @@ cancerppir_validate_documentation_contract <- function(
     "at least two supporting proteins",
     "hypergeometric test",
     "Benjamini-Hochberg",
-    "within each enrichment query, not across modules",
+    "before the two-supporting-protein reporting threshold",
+    "not performed across modules",
     "not independent sources of evidence"
   )
 
@@ -284,7 +287,8 @@ cancerppir_validate_documentation_contract <- function(
     "at least five proteins",
     "at least two supporting proteins",
     "Benjamini-Hochberg",
-    "not across modules",
+    "minimum two-supporting-protein threshold is applied only after",
+    "not performed across modules",
     "not independent sources of evidence"
   )
 
@@ -336,9 +340,9 @@ cancerppir_validate_documentation_contract <- function(
     pipeline_result = "1.0.0",
     biological_evidence = "2.0.0",
     analytical_workbook = "2.0.0",
-    technical_workbook = "2.0.0",
+    technical_workbook = "2.1.0",
     graphml = "1.0.0",
-    output_manifest = "2.1.0",
+    output_manifest = "2.2.0",
     output_checksums = "1.0.0"
   )
 
@@ -426,7 +430,8 @@ cancerppir_validate_documentation_contract <- function(
     "21 sheets",
     "`Raw major modules`",
     "`2.0.0`",
-    "`2.1.0`"
+    "`2.1.0`",
+    "`2.2.0`"
   )
   missing_specification_terms <- specification_contract_terms[
     !vapply(

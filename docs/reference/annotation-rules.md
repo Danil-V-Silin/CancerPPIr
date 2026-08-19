@@ -26,9 +26,11 @@ the network and audit outputs but can remain unresolved without having been
 tested for enrichment.
 
 Module terms are tested against the annotated case-network background using a
-hypergeometric test. A term requires at least two supporting proteins and
-between three and 500 annotated background proteins. Benjamini-Hochberg
-adjustment applies within each enrichment query, not across modules or analyses.
+hypergeometric test. Benjamini-Hochberg adjustment covers all terms containing
+between three and 500 annotated background proteins within each enrichment
+query. A reported term requires at least two supporting proteins. The minimum
+two-supporting-protein threshold is applied only after adjustment for reporting
+and interpretation. Adjustment is not performed across modules or analyses.
 The STRING-derived network and STRING-derived annotations are not independent
 sources of evidence.
 

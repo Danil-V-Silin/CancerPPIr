@@ -213,6 +213,10 @@ cancerppir_validate_static_release_contract <- function(
   )
 
   input_text <- production_text[["R/input.R"]]
+  enrichment_text <- production_text[["R/enrichment.R"]]
+  string_mapping_text <- production_text[["R/string_mapping.R"]]
+  pipeline_text <- production_text[["R/pipeline.R"]]
+  output_provenance_text <- production_text[["R/output_provenance.R"]]
   network_analysis_text <- production_text[["R/network_analysis.R"]]
 
   strict_input_contract_present <-
@@ -276,6 +280,77 @@ cancerppir_validate_static_release_contract <- function(
     "candidate_score_requires_complete_five_component_evidence",
     complete_candidate_score_present,
     "Variable-denominator candidate scoring is not permitted."
+  )
+
+  fdr_position <- regexpr(
+    'stats::p.adjust(pvalue, method = "BH")',
+    enrichment_text,
+    fixed = TRUE
+  )[[1L]]
+  support_filter_position <- regexpr(
+    "filter(number_of_genes >= min_query_hits)",
+    enrichment_text,
+    fixed = TRUE
+  )[[1L]]
+
+  add_check(
+    "enrichment_fdr_precedes_support_reporting_filter",
+    fdr_position > 0L &&
+      support_filter_position > fdr_position,
+    paste0(
+      "FDR@",
+      fdr_position,
+      "; support_filter@",
+      support_filter_position
+    )
+  )
+
+  collision_policy_present <-
+    grepl(
+      "resolve_string_mapping_collisions <- function",
+      string_mapping_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "minimum raw pvalue; maximum absolute logFC;",
+      string_mapping_text,
+      fixed = TRUE
+    ) &&
+    grepl(
+      "resolve_string_mapping_collisions(mapped_final_raw)",
+      pipeline_text,
+      fixed = TRUE
+    ) &&
+    !grepl(
+      "distinct(STRING_id, .keep_all = TRUE)",
+      pipeline_text,
+      fixed = TRUE
+    )
+
+  add_check(
+    "STRING_mapping_collisions_are_resolved_deterministically",
+    collision_policy_present,
+    "Minimum raw pvalue, maximum absolute logFC, then earliest input row."
+  )
+
+  add_check(
+    "output_manifest_records_product_version",
+    grepl(
+      "version = cancerppir_product_version(project_root)",
+      output_provenance_text,
+      fixed = TRUE
+    ) &&
+      grepl(
+        "manifest_software_identity_is_valid",
+        output_provenance_text,
+        fixed = TRUE
+      ) &&
+      grepl(
+        "manifest_STRING_collision_metadata_is_valid",
+        output_provenance_text,
+        fixed = TRUE
+      ),
+    "New manifests must record a stable CancerPPIr product version."
   )
 
   patient_id_pattern <-
@@ -598,9 +673,9 @@ cancerppir_validate_static_release_contract <- function(
     pipeline_result = "1.0.0",
     biological_evidence = "2.0.0",
     analytical_workbook = "2.0.0",
-    technical_workbook = "2.0.0",
+    technical_workbook = "2.1.0",
     graphml = "1.0.0",
-    output_manifest = "2.1.0",
+    output_manifest = "2.2.0",
     output_checksums = "1.0.0"
   )
 

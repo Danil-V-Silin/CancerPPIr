@@ -63,6 +63,13 @@ mapping:
 7. duplicate gene symbols, compared case-insensitively, are rejected;
 8. invalid rows are reported by their input row numbers.
 
+After HGNC normalization and STRING mapping, distinct rows can still converge
+on one STRING protein identifier. CancerPPIr resolves that collision by minimum
+raw `pvalue`, maximum absolute `logFC`, and then earliest validated input row.
+The number of affected proteins, number of discarded rows, and selection policy
+are recorded in `Mapping summary` and in the JSON manifest. This rule prevents
+the selected quantitative evidence from depending on STRINGdb return order.
+
 A numeric p-value of zero is accepted because differential-expression software
 may emit zero after floating-point underflow. For the candidate score,
 CancerPPIr floors zero to `.Machine$double.xmin` before applying `-log10` and
@@ -100,7 +107,8 @@ therapeutic actionability.
 The selected source headers, semantic definitions, validation policies and
 zero-p-value count are recorded in:
 
-- the `Mapping summary` sheet of `CancerPPIr_Technical_Report.xlsx`;
+- the `Mapping summary` sheet of `CancerPPIr_Technical_Report.xlsx`, including
+  post-mapping STRING collision counts and policy;
 - `analysis.input_contract` in `CancerPPIr_Output_Manifest.json`.
 
 No absolute input path is written to the manifest.

@@ -55,7 +55,7 @@ checksum file was created. It does not prove biological correctness.
 
 The JSON manifest contains:
 
-- software and Git metadata when available;
+- CancerPPIr product version and Git metadata when available;
 - R, platform, operating system, and package versions;
 - public schema versions;
 - pseudonymous case ID when supplied, input size, SHA-256, and mapping summary
@@ -75,9 +75,9 @@ and output paths are excluded.
 | Pipeline result | `1.0.0` |
 | Biological evidence | `2.0.0` |
 | Analytical workbook | `2.0.0` |
-| Technical workbook | `2.0.0` |
+| Technical workbook | `2.1.0` |
 | GraphML | `1.0.0` |
-| Output manifest | `2.1.0` |
+| Output manifest | `2.2.0` |
 | Output checksums | `1.0.0` |
 
 A schema version describes structure and interpretation. A Git commit identifies

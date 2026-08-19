@@ -72,7 +72,8 @@ table.
 Each row is directly traceable to statistically significant, non-generic
 STRING/database enrichment evidence. The primary interpretation is the
 qualifying term with the lowest FDR; up to two further qualifying terms provide
-secondary context.
+secondary context. FDR adjustment covers all terms meeting the background-size
+bounds before the minimum two-protein support threshold is applied.
 
 | Field | Interpretation |
 |---|---|
@@ -130,7 +131,7 @@ formal interpretation.
 
 ## Technical workbook
 
-The technical workbook schema is version `2.0.0`. It is the audit layer, not the
+The technical workbook schema is version `2.1.0`. It is the audit layer, not the
 recommended first view.
 
 ### Mapping and input audit
@@ -143,7 +144,9 @@ recommended first view.
 - `Genes used table`
 
 These sheets distinguish input rows, mapped input rows, unique mapped proteins,
-and final graph nodes. These quantities are not interchangeable.
+and final graph nodes. `Mapping summary` also records post-mapping STRING
+collision counts and the deterministic selection policy. These quantities are
+not interchangeable.
 
 ### Network and enrichment audit
 

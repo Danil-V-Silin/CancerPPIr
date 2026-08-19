@@ -123,10 +123,12 @@ vulnerability, or sample-specific pathway activity.
 Module enrichment uses a hypergeometric test against the case-network
 background restricted to proteins represented in the STRING term map.
 Terms require at least two supporting proteins and between three and 500
-annotated background proteins. Benjamini-Hochberg adjustment is applied within
-each enrichment query, not across modules or analyses. The resulting FDR is
-not the probability that a module assignment is correct. Whole-network
-enrichment instead uses the annotated human STRING background.
+annotated background proteins for reporting. Benjamini-Hochberg adjustment is
+calculated within each enrichment query across all terms meeting the three-to-
+500 background-size bounds, before the two-supporting-protein reporting
+threshold is applied. Adjustment is not performed across modules or analyses.
+The resulting FDR is not the probability that a module assignment is correct.
+Whole-network enrichment instead uses the annotated human STRING background.
 
 STRING network associations and STRING functional annotations are not
 independent sources of evidence. Local enrichment is computed by CancerPPIr

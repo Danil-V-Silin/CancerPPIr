@@ -46,11 +46,17 @@ Each case must contain:
 
 The qualification requires all static release, documentation, publication
 readiness, reproducible-environment, repository-quality, and CLI checks to pass
-before the seven-case run begins.
+before the seven-case run begins. It also requires an exact 40-character Git
+commit and a clean working tree.
 
 The input-contract preflight validates all seven files together and fails before
 unit tests or case execution if any file is incomplete, malformed, ambiguous, or
 contains duplicate gene symbols.
+
+For every case, the output manifest must record the current CancerPPIr product
+version, the exact qualified Git commit, a clean source tree, and the SHA-256 of
+the corresponding current release input. Internally consistent outputs from a
+different commit, product version, or input file do not pass `validate-existing`.
 
 ## Release evidence
 
@@ -73,5 +79,6 @@ CANCERPPIR RELEASE QUALIFICATION: PASSED
 ## Acceptance rule
 
 Qualification passes only when all seven cases complete, every required output
-and checksum validates, expected network/module regression counts match, and no
-repository or case validation row has status `FAIL`.
+and checksum validates, version/commit/input identity matches, expected network
+and module regression counts match, and no repository or case validation row
+has status `FAIL`.
