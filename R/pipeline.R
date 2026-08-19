@@ -1007,7 +1007,8 @@ run_cancerppir <- function(
     biological_evidence = biological_evidence,
     string_version = "12.0",
     louvain_seed = CANCERPPIR_LOUVAIN_SEED,
-    fdr_threshold = 0.05
+    fdr_threshold = 0.05,
+    run_enrichment = run_enrichment
   )
 
   analytical_sheets <- analytical_report$sheets

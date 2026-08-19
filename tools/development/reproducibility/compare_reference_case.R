@@ -413,9 +413,13 @@ log_completed <- function(path) {
 
   any(
     grepl(
-      "[CancerPPIr] Done.",
+      paste0(
+        "^\\[CancerPPIr\\]",
+        "(?: \\[\\+[0-9]+:[0-9]{2}:[0-9]{2}\\])?",
+        " Done\\.$"
+      ),
       lines,
-      fixed = TRUE
+      perl = TRUE
     )
   )
 }
