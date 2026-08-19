@@ -47,6 +47,90 @@ project_root <- normalizePath(
   mustWork = TRUE
 )
 
+version_file <- file.path(project_root, "VERSION")
+
+if (!file.exists(version_file)) {
+  stop("Release qualification requires VERSION.", call. = FALSE)
+}
+
+release_product_version <- trimws(
+  readLines(
+    version_file,
+    n = 1L,
+    warn = FALSE,
+    encoding = "UTF-8"
+  )
+)
+
+if (!grepl("^[0-9]+\\.[0-9]+\\.[0-9]+$", release_product_version)) {
+  stop(
+    "Release qualification requires a stable semantic VERSION.",
+    call. = FALSE
+  )
+}
+
+git_command <- Sys.which("git")
+
+if (!nzchar(git_command)) {
+  stop("Release qualification requires Git.", call. = FALSE)
+}
+
+release_git_value <- function(arguments) {
+  output <- suppressWarnings(
+    system2(
+      command = git_command,
+      args = c(
+        "-C",
+        shQuote(project_root),
+        arguments
+      ),
+      stdout = TRUE,
+      stderr = TRUE
+    )
+  )
+
+  status <- attr(output, "status")
+  if (is.null(status)) status <- 0L
+
+  if (!identical(as.integer(status), 0L)) {
+    stop(
+      "Release qualification could not read Git metadata: ",
+      paste(output, collapse = " | "),
+      call. = FALSE
+    )
+  }
+
+  trimws(as.character(output))
+}
+
+release_git_commit <- release_git_value(
+  c("rev-parse", "HEAD")
+)
+
+if (
+  length(release_git_commit) != 1L ||
+    !grepl("^[0-9a-f]{40}$", release_git_commit)
+) {
+  stop(
+    "Release qualification requires one exact 40-character Git commit.",
+    call. = FALSE
+  )
+}
+
+release_git_status <- release_git_value(
+  c("status", "--porcelain", "--untracked-files=all")
+)
+
+if (any(nzchar(release_git_status))) {
+  stop(
+    paste0(
+      "Release qualification requires a clean Git working tree.\n",
+      paste(release_git_status, collapse = "\n")
+    ),
+    call. = FALSE
+  )
+}
+
 input_root <- if (length(arguments) >= 1L) {
   arguments[[1L]]
 } else {
@@ -1008,6 +1092,71 @@ for (case_index in seq_len(
           )
         }
 
+        manifest <- jsonlite::read_json(
+          manifest_file,
+          simplifyVector = TRUE
+        )
+
+        case_input_file <- file.path(
+          input_root,
+          case_map$input_file[[case_index]]
+        )
+
+        add_check(
+          sample_id,
+          "manifest_product_version_matches_release",
+          identical(
+            as.character(manifest$software$version),
+            release_product_version
+          ),
+          paste0(
+            "manifest=",
+            as.character(manifest$software$version),
+            "; release=",
+            release_product_version
+          )
+        )
+
+        add_check(
+          sample_id,
+          "manifest_git_commit_matches_release",
+          identical(
+            as.character(manifest$software$git_commit),
+            release_git_commit
+          ),
+          paste0(
+            "manifest=",
+            as.character(manifest$software$git_commit),
+            "; release=",
+            release_git_commit
+          )
+        )
+
+        add_check(
+          sample_id,
+          "manifest_records_clean_release_tree",
+          isTRUE(manifest$software$working_tree_clean),
+          paste0(
+            "working_tree_clean=",
+            as.character(manifest$software$working_tree_clean)
+          )
+        )
+
+        add_check(
+          sample_id,
+          "manifest_input_sha256_matches_release_input",
+          identical(
+            tolower(as.character(manifest$input$sha256)),
+            cancerppir_sha256_file(case_input_file)
+          ),
+          paste0(
+            "manifest=",
+            tolower(as.character(manifest$input$sha256)),
+            "; current=",
+            cancerppir_sha256_file(case_input_file)
+          )
+        )
+
         graph <- igraph::read_graph(
           graphml_file,
           format = "graphml"
@@ -1112,6 +1261,68 @@ for (case_index in seq_len(
           ),
           stringsAsFactors = FALSE,
           check.names = FALSE
+        )
+
+        technical_mapping <- as.data.frame(
+          openxlsx::read.xlsx(
+            technical_file,
+            sheet = "Mapping summary",
+            colNames = TRUE,
+            check.names = FALSE
+          ),
+          stringsAsFactors = FALSE,
+          check.names = FALSE
+        )
+
+        technical_mapping_values <- stats::setNames(
+          as.character(technical_mapping$value),
+          as.character(technical_mapping$metric)
+        )
+
+        collision_metadata_matches <-
+          identical(
+            as.integer(
+              technical_mapping_values[[
+                "STRING_mapping_collision_proteins"
+              ]]
+            ),
+            as.integer(
+              manifest$input$STRING_mapping_collision_proteins
+            )
+          ) &&
+          identical(
+            as.integer(
+              technical_mapping_values[[
+                "STRING_mapping_collision_rows_dropped"
+              ]]
+            ),
+            as.integer(
+              manifest$input$STRING_mapping_collision_rows_dropped
+            )
+          ) &&
+          identical(
+            as.character(
+              technical_mapping_values[[
+                "STRING_mapping_collision_policy"
+              ]]
+            ),
+            as.character(
+              manifest$input$STRING_mapping_collision_policy
+            )
+          )
+
+        add_check(
+          sample_id,
+          "STRING_collision_metadata_matches_outputs",
+          collision_metadata_matches,
+          paste0(
+            "proteins=",
+            manifest$input$STRING_mapping_collision_proteins,
+            "; dropped_rows=",
+            manifest$input$STRING_mapping_collision_rows_dropped,
+            "; policy=",
+            manifest$input$STRING_mapping_collision_policy
+          )
         )
 
         graph_ids <- as.character(
@@ -1338,11 +1549,6 @@ for (case_index in seq_len(
             "; expected=",
             case_map$expected_modules[[case_index]]
           )
-        )
-
-        manifest <- jsonlite::read_json(
-          manifest_file,
-          simplifyVector = TRUE
         )
 
         manifest_summary_valid <- (

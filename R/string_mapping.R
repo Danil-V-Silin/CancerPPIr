@@ -444,6 +444,101 @@ cancerppir_string_v12_resource_manifest <- function(
   )
 }
 
+resolve_string_mapping_collisions <- function(mapped_table) {
+  required_columns <- c(
+    "input_row",
+    "gene",
+    "logFC",
+    "pvalue",
+    "STRING_id"
+  )
+
+  missing_columns <- setdiff(required_columns, names(mapped_table))
+
+  if (length(missing_columns) > 0L) {
+    stop(
+      "STRING collision resolution requires column(s): ",
+      paste(missing_columns, collapse = ", "),
+      ".",
+      call. = FALSE
+    )
+  }
+
+  mapped_rows <- mapped_table %>%
+    filter(
+      !is.na(STRING_id),
+      grepl("^9606\\.", STRING_id)
+    )
+
+  empty_audit <- tibble::tibble(
+    STRING_id = character(),
+    input_row = integer(),
+    gene = character(),
+    pvalue = double(),
+    logFC = double(),
+    selected = logical(),
+    selection_rank = integer()
+  )
+
+  if (!nrow(mapped_rows)) {
+    return(list(
+      mapped = mapped_rows,
+      collision_audit = empty_audit,
+      collision_proteins = 0L,
+      dropped_rows = 0L,
+      policy = paste(
+        "minimum raw pvalue; maximum absolute logFC;",
+        "earliest input row"
+      )
+    ))
+  }
+
+  ranked <- mapped_rows %>%
+    mutate(.absolute_logFC = abs(logFC)) %>%
+    arrange(
+      STRING_id,
+      pvalue,
+      desc(.absolute_logFC),
+      input_row
+    ) %>%
+    group_by(STRING_id) %>%
+    mutate(
+      .collision_size = n(),
+      .selection_rank = row_number()
+    ) %>%
+    ungroup()
+
+  collision_audit <- ranked %>%
+    filter(.collision_size > 1L) %>%
+    transmute(
+      STRING_id,
+      input_row = as.integer(input_row),
+      gene = as.character(gene),
+      pvalue = as.numeric(pvalue),
+      logFC = as.numeric(logFC),
+      selected = .selection_rank == 1L,
+      selection_rank = as.integer(.selection_rank)
+    )
+
+  selected <- ranked %>%
+    filter(.selection_rank == 1L) %>%
+    arrange(input_row, STRING_id) %>%
+    select(all_of(names(mapped_table)))
+
+  list(
+    mapped = selected,
+    collision_audit = collision_audit,
+    collision_proteins = as.integer(
+      n_distinct(collision_audit$STRING_id)
+    ),
+    dropped_rows = as.integer(sum(!collision_audit$selected)),
+    policy = paste(
+      "minimum raw pvalue; maximum absolute logFC;",
+      "earliest input row"
+    )
+  )
+}
+
 cancerppir_ensure_string_v12_resources <- function(
   cache_dir,
   roles,

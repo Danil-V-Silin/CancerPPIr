@@ -1,6 +1,6 @@
 # Canonical biological annotation contract
 
-Biological-evidence schema version: `1.0.0`
+Biological-evidence schema version: `2.0.0`
 GraphML schema version: `1.0.0`
 Pipeline-result schema version: `1.0.0`
 
@@ -26,14 +26,31 @@ A production run stops when any validation row has status `FAIL`.
 
 ## Module interpretation
 
-Canonical module fields include interpretation class and scope, compartment,
-lineage, state, process, primary interpretation, secondary themes, confidence,
-priority eligibility, marker and term support, best supporting FDR, conflict
-status, warning, and evidence rationale.
+Canonical biological interpretation is derived from statistically significant,
+non-generic local STRING enrichment. The qualifying term with the lowest FDR
+provides the primary interpretation; up to two additional qualifying terms
+provide secondary context. A technical/covariate signature overrides automatic
+biological priority, and a module without a qualifying term remains unresolved.
+Benjamini-Hochberg adjustment is calculated over every term meeting the
+query-independent background-size bounds before the minimum support threshold
+is applied for reporting.
 
-The primary interpretation is a conservative synthesis of supported evidence.
-It is not a cell-fraction estimate, deconvolution result, proof of tumor-cell
-origin, or therapeutic recommendation.
+Supported biological modules receive `moderate` confidence. Compartment,
+lineage, state, process, marker, and conflict fields remain in the schema for
+compatibility but do not provide independently resolved marker-derived
+classifications in the current adapter. The `module_rule_evidence` table is an
+auxiliary audit layer and does not determine canonical interpretation or
+automatic module or protein priority.
+
+Every `module_rule_evidence` row exposes `curation_status`, `rule_version`,
+`rule_schema_version`, `evidence_basis`, `reference_count`, and `references`.
+The shipped rulebook currently contains only `legacy_unverified` and
+`provisional` rules; none is represented as validated biological evidence.
+These statuses remain auxiliary regardless of marker overlap or heuristic
+`evidence_score`.
+
+A canonical interpretation is not a cell-fraction estimate, deconvolution
+result, proof of tumor-cell origin, or therapeutic recommendation.
 
 ## GraphML contract
 

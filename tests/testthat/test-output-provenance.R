@@ -5,11 +5,11 @@ testthat::test_that(
       cancerppir_schema_versions(),
       list(
         pipeline_result = "1.0.0",
-        biological_evidence = "1.0.0",
+        biological_evidence = "2.0.0",
         analytical_workbook = "2.0.0",
-        technical_workbook = "1.0.0",
+        technical_workbook = "2.1.0",
         graphml = "1.0.0",
-        output_manifest = "2.1.0",
+        output_manifest = "2.2.0",
         output_checksums = "1.0.0"
       )
     )
@@ -28,6 +28,8 @@ testthat::test_that(
       recursive = TRUE,
       showWarnings = FALSE
     )
+
+    writeLines("1.2.0", file.path(fixture_dir, "VERSION"))
 
     on.exit(
       unlink(
@@ -85,12 +87,8 @@ testthat::test_that(
         string_links = "links",
         graphml = "network"
       ),
-      output_schema_versions = c(
-        analytical_report = "1.0.0",
-        technical_report = "1.0.0",
-        string_links = "1.0.0",
-        graphml = "1.0.0"
-      ),
+      output_schema_versions =
+        cancerppir_output_file_schema_versions(),
       input_summary = list(
         case_id = "A01",
         case_id_source = "explicit_case_id",
@@ -99,6 +97,12 @@ testthat::test_that(
         mapped_input_rows = 1L,
         unmapped_input_rows = 0L,
         unique_mapped_proteins = 1L,
+        STRING_mapping_collision_proteins = 0L,
+        STRING_mapping_collision_rows_dropped = 0L,
+        STRING_mapping_collision_policy = paste(
+          "minimum raw pvalue; maximum absolute logFC;",
+          "earliest input row"
+        ),
         successful_alias_corrections = 0L
       ),
       analysis_configuration = list(
@@ -175,6 +179,11 @@ testthat::test_that(
     )
 
     testthat::expect_identical(
+      manifest$software$version,
+      "1.2.0"
+    )
+
+    testthat::expect_identical(
       manifest$analysis$input_contract$pvalue_type,
       "raw_differential_expression_p_value"
     )
@@ -188,6 +197,17 @@ testthat::test_that(
       names(manifest$outputs),
       basename(output_files)
     )
+
+    for (file_key in names(output_files)) {
+      output_name <- basename(output_files[[file_key]])
+
+      testthat::expect_identical(
+        manifest$outputs[[output_name]]$schema_version,
+        unname(
+          cancerppir_output_file_schema_versions()[[file_key]]
+        )
+      )
+    }
 
     manifest_text <- paste(
       readLines(
@@ -271,6 +291,7 @@ testthat::test_that(
     schema_2_manifest$schemas$output_manifest <- "2.0.0"
     schema_2_manifest$input$case_id <- NULL
     schema_2_manifest$input$case_id_source <- NULL
+    schema_2_manifest$software$version <- NULL
 
     jsonlite::write_json(
       schema_2_manifest,
@@ -309,6 +330,7 @@ testthat::test_that(
     legacy_manifest$input$case_id_source <- NULL
     legacy_manifest$input$file_name <- basename(input_file)
     legacy_manifest$privacy$original_input_file_name_recorded <- NULL
+    legacy_manifest$software$version <- NULL
 
     jsonlite::write_json(
       legacy_manifest,
@@ -338,6 +360,46 @@ testthat::test_that(
     testthat::expect_true(
       all(legacy_validation$status == "PASS")
     )
+
+    mismatched_manifest <- manifest
+    technical_output <- basename(
+      output_files[["technical_report"]]
+    )
+    mismatched_manifest$outputs[[technical_output]]$schema_version <-
+      "1.0.0"
+
+    jsonlite::write_json(
+      mismatched_manifest,
+      path = provenance$manifest_file,
+      pretty = TRUE,
+      auto_unbox = TRUE,
+      null = "null",
+      na = "null",
+      digits = NA
+    )
+
+    cancerppir_write_checksum_file(
+      files = c(
+        output_files,
+        output_manifest = provenance$manifest_file
+      ),
+      path = provenance$checksums_file
+    )
+
+    schema_validation <- cancerppir_validate_output_provenance(
+      manifest_file = provenance$manifest_file,
+      checksums_file = provenance$checksums_file,
+      output_dir = fixture_dir,
+      forbidden_paths = fixture_dir
+    )
+
+    testthat::expect_identical(
+      schema_validation$status[
+        schema_validation$check_id ==
+          "manifest_output_schema_versions_match_registry"
+      ],
+      "FAIL"
+    )
   }
 )
 
@@ -353,6 +415,8 @@ testthat::test_that(
       recursive = TRUE,
       showWarnings = FALSE
     )
+
+    writeLines("1.2.0", file.path(fixture_dir, "VERSION"))
 
     on.exit(
       unlink(
@@ -388,11 +452,17 @@ testthat::test_that(
         rep("fixture", length(output_files)),
         names(output_files)
       ),
-      output_schema_versions = stats::setNames(
-        rep("fixture", length(output_files)),
-        names(output_files)
+      output_schema_versions =
+        cancerppir_output_file_schema_versions(),
+      input_summary = list(
+        input_rows = 1L,
+        STRING_mapping_collision_proteins = 0L,
+        STRING_mapping_collision_rows_dropped = 0L,
+        STRING_mapping_collision_policy = paste(
+          "minimum raw pvalue; maximum absolute logFC;",
+          "earliest input row"
+        )
       ),
-      input_summary = list(input_rows = 1L),
       analysis_configuration = list(mode = "fixture"),
       run_summary = list(nodes = 1L),
       project_root = fixture_dir,

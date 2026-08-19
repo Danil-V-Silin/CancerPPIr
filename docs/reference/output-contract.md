@@ -37,9 +37,10 @@ The analytical workbook contains exactly six sheets in this order:
 The technical workbook retains complete mapping, topology, enrichment,
 biological-evidence, validation, and runtime audit tables. The `Mapping summary`
 sheet also records the scientific input-contract schema, selected source
-headers, logFC and p-value semantics, validation policies and zero-p-value
-count. The same contract is serialized under `analysis.input_contract` in the
-JSON manifest. The five canonical
+headers, logFC and p-value semantics, validation policies, zero-p-value count,
+and post-mapping STRING collision counts and selection policy. The scientific
+input contract is serialized under `analysis.input_contract`; collision
+metadata are serialized under `input` in the JSON manifest. The five canonical
 biological-evidence sheets use these descriptive names:
 
 1. `Module annotations`

@@ -4,18 +4,57 @@
 # Release validators retain independent pinned expectations.
 
 CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION <- "1.0.0"
+CANCERPPIR_BIOLOGICAL_EVIDENCE_SCHEMA_VERSION <- "2.0.0"
 CANCERPPIR_ANALYTICAL_SCHEMA_VERSION <- "2.0.0"
-CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "1.0.0"
+CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION <- "2.1.0"
 CANCERPPIR_GRAPHML_SCHEMA_VERSION <- "1.0.0"
-CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "2.1.0"
+CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION <- "2.2.0"
 CANCERPPIR_OUTPUT_CHECKSUMS_SCHEMA_VERSION <- "1.0.0"
 
 CANCERPPIR_SUPPORTED_OUTPUT_MANIFEST_SCHEMA_VERSIONS <- c(
   "1.0.0",
   "2.0.0",
+  "2.1.0",
   CANCERPPIR_OUTPUT_MANIFEST_SCHEMA_VERSION
 )
+
+cancerppir_product_version <- function(
+  project_root = getOption(
+    "cancerppir.project_root",
+    default = ""
+  )
+) {
+  project_root <- as.character(project_root)[1L]
+  version_file <- file.path(project_root, "VERSION")
+
+  if (!nzchar(project_root) || !file.exists(version_file)) {
+    stop(
+      "CancerPPIr VERSION file is unavailable.",
+      call. = FALSE
+    )
+  }
+
+  version <- trimws(
+    readLines(
+      version_file,
+      n = 1L,
+      warn = FALSE,
+      encoding = "UTF-8"
+    )
+  )
+
+  if (
+    length(version) != 1L ||
+      !grepl("^[0-9]+\\.[0-9]+\\.[0-9]+$", version)
+  ) {
+    stop(
+      "CancerPPIr VERSION must contain one stable semantic version.",
+      call. = FALSE
+    )
+  }
+
+  version
+}
 
 CANCERPPIR_PUBLIC_SCHEMA_VERSIONS <- list(
   pipeline_result = CANCERPPIR_PIPELINE_RESULT_SCHEMA_VERSION,
@@ -29,4 +68,13 @@ CANCERPPIR_PUBLIC_SCHEMA_VERSIONS <- list(
 
 cancerppir_schema_versions <- function() {
   CANCERPPIR_PUBLIC_SCHEMA_VERSIONS
+}
+
+cancerppir_output_file_schema_versions <- function() {
+  c(
+    analytical_report = CANCERPPIR_ANALYTICAL_SCHEMA_VERSION,
+    technical_report = CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION,
+    string_links = "1.0.0",
+    graphml = CANCERPPIR_GRAPHML_SCHEMA_VERSION
+  )
 }

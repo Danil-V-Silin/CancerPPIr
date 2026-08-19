@@ -64,6 +64,52 @@ testthat::test_that(
 )
 
 testthat::test_that(
+  "custom rulebooks receive conservative provenance",
+  {
+    rules <- default_evidence_rules()
+    rule_ids <- vapply(
+      rules,
+      function(rule) rule$rule_id,
+      character(1)
+    )
+
+    plasma_index <- match(
+      "plasma_cell_associated",
+      rule_ids
+    )
+    rules[[plasma_index]]$positive_markers <- c(
+      rules[[plasma_index]]$positive_markers,
+      "CUSTOM_MARKER"
+    )
+
+    provenance <- default_evidence_rule_provenance(
+      rules
+    )
+
+    testthat::expect_identical(
+      provenance$curation_status[[plasma_index]],
+      "legacy_unverified"
+    )
+
+    subset_provenance <- default_evidence_rule_provenance(
+      rules[seq_len(2L)]
+    )
+
+    testthat::expect_equal(
+      nrow(subset_provenance),
+      2L
+    )
+
+    testthat::expect_true(
+      validate_evidence_rule_provenance(
+        rules[seq_len(2L)],
+        subset_provenance
+      )
+    )
+  }
+)
+
+testthat::test_that(
   "duplicate rule identifiers are rejected",
   {
     rules <- default_evidence_rules()

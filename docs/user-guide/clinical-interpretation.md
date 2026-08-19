@@ -13,8 +13,9 @@ Interpret results from lower to higher evidentiary levels:
    mappings.
 3. **Network evidence** — retained nodes, edges, topology, components, and
    deterministic Louvain modules.
-4. **Module evidence** — canonical marker and significant-term support,
-   confidence, conflict, warning, and rationale.
+4. **Module evidence** — significant, non-generic STRING enrichment,
+   technical-signature status, supporting genes, warnings, and rationale;
+   marker-rule evaluations are a separate auxiliary audit layer.
 5. **Candidate priority** — within-network score, topology ranks, expression
    evidence, entity eligibility, and eligible module context.
 6. **External biological evidence** — mutation, copy number, protein abundance,
@@ -34,7 +35,8 @@ A candidate should be described using all of the following:
 - topology ranks and the five score components;
 - logFC and the raw differential-expression p-value;
 - entity class and candidate eligibility;
-- module interpretation, confidence, conflict, warning, and rationale;
+- module interpretation, confidence, warning, rationale, and relevant
+  compatibility-field limitations;
 - evidence that remains absent from the workflow.
 
 Acceptable formulation:
@@ -50,17 +52,22 @@ Unsupported formulation:
 
 ## Module interpretation
 
-A module interpretation is strongest when:
+A canonical module interpretation requires:
 
-- marker and significant-term evidence are concordant;
-- confidence is high or moderate;
-- conflict is absent;
-- the evidence rationale names the supporting genes and terms;
+- at least one statistically significant, non-generic local STRING term;
+- no technical or covariate signature that blocks automatic priority;
+- an evidence rationale that identifies the supporting terms and genes;
 - the interpretation agrees with pathology and specimen context.
 
-Technical/covariate, mixed-biological, and unresolved modules must remain
-visible. They should not be relabelled manually as biological priorities merely
-to produce a complete-looking table.
+Curated marker-rule evaluations may provide supplementary context, but they do
+not determine the canonical interpretation or automatic module priority. The
+current database-primary adapter assigns `moderate` confidence to supported
+biological modules; richer lineage, conflict, and confidence states must not be
+inferred from compatibility fields alone.
+
+Technical/covariate and unresolved modules remain visible. They should not be
+relabelled manually as biological priorities merely to produce a complete-
+looking table.
 
 ## Bulk specimen context
 

@@ -17,19 +17,19 @@
 | Candidate-score component | One of five normalized base inputs. Degree, betweenness, and log-stress are averaged into the topology domain; absolute logFC and statistical evidence define the other two domains. All five base components must be finite for every ranked network node. |
 | Louvain module | Deterministically detected community of densely connected nodes. |
 | `module_id` | Stable identifier used to refer to a Louvain module within a run. |
-| `interpretation_class` | Module category: biological, mixed biological, technical/covariate, or unresolved. |
-| `interpretation_scope` | Strongest evidence resolution across lineage, state, and process axes. |
-| `compartment` | Broad context supported by module evidence. It is not a cell-fraction estimate. |
-| `lineage` | Lineage-associated evidence supported by markers and significant terms. |
-| `state` | Supported cellular or biological state. |
-| `process` | Supported biological process. |
-| `primary_interpretation` | Conservative synthesis of supported module evidence. |
-| `secondary_themes` | Additional supported themes that do not replace the primary interpretation. |
-| `confidence` | Qualitative evidence confidence used with conflict and warning fields. |
+| `interpretation_class` | Current canonical module category: biological, technical/covariate, or unresolved. |
+| `interpretation_scope` | Current canonical decision scope: database-enrichment-supported, technical/covariate, or unresolved. |
+| `compartment` | Compatibility field; the current database-primary adapter does not independently resolve a broad cellular compartment. |
+| `lineage` | Compatibility field; the current database-primary adapter does not assign marker-derived lineage identity. |
+| `state` | Compatibility field; the current database-primary adapter does not independently assign a cellular state. |
+| `process` | Compatibility field; the current database-primary adapter does not independently assign a biological process axis. |
+| `primary_interpretation` | Qualifying non-generic STRING enrichment term with the lowest FDR, or a technical/unresolved label. |
+| `secondary_themes` | Up to two additional qualifying enrichment terms retained as supplementary context. |
+| `confidence` | Compatibility confidence state: moderate for a supported biological module, unresolved otherwise, or not applicable for a technical signature. |
 | `priority_eligible` | Module-level Boolean indicating that automatic priority criteria are satisfied. |
-| `conflict_detected` | Evidence disagreement that prevents or constrains automatic interpretation. |
-| `positive_marker_genes` | Marker genes providing direct positive support for a selected rule. |
-| `supportive_marker_genes` | Genes that strengthen an interpretation but do not independently establish it. |
+| `conflict_detected` | Compatibility field; auxiliary marker-rule disagreement does not determine the current canonical module decision. |
+| `positive_marker_genes` | Auxiliary marker-rule field; canonical module annotations intentionally leave it empty. |
+| `supportive_marker_genes` | Auxiliary marker-rule field; canonical module annotations intentionally leave it empty. |
 | `significant_supporting_terms` | Non-generic terms retained after FDR filtering for canonical interpretation. |
 | `best_supporting_fdr` | Lowest FDR among retained supporting terms. |
 | `evidence_rationale` | Human-readable trace of the evidence and its limitations. |
@@ -42,7 +42,7 @@
 | Output manifest | JSON file containing provenance, configuration, schemas, run summary, and output hashes. |
 | Checksum | SHA-256 digest used to verify exact file bytes. |
 | Schema version | Version of a public structure or interpretation contract; separate from Git commit identity. |
-| Canonical output | Current source of truth used for decisions and public interpretation. |
+| Canonical output | Current source of truth used for decisions and public interpretation; biological priorities are derived from qualifying STRING enrichment. |
 | Compatibility output | Deprecated historical structure retained only for migration or audit. |
 | Offline enrichment | Enrichment performed from locally cached STRING v12 annotation resources without online service calls. |
 | Generic term | Broad annotation term that is insufficient as primary interpretive evidence by itself. |

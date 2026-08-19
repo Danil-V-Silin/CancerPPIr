@@ -16,7 +16,13 @@ testthat::test_that(
         1,
         0.1,
         length.out = 11L
-      )
+      ),
+      module_direction = "legacy module label",
+      clean_module_label = "legacy module label",
+      marker_based_direction = "legacy marker direction",
+      marker_clean_label = "legacy marker label",
+      marker_evidence_genes = "CD3D;CD3E",
+      enrichment_evidence_terms = "legacy enrichment term"
     )
 
     module_enrichment <- tibble::tibble(
@@ -62,6 +68,20 @@ testthat::test_that(
     testthat::expect_identical(
       result$node_annotations$gene,
       node_metrics$gene
+    )
+
+    testthat::expect_true(
+      any(
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
+          names(node_metrics)
+      )
+    )
+
+    testthat::expect_false(
+      any(
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
+          names(result$node_annotations)
+      )
     )
 
     y_module <- result$module_annotations[
@@ -211,8 +231,52 @@ testthat::test_that(
       nrow(result$module_rule_evidence) > 0L
     )
 
+    provenance_fields <- c(
+      "curation_status",
+      "rule_version",
+      "rule_schema_version",
+      "evidence_basis",
+      "reference_count",
+      "references"
+    )
+
+    testthat::expect_true(
+      all(
+        provenance_fields %in%
+          names(result$module_rule_evidence)
+      )
+    )
+
+    testthat::expect_setequal(
+      unique(result$module_rule_evidence$curation_status),
+      c("legacy_unverified", "provisional")
+    )
+
+    provisional <- result$module_rule_evidence[
+      result$module_rule_evidence$curation_status ==
+        "provisional",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_true(
+      all(provisional$reference_count > 0L)
+    )
+
+    testthat::expect_true(
+      all(nzchar(provisional$references))
+    )
+
     testthat::expect_true(
       all(result$validation$status == "PASS")
+    )
+
+    testthat::expect_identical(
+      result$validation$status[
+        result$validation$check_id ==
+          "rule_evidence_has_explicit_provenance"
+      ],
+      "PASS"
     )
   }
 )

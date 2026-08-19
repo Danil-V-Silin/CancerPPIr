@@ -2,10 +2,13 @@
 
 ## Requirements
 
-- R 4.5.x
+- R 4.5.0, the qualified runtime recorded in `renv.lock`
 - Git
 - Internet access for initial dependency restoration
 - Sufficient storage for local STRING v12 resources
+
+Other R 4.5.x patch releases may be compatible but have not been independently
+qualified. R 4.6 has not been qualified and is not recommended for this release.
 
 ## Reproducible environment
 
@@ -18,7 +21,6 @@ renv::status()
 ```
 
 Do not install ad hoc package versions into the project library after `renv::restore()` unless the lockfile is intentionally updated and reviewed.
-
 
 ## STRING v12.0 resources
 

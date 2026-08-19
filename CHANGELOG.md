@@ -6,6 +6,41 @@ CancerPPIr follows Semantic Versioning.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-19
+
+### Fixed
+
+- Corrected local STRING enrichment so Benjamini-Hochberg adjustment covers
+  every term meeting the query-independent background-size bounds before the
+  minimum two-protein reporting threshold is applied.
+- Replaced order-dependent removal of repeated STRING protein identifiers with
+  a deterministic policy: minimum raw p-value, maximum absolute logFC, then
+  earliest validated input row.
+- Added the CancerPPIr product version to newly written output manifests.
+- Bound release qualification to the exact clean Git commit, product version,
+  and SHA-256 of every current clinical-regression input.
+
+### Changed
+
+- Advanced the technical-workbook schema to `2.1.0` to record STRING mapping-
+  collision counts and policy in `Mapping summary`.
+- Advanced the output-manifest schema to `2.2.0`; validators retain support for
+  manifest schemas `1.0.0`, `2.0.0`, and `2.1.0`.
+- Consolidated methodological limitations, rule provenance, schema contracts,
+  and release checks required for publication.
+
+### Compatibility
+
+- CancerPPIr product version advances from `1.1.1` to `1.2.0` because corrected
+  enrichment FDR values can change automatic module interpretation and final
+  candidate eligibility.
+- STRING v12 mapping resources, combined-score network construction, unweighted
+  deterministic Louvain detection, and the candidate-score formula are not
+  changed.
+- Final publication requires a new seven-case qualification from the exact
+  clean release commit; results from earlier commits cannot satisfy the new
+  release identity checks.
+
 ## [1.1.1] - 2026-08-17
 
 ### Added

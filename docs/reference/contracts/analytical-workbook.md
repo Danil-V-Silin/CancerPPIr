@@ -47,6 +47,10 @@ significant, non-generic STRING/database enrichment terms. The primary term is
 the qualifying term with the lowest FDR; up to two additional qualifying terms
 are retained as secondary context.
 
+Benjamini-Hochberg adjustment is calculated within each query over all terms
+meeting the background-size bounds before the minimum two-protein support
+threshold is applied for reporting.
+
 Ordering is deterministic: module size, primary-term FDR, and module
 identifier.
 
@@ -85,8 +89,9 @@ Only canonical biological-evidence fields are used for analytical biological
 context. Supporting enrichment terms must be statistically significant,
 non-generic, and satisfy `FDR <= 0.05`.
 
-Technical/covariate, mixed-conflict, and unresolved modules are not promoted to
-automatic biological priorities.
+Technical/covariate and unresolved modules are not promoted to automatic
+biological priorities. Auxiliary marker-rule scores and conflicts do not
+determine the current canonical module decision.
 
 ## Interpretation boundaries
 

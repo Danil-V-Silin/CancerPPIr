@@ -187,6 +187,9 @@ run_network_analysis <- function(
   after_mapped,
   after_unmapped,
   after_pct,
+  string_mapping_collision_proteins,
+  string_mapping_collision_rows_dropped,
+  string_mapping_collision_policy,
   score_threshold,
   top_n
 ) {
@@ -415,6 +418,9 @@ run_network_analysis <- function(
       "final_mapped",
       "final_unmapped",
       "final_mapped_percent",
+      "STRING_mapping_collision_proteins",
+      "STRING_mapping_collision_rows_dropped",
+      "STRING_mapping_collision_policy",
       "nodes_in_network"
     ),
     value = c(
@@ -425,6 +431,9 @@ run_network_analysis <- function(
       after_mapped,
       after_unmapped,
       after_pct,
+      string_mapping_collision_proteins,
+      string_mapping_collision_rows_dropped,
+      string_mapping_collision_policy,
       nrow(mapped_final)
     )
   )

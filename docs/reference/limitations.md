@@ -18,6 +18,11 @@ multiple-testing method. Those study-level details must remain with the source
 differential-expression analysis. Comparisons across runs require the same
 upstream model, contrast and selection procedure.
 
+Raw differential-expression p-values are not adjusted within CancerPPIr.
+Appropriate multiple-testing control and input-gene selection must therefore be
+performed and documented upstream; enrichment FDR does not correct the input
+differential-expression p-values.
+
 HGNC normalization, alias correction and STRING mapping can still change row
 counts. Input rows, mapped input rows, unique mapped proteins and final graph
 nodes are distinct quantities.
@@ -45,11 +50,23 @@ Highly studied proteins may appear more connected than poorly characterized
 proteins. A node absent from the final network may still be biologically
 important.
 
+The pinned human STRING v12 files are acquired from the official distribution
+at `https://stringdb-downloads.org/download/` when missing or invalid and are
+then reused locally. The network uses the full STRING association graph with
+`combined_only` evidence and a default score threshold of `400/1000`. Individual
+evidence-channel contributions are not exported, and an included edge is not
+required to have direct experimental support. Louvain communities are
+calculated without edge weights; interaction scores determine edge inclusion
+but do not weight module detection. A deterministic seed improves
+reproducibility, not biological validity.
+
 ## Candidate score
 
-The candidate score combines normalized degree, betweenness, log-transformed
-stress centrality, absolute logFC, and transformed statistical evidence. It is a
-relative ranking inside one reconstructed network.
+The candidate score combines five normalized base components across three
+equally weighted evidence domains. Degree, betweenness, and log-transformed
+stress centrality form the topology domain; absolute logFC and transformed
+statistical evidence form the other two domains. It is a relative ranking
+inside one reconstructed network.
 
 It is not:
 
@@ -63,15 +80,35 @@ It is not:
 Cross-case numerical comparison requires additional normalization and a
 separate study design; within-case ranks are the primary intended use.
 
+The predefined candidate score is not externally calibrated or benchmarked
+against independent reference targets, functional-dependency experiments,
+treatment response, or patient outcomes. Its domain weights are heuristic,
+and no sensitivity, specificity, predictive value, uncertainty interval, or
+clinical accuracy is established. Absolute logFC prioritizes both increased
+and decreased expression; the signed logFC must be reviewed separately.
+
 ## Module annotation
 
-Canonical module interpretations are computational inferences from curated
-marker evidence and statistically significant local STRING terms. Confidence,
-conflict, warnings, and evidence rationale must accompany the interpretation.
+Canonical module interpretations are computational inferences from
+statistically significant, non-generic local STRING terms. The primary
+interpretation is the qualifying term with the lowest FDR; technical or
+covariate signatures override biological priority. Curated marker-rule
+evaluations remain auxiliary audit information and do not determine canonical
+interpretation or automatic priority.
 
-Technical/covariate, mixed-conflict, and unresolved modules remain visible but
-are not automatically promoted. An unresolved module is not a pipeline error and
-does not imply absence of biological function.
+Supported biological modules currently receive `moderate` confidence. Marker,
+lineage, state, process, and conflict fields retained for schema compatibility
+must not be mistaken for independently resolved or validated classifications.
+Technical/covariate and unresolved modules remain visible but are not
+automatically promoted. An unresolved module is not a pipeline error and does
+not imply absence of biological function.
+
+Functional enrichment is evaluated only for the five largest Louvain modules
+containing at least five proteins. Smaller or lower-ranked modules may remain
+unresolved because they were not tested, not because their biological function
+is absent. A qualifying term can be supported by as few as two proteins;
+supporting genes, module size, term specificity, and pathology must therefore
+be reviewed together.
 
 ## Enrichment
 
@@ -82,6 +119,21 @@ primary analytical evidence but retained in raw technical tables.
 
 Statistical enrichment does not establish causal relevance, therapeutic
 vulnerability, or sample-specific pathway activity.
+
+Module enrichment uses a hypergeometric test against the case-network
+background restricted to proteins represented in the STRING term map.
+Terms require at least two supporting proteins and between three and 500
+annotated background proteins for reporting. Benjamini-Hochberg adjustment is
+calculated within each enrichment query across all terms meeting the three-to-
+500 background-size bounds, before the two-supporting-protein reporting
+threshold is applied. Adjustment is not performed across modules or analyses.
+The resulting FDR is not the probability that a module assignment is correct.
+Whole-network enrichment instead uses the annotated human STRING background.
+
+STRING network associations and STRING functional annotations are not
+independent sources of evidence. Local enrichment is computed by CancerPPIr
+from cached STRING annotations and its selected background; it is not an
+independent external validation or a live STRING web-service result.
 
 ## Entity classification and eligibility
 

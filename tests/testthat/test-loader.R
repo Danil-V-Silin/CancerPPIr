@@ -5,7 +5,9 @@ testthat::test_that(
       "parse_bool",
       "cancerppir_validate_case_id",
       "cancerppir_schema_versions",
+      "cancerppir_product_version",
       "read_gene_table",
+      "resolve_string_mapping_collisions",
       "run_local_string_enrichment",
       "label_module_by_markers",
       "annotate_module_evidence",
@@ -47,6 +49,26 @@ testthat::test_that(
         "run_enrichment",
         "case_id"
       )
+    )
+  }
+)
+
+testthat::test_that(
+  "runtime product version matches the release file",
+  {
+    project_root <- Sys.getenv("CANCERPPIR_PROJECT_ROOT")
+    expected <- trimws(
+      readLines(
+        file.path(project_root, "VERSION"),
+        n = 1L,
+        warn = FALSE,
+        encoding = "UTF-8"
+      )
+    )
+
+    testthat::expect_identical(
+      cancerppir_product_version(project_root),
+      expected
     )
   }
 )
@@ -138,12 +160,22 @@ testthat::test_that(
       cancerppir_schema_versions(),
       list(
         pipeline_result = "1.0.0",
-        biological_evidence = "1.0.0",
+        biological_evidence = "2.0.0",
         analytical_workbook = "2.0.0",
-        technical_workbook = "1.0.0",
+        technical_workbook = "2.1.0",
         graphml = "1.0.0",
-        output_manifest = "2.1.0",
+        output_manifest = "2.2.0",
         output_checksums = "1.0.0"
+      )
+    )
+
+    testthat::expect_identical(
+      cancerppir_output_file_schema_versions(),
+      c(
+        analytical_report = "2.0.0",
+        technical_report = "2.1.0",
+        string_links = "1.0.0",
+        graphml = "1.0.0"
       )
     )
   }

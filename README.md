@@ -2,7 +2,7 @@
 
 [![R tests](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml/badge.svg)](https://github.com/Danil-V-Silin/CancerPPIr/actions/workflows/r-tests.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-1.1.1-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 
 CancerPPIr is an R workflow for patient-specific protein-protein interaction
 (PPI) subnetwork profiling from bulk RNA-seq-derived gene tables. It maps gene
@@ -24,13 +24,18 @@ actionability by itself.
 5. Calculates node topology and a five-component exploratory candidate score.
 6. Detects deterministic Louvain modules.
 7. Performs local enrichment from version-pinned STRING v12 resources cached on disk.
-8. Builds canonical module interpretation from statistically significant local
-   STRING enrichment; curated marker-rule evidence is retained as an auxiliary
-   audit layer.
+8. Builds canonical module interpretation from statistically significant,
+   non-generic local STRING enrichment; curated marker-rule evidence remains
+   an auxiliary audit layer.
 9. Filters automatic priorities by entity and module eligibility.
 10. Writes analytical, technical, network, manifest, and checksum outputs.
 
 ## Requirements and installation
+
+The qualified runtime is **R 4.5.0**, the version recorded in `renv.lock` and
+used by both Windows and Ubuntu continuous integration. Other R 4.5.x patch
+releases may be compatible but have not been independently qualified. R 4.6
+has not been qualified and is not recommended for this release.
 
 The repository contains an `renv.lock` file. The reproducible installation path
 is:
@@ -64,6 +69,9 @@ reference condition. Recognized aliases include `gene_symbol`, `symbol`,
 `raw_pval`. Positional fallback is disabled. Missing, non-finite, out-of-range
 or duplicate values fail before HGNC normalization. Adjusted p-values, FDR and
 q-values are not accepted as substitutes for the canonical raw `pvalue`.
+If distinct normalized rows map to one STRING protein, the retained row is
+selected deterministically by minimum raw p-value, maximum absolute logFC, and
+earliest validated input row; counts and policy are written to provenance.
 
 Minimal example:
 
@@ -190,8 +198,8 @@ components remain exposed in `Candidate evidence` and GraphML.
 Automatic final priorities require both:
 
 - a review-ready entity classification; and
-- a biological module that passes confidence, conflict, and
-  significant-evidence checks.
+- a biological module supported by qualifying non-generic STRING enrichment
+  and not excluded by a technical or covariate signature.
 
 A high candidate rank is not proof of therapeutic actionability. Read protein
 rank together with module context, eligibility, warning fields, pathology, and
@@ -237,7 +245,7 @@ release used in the analysis and the associated article when available.
 
 ## Development and governance
 
-Current stable version: `1.1.1`.
+Current stable version: `1.2.0`.
 
 - [Quick start](docs/user-guide/quick-start.md)
 - [Contributing](CONTRIBUTING.md)

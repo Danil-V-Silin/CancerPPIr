@@ -8,7 +8,7 @@ This checklist is enforced where possible by
 | Product version | `VERSION` and `CITATION.cff` agree and use stable semantic versioning | Automated |
 | Release date | `CITATION.cff`, `CHANGELOG.md`, and current version-specific release notes agree | Automated |
 | Historical metadata | Previously published release dates and version-specific notes remain preserved | Automated/manual |
-| Public schemas | Initial public output schemas remain independently versioned at `1.0.0` | Automated |
+| Public schemas | Output contracts remain independently versioned and match the central schema registry | Automated |
 | CLI | Strict argument count, integer ranges, and Boolean parsing | Automated |
 | Scientific input | Explicit headers, raw p-value semantics, log2 contrast direction, complete finite values, unique genes, and no positional fallback | Automated |
 | Workbooks | Semantic sheet names and contract tests | Automated |

@@ -28,14 +28,25 @@ cancerppir_validate_documentation_contract <- function(
   required_files <- c(
     "README.md",
     "docs/README.md",
+    "docs/user-guide/installation.md",
+    "docs/user-guide/quick-start.md",
     "docs/user-guide/output-interpretation.md",
     "docs/reference/input-contract.md",
     "docs/reference/annotation-rules.md",
+    "docs/reference/contracts/analytical-workbook.md",
+    "docs/reference/contracts/canonical-annotations.md",
+    "docs/reference/contracts/biological-evidence-rulebook.md",
+    "docs/reference/contracts/reproducible-environment.md",
     "docs/user-guide/clinical-interpretation.md",
     "docs/reference/glossary.md",
     "docs/reference/limitations.md",
     "docs/reference/schema-versioning.md",
     "docs/user-guide/reproducibility.md",
+    "docs/development/publication-readiness-checklist.md",
+    paste0(
+      "docs/development/specifications/",
+      "output-quality-and-biological-interpretation.md"
+    ),
     "examples/minimal_input.csv",
     "examples/README.md",
     "scripts/validate_input_contract.R",
@@ -79,9 +90,15 @@ cancerppir_validate_documentation_contract <- function(
   user_docs <- c(
     "README.md",
     "docs/README.md",
+    "docs/user-guide/installation.md",
+    "docs/user-guide/quick-start.md",
     "docs/user-guide/output-interpretation.md",
     "docs/reference/input-contract.md",
     "docs/reference/annotation-rules.md",
+    "docs/reference/contracts/analytical-workbook.md",
+    "docs/reference/contracts/canonical-annotations.md",
+    "docs/reference/contracts/biological-evidence-rulebook.md",
+    "docs/reference/contracts/reproducible-environment.md",
     "docs/user-guide/clinical-interpretation.md",
     "docs/reference/glossary.md",
     "docs/reference/limitations.md",
@@ -128,6 +145,176 @@ cancerppir_validate_documentation_contract <- function(
     "Input semantics and complete candidate-score components must be documented."
   )
 
+  normalized_input_contract <- gsub(
+    "[[:space:]]+",
+    " ",
+    input_contract_text
+  )
+  required_input_contract_terms <- c(
+    "closed interval `[0, 1]`",
+    "A numeric p-value of zero is accepted",
+    "Exactly one recognized column",
+    "three equally weighted evidence domains",
+    "All five components must be finite",
+    "minimum raw `pvalue`, maximum absolute `logFC`",
+    "STRING collision counts and policy"
+  )
+  missing_input_contract_terms <- required_input_contract_terms[
+    !vapply(
+      required_input_contract_terms,
+      grepl,
+      x = normalized_input_contract,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )
+  ]
+  contradictory_input_contract <-
+    grepl(
+      "0[[:space:]]*<[[:space:]]*pvalue",
+      normalized_input_contract,
+      perl = TRUE
+    ) ||
+      grepl(
+        "five[[:space:]-]+equal[[:space:]-]+weight",
+        normalized_input_contract,
+        ignore.case = TRUE,
+        perl = TRUE
+      )
+  add_check(
+    "scientific_input_contract_is_internally_consistent",
+    length(missing_input_contract_terms) == 0L &&
+      !contradictory_input_contract,
+    paste(
+      c(
+        missing_input_contract_terms,
+        if (contradictory_input_contract) "contradictory input semantics"
+      ),
+      collapse = " | "
+    )
+  )
+
+  canonical_semantics_docs <- c(
+    "docs/reference/annotation-rules.md",
+    "docs/reference/contracts/canonical-annotations.md",
+    "docs/reference/contracts/biological-evidence-rulebook.md",
+    "docs/reference/limitations.md",
+    "docs/user-guide/clinical-interpretation.md",
+    "docs/user-guide/output-interpretation.md"
+  )
+  inconsistent_canonical_docs <- canonical_semantics_docs[
+    !vapply(
+      canonical_semantics_docs,
+      function(path) {
+        text <- gsub("[[:space:]]+", " ", read_utf8(path))
+        grepl("statistically significant, non-generic", text, fixed = TRUE) &&
+          grepl("auxiliary", text, fixed = TRUE) &&
+          grepl(
+            "do(es)? not (determine|define)",
+            text,
+            perl = TRUE
+          )
+      },
+      FUN.VALUE = logical(1)
+    )
+  ]
+  add_check(
+    "canonical_interpretation_is_database_primary",
+    length(inconsistent_canonical_docs) == 0L,
+    paste(inconsistent_canonical_docs, collapse = " | ")
+  )
+
+  annotation_rules_text <- read_utf8("docs/reference/annotation-rules.md")
+  add_check(
+    "current_canonical_decision_states_are_documented",
+    all(vapply(
+      c(
+        "`biological`",
+        "`technical_or_covariate`",
+        "`unresolved`",
+        "`moderate`",
+        "`database_enrichment_supported`"
+      ),
+      grepl,
+      x = annotation_rules_text,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )),
+    "Documentation must describe the implemented database-primary states."
+  )
+
+  limitation_text <- gsub(
+    "[[:space:]]+",
+    " ",
+    read_utf8("docs/reference/limitations.md")
+  )
+
+  required_methodological_limitations <- c(
+    "Raw differential-expression p-values are not adjusted within CancerPPIr",
+    "https://stringdb-downloads.org/download/",
+    "`combined_only`",
+    "`400/1000`",
+    "calculated without edge weights",
+    "not externally calibrated or benchmarked",
+    "five largest Louvain modules",
+    "at least five proteins",
+    "at least two supporting proteins",
+    "hypergeometric test",
+    "Benjamini-Hochberg",
+    "before the two-supporting-protein reporting threshold",
+    "not performed across modules",
+    "not independent sources of evidence"
+  )
+
+  missing_methodological_limitations <-
+    required_methodological_limitations[
+      !vapply(
+        required_methodological_limitations,
+        grepl,
+        x = limitation_text,
+        fixed = TRUE,
+        FUN.VALUE = logical(1)
+      )
+    ]
+
+  normalized_annotation_rules <- gsub(
+    "[[:space:]]+",
+    " ",
+    annotation_rules_text
+  )
+
+  required_enrichment_boundaries <- c(
+    "five largest Louvain",
+    "at least five proteins",
+    "at least two supporting proteins",
+    "Benjamini-Hochberg",
+    "minimum two-supporting-protein threshold is applied only after",
+    "not performed across modules",
+    "not independent sources of evidence"
+  )
+
+  missing_enrichment_boundaries <- required_enrichment_boundaries[
+    !vapply(
+      required_enrichment_boundaries,
+      grepl,
+      x = normalized_annotation_rules,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )
+  ]
+
+  add_check(
+    "scientific_methodological_limitations_are_explicit",
+    length(missing_methodological_limitations) == 0L &&
+      length(missing_enrichment_boundaries) == 0L,
+    paste(
+      c(
+        missing_methodological_limitations,
+        missing_enrichment_boundaries
+      ),
+      collapse = " | "
+    )
+  )
+
   expected_sheets <- c(
     "Executive summary",
     "Final priorities",
@@ -151,24 +338,114 @@ cancerppir_validate_documentation_contract <- function(
 
   expected_versions <- c(
     pipeline_result = "1.0.0",
-    biological_evidence = "1.0.0",
+    biological_evidence = "2.0.0",
     analytical_workbook = "2.0.0",
-    technical_workbook = "1.0.0",
+    technical_workbook = "2.1.0",
     graphml = "1.0.0",
-    output_manifest = "2.1.0",
+    output_manifest = "2.2.0",
     output_checksums = "1.0.0"
   )
+
+  expected_schema_rows <- paste0(
+    "| ",
+    c(
+      "Pipeline result",
+      "Biological evidence",
+      "Analytical workbook",
+      "Technical workbook",
+      "GraphML",
+      "Output manifest",
+      "Output checksums"
+    ),
+    " | `",
+    unname(expected_versions),
+    "` |"
+  )
+
   reproducibility_text <- read_utf8("docs/user-guide/reproducibility.md")
   add_check(
     "schema_versions_are_documented",
     all(vapply(
-      unname(expected_versions),
+      expected_schema_rows,
       grepl,
       x = reproducibility_text,
       fixed = TRUE,
       FUN.VALUE = logical(1)
     )),
     paste(names(expected_versions), expected_versions, sep = "=", collapse = "; ")
+  )
+
+  schema_documentation <- read_utf8("docs/reference/schema-versioning.md")
+  missing_schema_rows <- expected_schema_rows[
+    !vapply(
+      expected_schema_rows,
+      grepl,
+      x = schema_documentation,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )
+  ]
+  publication_checklist <- read_utf8(
+    "docs/development/publication-readiness-checklist.md"
+  )
+  add_check(
+    "schema_registry_and_publication_checklist_agree",
+    length(missing_schema_rows) == 0L &&
+      !grepl(
+        "schemas remain independently versioned at `1.0.0`",
+        publication_checklist,
+        fixed = TRUE
+      ),
+    paste(missing_schema_rows, collapse = " | ")
+  )
+
+  runtime_documentation <- c(
+    "README.md",
+    "docs/user-guide/installation.md",
+    "docs/user-guide/quick-start.md",
+    "docs/reference/contracts/reproducible-environment.md"
+  )
+  missing_qualified_runtime <- runtime_documentation[
+    !vapply(
+      runtime_documentation,
+      function(path) {
+        grepl("R 4.5.0", read_utf8(path), fixed = TRUE)
+      },
+      FUN.VALUE = logical(1)
+    )
+  ]
+  add_check(
+    "qualified_r_runtime_is_consistently_documented",
+    length(missing_qualified_runtime) == 0L,
+    paste(missing_qualified_runtime, collapse = " | ")
+  )
+
+  specification_text <- read_utf8(paste0(
+    "docs/development/specifications/",
+    "output-quality-and-biological-interpretation.md"
+  ))
+  specification_contract_terms <- c(
+    expected_sheets,
+    required_output_files,
+    "21 sheets",
+    "`Raw major modules`",
+    "`2.0.0`",
+    "`2.1.0`",
+    "`2.2.0`"
+  )
+  missing_specification_terms <- specification_contract_terms[
+    !vapply(
+      specification_contract_terms,
+      grepl,
+      x = specification_text,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )
+  ]
+  add_check(
+    "implemented_output_specification_matches_public_contract",
+    length(missing_specification_terms) == 0L,
+    paste(missing_specification_terms, collapse = " | ")
   )
 
   stale_patterns <- c(

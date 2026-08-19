@@ -27,8 +27,9 @@ functional secretion / humoral enrichment terms were removed.
 `immunoglobulin_secretion` was redefined around ER / secretory-apparatus
 genes associated with high antibody-production capacity. Plasma-lineage
 markers that previously made the state rule's positive-marker set identical
-to that of the lineage rule were removed from the positive-marker set. The rule remains `provisional`
-until seven-case regression qualification.
+to that of the lineage rule were removed from the positive-marker set. The rule
+remains `provisional` pending formal review of its complete marker selection,
+thresholds, and intended interpretive use.
 
 Primary evidence:
 - Reimold et al., Nature (2001), PMID:11460154.
@@ -42,7 +43,7 @@ Primary evidence:
 
 ## Interpretation
 
-`provisional` means that the rule has a primary-literature basis and has
-passed structural curation, but has not yet completed CancerPPIr seven-case
-regression qualification. It must not be interpreted as a quantitatively
-validated classifier.
+`provisional` means that the rule has a primary-literature basis and has passed
+structural curation, but has not been independently validated as a classifier.
+Seven-case regression qualification verifies software behavior; it does not by
+itself establish biological sensitivity, specificity, or calibrated weights.

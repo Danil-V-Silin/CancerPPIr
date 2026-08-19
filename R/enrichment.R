@@ -259,7 +259,6 @@ run_local_string_enrichment <- function(
       .groups = "drop"
     ) %>%
     filter(
-      number_of_genes >= min_query_hits,
       number_of_genes_in_background >= min_term_size,
       number_of_genes_in_background <= max_term_size
     )
@@ -281,9 +280,24 @@ run_local_string_enrichment <- function(
         lower.tail = FALSE
       ),
       fdr = stats::p.adjust(pvalue, method = "BH"),
-      preferred_names = vapply(strsplit(STRING_ids, ";", fixed = TRUE), gene_name, character(1)),
       enrichment_source = "local_STRING_enrichment_terms",
       .before = 1
+    )
+
+  out <- out %>%
+    filter(number_of_genes >= min_query_hits)
+
+  if (!nrow(out)) {
+    return(tibble())
+  }
+
+  out <- out %>%
+    mutate(
+      preferred_names = vapply(
+        strsplit(STRING_ids, ";", fixed = TRUE),
+        gene_name,
+        character(1)
+      )
     ) %>%
     arrange(fdr, pvalue, desc(number_of_genes))
 
@@ -518,4 +532,3 @@ generic_exact_terms <- c(
   "anatomical structure development",
   "developmental process"
 )
-

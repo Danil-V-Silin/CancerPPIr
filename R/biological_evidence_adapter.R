@@ -441,6 +441,19 @@ bind_pipeline_evidence <- function(
     module_id_text
   )
 
+  rule_provenance <- evidence_rule_provenance_table(
+    rules = rules
+  )
+
+  rule_provenance_fields <- c(
+    "curation_status",
+    "rule_version",
+    "rule_schema_version",
+    "evidence_basis",
+    "reference_count",
+    "references"
+  )
+
   summary_rows <- vector(
     "list",
     length(module_ids)
@@ -542,6 +555,44 @@ bind_pipeline_evidence <- function(
     summary_rows[[module_index]] <- summary_row
 
     rule_table <- evidence$rule_evaluations
+
+    provenance_index <- match(
+      as.character(rule_table$rule_id),
+      as.character(rule_provenance$rule_id)
+    )
+
+    if (anyNA(provenance_index)) {
+      stop(
+        "Rule evidence contains a rule without registered provenance.",
+        call. = FALSE
+      )
+    }
+
+    for (field in rule_provenance_fields) {
+      rule_table[[field]] <-
+        rule_provenance[[field]][provenance_index]
+    }
+
+    rule_table <- rule_table[
+      ,
+      c(
+        "rule_id",
+        "axis",
+        "display_label",
+        rule_provenance_fields,
+        setdiff(
+          names(rule_table),
+          c(
+            "rule_id",
+            "axis",
+            "display_label",
+            rule_provenance_fields
+          )
+        )
+      ),
+      drop = FALSE
+    ]
+
     rule_table$community_louvain <- module_id_value
     rule_table$module_id <- as.character(module_id)
 
@@ -624,7 +675,15 @@ bind_pipeline_evidence <- function(
     ]
   }
 
-  node_annotations <- nodes
+  # Deprecated readable labels remain in raw compatibility tables only.
+  node_annotations <- nodes[
+    ,
+    setdiff(
+      names(nodes),
+      CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS
+    ),
+    drop = FALSE
+  ]
 
   node_annotations$entity_class <- vapply(
     node_annotations$gene,
@@ -671,6 +730,7 @@ bind_pipeline_evidence <- function(
 
   validation <- validate_pipeline_evidence(
     module_annotations = module_annotations,
+    module_rule_evidence = module_rule_evidence,
     significant_module_terms = significant_module_terms,
     node_annotations = node_annotations,
     fdr_threshold = fdr_threshold
@@ -687,6 +747,7 @@ bind_pipeline_evidence <- function(
 
 validate_pipeline_evidence <- function(
   module_annotations,
+  module_rule_evidence,
   significant_module_terms,
   node_annotations,
   fdr_threshold = 0.05
@@ -769,6 +830,83 @@ validate_pipeline_evidence <- function(
     )
   )
 
+  provenance_fields <- c(
+    "curation_status",
+    "rule_version",
+    "rule_schema_version",
+    "evidence_basis",
+    "reference_count",
+    "references"
+  )
+
+  rule_provenance_valid <- all(
+    c("rule_id", provenance_fields) %in%
+      names(module_rule_evidence)
+  )
+
+  if (rule_provenance_valid) {
+    statuses <- as.character(
+      module_rule_evidence$curation_status
+    )
+    reference_counts <- suppressWarnings(
+      as.integer(module_rule_evidence$reference_count)
+    )
+    references <- trimws(
+      as.character(module_rule_evidence$references)
+    )
+    nonempty_fields <- c(
+      "rule_id",
+      "curation_status",
+      "rule_version",
+      "rule_schema_version",
+      "evidence_basis"
+    )
+    nonempty_values <- vapply(
+      module_rule_evidence[nonempty_fields],
+      function(x) {
+        x <- trimws(as.character(x))
+        !anyNA(x) && all(nzchar(x))
+      },
+      logical(1)
+    )
+    provenance_rows <- module_rule_evidence[
+      ,
+      c("rule_id", provenance_fields),
+      drop = FALSE
+    ]
+    provenance_keys <- apply(
+      provenance_rows,
+      1L,
+      function(x) paste(as.character(x), collapse = "\r")
+    )
+    consistent_by_rule <- vapply(
+      split(
+        provenance_keys,
+        as.character(module_rule_evidence$rule_id)
+      ),
+      function(x) length(unique(x)) == 1L,
+      logical(1)
+    )
+
+    rule_provenance_valid <-
+      all(nonempty_values) &&
+      all(
+        statuses %in% c(
+          "legacy_unverified",
+          "verified",
+          "provisional",
+          "deprecated"
+        )
+      ) &&
+      !anyNA(reference_counts) &&
+      all(reference_counts >= 0L) &&
+      all(
+        statuses != "verified" |
+          (reference_counts > 0L & nzchar(references))
+      ) &&
+      all(consistent_by_rule)
+  }
+
   checks <- c(
     unique_module_rows = unique_modules,
     all_nodes_receive_module_annotations = all_nodes_annotated,
@@ -777,7 +915,9 @@ validate_pipeline_evidence <- function(
     priority_requires_significant_database_evidence =
       priority_has_database_evidence,
     no_cell_fraction_or_deconvolution_claims =
-      no_cell_fraction_claims
+      no_cell_fraction_claims,
+    rule_evidence_has_explicit_provenance =
+      rule_provenance_valid
   )
 
   data.frame(

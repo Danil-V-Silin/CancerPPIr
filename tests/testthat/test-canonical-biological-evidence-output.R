@@ -165,6 +165,24 @@ testthat::test_that(
       )
     )
 
+    for (legacy_report_object in c(
+      "report_readme",
+      "annotation_evidence_rules",
+      "executive_summary",
+      "network_overview",
+      "glossary",
+      "caveats"
+    )) {
+      testthat::expect_false(
+        grepl(
+          paste0(legacy_report_object, " <-"),
+          pipeline_body,
+          fixed = TRUE
+        ),
+        info = legacy_report_object
+      )
+    }
+
     testthat::expect_identical(
       names(formals(run_cancerppir)),
       c(
@@ -176,6 +194,89 @@ testthat::test_that(
         "run_enrichment",
         "case_id"
       )
+    )
+  }
+)
+
+testthat::test_that(
+  "canonical biological evidence rejects deprecated label fields",
+  {
+    nodes <- test_canonical_node_annotations()
+    nodes$module_direction <- "legacy module label"
+
+    evidence <- list(
+      module_annotations =
+        test_canonical_module_annotations(),
+      module_rule_evidence = data.frame(),
+      significant_module_terms = data.frame(),
+      node_annotations = nodes,
+      validation = data.frame(
+        check_id = "fixture_validation",
+        status = "PASS",
+        stringsAsFactors = FALSE
+      )
+    )
+
+    validation <- validate_canonical_biological_evidence(
+      evidence
+    )
+
+    deprecated_check <- validation[
+      validation$check_id ==
+        "deprecated_node_annotation_fields_absent",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_identical(
+      deprecated_check$status,
+      "FAIL"
+    )
+
+    testthat::expect_match(
+      deprecated_check$details,
+      "module_direction",
+      fixed = TRUE
+    )
+  }
+)
+
+testthat::test_that(
+  "canonical biological evidence requires rule provenance",
+  {
+    evidence <- list(
+      module_annotations =
+        test_canonical_module_annotations(),
+      module_rule_evidence = data.frame(),
+      significant_module_terms = data.frame(),
+      node_annotations = test_canonical_node_annotations(),
+      validation = data.frame(
+        check_id = "fixture_validation",
+        status = "PASS",
+        stringsAsFactors = FALSE
+      )
+    )
+
+    validation <- validate_canonical_biological_evidence(
+      evidence
+    )
+
+    provenance_check <- validation[
+      validation$check_id ==
+        "auxiliary_rule_evidence_provenance_present",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_identical(
+      provenance_check$status,
+      "FAIL"
+    )
+
+    testthat::expect_match(
+      provenance_check$details,
+      "curation_status",
+      fixed = TRUE
     )
   }
 )
@@ -295,7 +396,16 @@ testthat::test_that(
 
     evidence <- list(
       module_annotations = modules,
-      module_rule_evidence = data.frame(),
+      module_rule_evidence = data.frame(
+        rule_id = character(),
+        curation_status = character(),
+        rule_version = character(),
+        rule_schema_version = character(),
+        evidence_basis = character(),
+        reference_count = integer(),
+        references = character(),
+        stringsAsFactors = FALSE
+      ),
       significant_module_terms = data.frame(),
       node_annotations = nodes,
       validation = data.frame(

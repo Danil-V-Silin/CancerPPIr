@@ -1286,6 +1286,13 @@ default_evidence_rule_provenance <- function(
     )
   )
 
+  canonical_rules <- default_evidence_rules()
+  canonical_rule_ids <- vapply(
+    canonical_rules,
+    function(rule) as.character(rule$rule_id),
+    character(1)
+  )
+
   for (rule_id in names(curated)) {
     index <- match(
       rule_id,
@@ -1293,11 +1300,22 @@ default_evidence_rule_provenance <- function(
     )
 
     if (is.na(index)) {
-      stop(
-        "Curated provenance rule is absent: ",
-        rule_id,
-        call. = FALSE
+      next
+    }
+
+    canonical_index <- match(
+      rule_id,
+      canonical_rule_ids
+    )
+
+    if (
+      is.na(canonical_index) ||
+      !identical(
+        rules[[index]],
+        canonical_rules[[canonical_index]]
       )
+    ) {
+      next
     }
 
     item <- curated[[rule_id]]
