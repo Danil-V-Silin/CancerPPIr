@@ -1,6 +1,8 @@
 # Quick start
 
-Run commands from the repository root.
+Use the qualified R 4.5.0 runtime, restore dependencies as described in the
+[installation guide](installation.md), and run commands from the repository
+root.
 
 Display the CLI contract:
 

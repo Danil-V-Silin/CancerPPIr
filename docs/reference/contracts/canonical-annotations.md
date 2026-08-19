@@ -26,14 +26,21 @@ A production run stops when any validation row has status `FAIL`.
 
 ## Module interpretation
 
-Canonical module fields include interpretation class and scope, compartment,
-lineage, state, process, primary interpretation, secondary themes, confidence,
-priority eligibility, marker and term support, best supporting FDR, conflict
-status, warning, and evidence rationale.
+Canonical biological interpretation is derived from statistically significant,
+non-generic local STRING enrichment. The qualifying term with the lowest FDR
+provides the primary interpretation; up to two additional qualifying terms
+provide secondary context. A technical/covariate signature overrides automatic
+biological priority, and a module without a qualifying term remains unresolved.
 
-The primary interpretation is a conservative synthesis of supported evidence.
-It is not a cell-fraction estimate, deconvolution result, proof of tumor-cell
-origin, or therapeutic recommendation.
+Supported biological modules receive `moderate` confidence. Compartment,
+lineage, state, process, marker, and conflict fields remain in the schema for
+compatibility but do not provide independently resolved marker-derived
+classifications in the current adapter. The `module_rule_evidence` table is an
+auxiliary audit layer and does not determine canonical interpretation or
+automatic module or protein priority.
+
+A canonical interpretation is not a cell-fraction estimate, deconvolution
+result, proof of tumor-cell origin, or therapeutic recommendation.
 
 ## GraphML contract
 

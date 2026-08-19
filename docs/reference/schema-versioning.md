@@ -2,7 +2,7 @@
 
 CancerPPIr versions each public output contract independently.
 
-## Initial public registry
+## Current public registry
 
 | Contract | Version |
 |---|---:|

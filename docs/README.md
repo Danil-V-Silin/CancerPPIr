@@ -24,6 +24,8 @@ tree; released states remain available through Git history and immutable tags.
 - [Limitations](reference/limitations.md)
 - [Analytical workbook contract](reference/contracts/analytical-workbook.md)
 - [Canonical annotation contract](reference/contracts/canonical-annotations.md)
+- [Biological evidence rulebook contract](reference/contracts/biological-evidence-rulebook.md)
+- [Biological evidence curation record](reference/contracts/biological-evidence-curation.md)
 - [Output provenance contract](reference/contracts/output-provenance.md)
 - [Reproducible environment contract](reference/contracts/reproducible-environment.md)
 - [Release-validation contract](reference/contracts/release-validation.md)

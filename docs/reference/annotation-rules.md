@@ -1,80 +1,67 @@
 # Canonical biological annotation rules
 
-CancerPPIr assigns module context through a deterministic evidence engine. The
-purpose is to expose why an interpretation was assigned, when evidence is
-conflicting, and when automatic prioritization is not justified.
+CancerPPIr assigns module interpretation from statistically significant,
+non-generic local STRING v12 enrichment. Curated marker-rule evaluations are
+retained as an auxiliary audit layer; they do not determine canonical module
+interpretation or automatic module or protein priority.
 
-## Evidence inputs
+## Canonical decision inputs
 
-The engine evaluates each Louvain module using:
+For each deterministic Louvain module, the production adapter evaluates:
 
 1. module membership and size;
-2. curated positive and supportive marker genes;
-3. statistically significant local STRING v12 enrichment terms;
-4. term-supporting genes;
-5. agreement or conflict across compartment, lineage, state, and process axes;
-6. technical or covariate signatures that must not be promoted as biological
-   priorities.
+2. local STRING/database enrichment terms passing the configured FDR threshold;
+3. the generic-term filter and term-supporting genes;
+4. independent technical or covariate signatures.
 
-Offline STRING enrichment is the primary term layer. Generic terms are not used
-as sufficient primary evidence, although raw terms remain available in the
-technical workbook.
+The default FDR threshold is `0.05`. Raw, non-significant, and generic terms
+remain available in the technical workbook but cannot establish canonical
+biological priority.
 
-## Interpretation hierarchy
+## Module decision
 
-The canonical module table separates:
+| Module evidence | `interpretation_class` | `confidence` | Automatic priority |
+|---|---|---|---|
+| Technical or covariate signature | `technical_or_covariate` | `not_applicable` | No |
+| At least one qualifying non-generic enrichment term and no technical signature | `biological` | `moderate` | Yes |
+| No qualifying non-generic enrichment term | `unresolved` | `unresolved` | No |
 
-| Axis | Question answered |
-|---|---|
-| `compartment` | broad tissue or cellular context supported by evidence |
-| `lineage` | lineage-associated evidence, when resolved |
-| `state` | activation, response, differentiation, or other state evidence |
-| `process` | biological process evidence |
-| `primary_interpretation` | conservative synthesis of supported axes |
-| `secondary_themes` | additional supported themes that do not replace the primary interpretation |
+For a supported biological module, the qualifying term with the lowest FDR is
+the `primary_interpretation`. Up to two additional qualifying terms are recorded
+as `secondary_themes`. The rationale records term descriptions, sources, FDR
+values, and interpretive limits.
 
-These fields are computational interpretations. They are not cell-fraction
-estimates and do not prove tumor-cell origin.
+`interpretation_scope` is `database_enrichment_supported`,
+`technical_or_covariate`, or `unresolved`. A module without qualifying STRING
+evidence remains unresolved even if an auxiliary marker rule matches.
 
-## Interpretation classes
+## Compatibility fields
 
-| Value | Meaning |
-|---|---|
-| `biological` | specific biological evidence is sufficient for a resolved interpretation |
-| `mixed_biological` | biological evidence is present but conflicting lineage/context evidence limits automatic priority |
-| `technical_or_covariate` | technical, sex-linked, ribosomal, mitochondrial, or related covariate signature; reported but not automatically prioritized |
-| `unresolved` | available evidence is insufficiently specific |
+The biological-evidence schema retains `compartment`, `lineage`, `state`,
+`process`, `positive_marker_genes`, `supportive_marker_genes`, and
+`conflict_detected` for compatibility. The current database-primary adapter
+does not assign marker-derived cellular compartments or lineages, resolve
+independent state/process axes, or use marker-rule conflicts as canonical
+decision variables.
 
-## Interpretation scope
+Consequently, schema presence must not be confused with a validated cellular
+classification, conflict-aware lineage assignment, or a confidence scale beyond
+the states documented above.
 
-`interpretation_scope` records the strongest supported resolution. Current
-values may indicate lineage support, state/process support with unresolved
-lineage, mixed lineage, technical/covariate status, or unresolved evidence.
+## Auxiliary marker-rule evidence
 
-## Confidence and conflict
+The technical `Rule evidence` sheet preserves per-rule marker overlap,
+supporting terms, heuristic evidence scores, rule-specific eligibility, and
+available provenance for independent review.
 
-Confidence is derived from marker and significant-term support, specificity,
-and evidence agreement. Automatic module priority requires:
+These rule scores are auxiliary, are not clinically calibrated, and do not
+define `primary_interpretation`, `priority_eligible`, or final protein
+priorities. `legacy_unverified` and `provisional` provenance states must not be
+represented as independently validated classifiers.
 
-- interpretation class `biological`;
-- confidence `high` or `moderate`;
-- at least one significant supporting term;
-- no detected conflict;
-- non-technical status.
-
-`conflict_detected`, `warning`, and `evidence_rationale` must be read together.
-A conflict is not silently resolved by choosing the highest-scoring label.
-
-## Marker and enrichment fields
-
-| Field | Meaning |
-|---|---|
-| `positive_marker_genes` | genes providing direct positive support for selected evidence rules |
-| `supportive_marker_genes` | genes that strengthen but do not independently establish the interpretation |
-| `term_supporting_genes` | module genes contributing to significant supporting terms |
-| `significant_supporting_terms` | filtered significant terms retained for interpretation |
-| `best_supporting_fdr` | strongest supporting FDR among retained evidence |
-| `evidence_rationale` | concise trace of evidence and interpretive limits |
+See the
+[biological evidence rulebook contract](contracts/biological-evidence-rulebook.md)
+for curation states and provenance requirements.
 
 ## Entity classification and candidate eligibility
 
@@ -82,41 +69,22 @@ Nodes are independently classified before automatic protein priority.
 
 | `candidate_eligibility` | Meaning |
 |---|---|
-| `review_ready_canonical` | canonical or unclassified protein-coding entity eligible for automatic review when its module is also eligible |
-| `network_evidence_only` | locus, predicted, pseudogene-like, or non-coding entity retained for network evidence but not automatic final priority |
-| `excluded_from_automatic_priority` | mitochondrial, ribosomal, Y-associated, or related class excluded from automatic promotion |
-| `manual_review_required` | entity requires explicit review before any priority claim |
+| `review_ready_canonical` | Canonical or unclassified protein-coding entity eligible for review when its module is also eligible |
+| `network_evidence_only` | Locus, predicted, pseudogene-like, or non-coding entity retained for network evidence only |
+| `excluded_from_automatic_priority` | Mitochondrial, ribosomal, Y-associated, or related entity excluded from automatic promotion |
+| `manual_review_required` | Entity requiring explicit review before a priority claim |
 
-Network inclusion and automatic priority are deliberately separate decisions.
-
-## Significant-term policy
-
-The analytical evidence layer retains only terms passing the configured FDR
-threshold, currently `0.05`, and the generic-term filter. Raw enrichment is kept
-in the technical workbook for reproducibility.
-
-Absence of a resolved annotation can reflect limited marker coverage, limited
-term specificity, small module size, or database coverage. It does not prove
-absence of biological function.
-
-## Priority decision boundary
-
-Final protein priorities require:
-
-1. a `review_ready_canonical` entity;
-2. membership in a priority-eligible module;
-3. no module conflict that blocks automatic promotion;
-4. a valid candidate score and network rank.
-
-The candidate score does not contribute clinical evidence. It ranks prominence
-within the reconstructed network and supplied expression profile.
+Final protein priorities require a `review_ready_canonical` entity, membership
+in a priority-eligible biological module, and a valid exploratory candidate
+score. Network inclusion does not by itself imply automatic priority or
+clinical actionability.
 
 ## Canonical and compatibility outputs
 
-Canonical evidence is exposed through `result$biological_evidence`, the CancerPPIr
-technical sheets, the analytical workbook, and GraphML. Retired annotation
-fields are available only under `result$compatibility` for migration and audit.
-They must not drive new priority decisions.
+Canonical evidence is exposed through `result$biological_evidence`, the
+analytical workbook, the corresponding technical evidence sheets, and GraphML.
+Auxiliary rule evaluations remain separately identifiable, while retired
+readable annotation tables are available only under `result$compatibility`.
 
-See the [schema-versioning contract](schema-versioning.md) for the deprecated-to-
-canonical field map.
+See the [schema-versioning contract](schema-versioning.md) for public output
+versions and compatibility rules.

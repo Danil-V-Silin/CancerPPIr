@@ -85,8 +85,9 @@ Only canonical biological-evidence fields are used for analytical biological
 context. Supporting enrichment terms must be statistically significant,
 non-generic, and satisfy `FDR <= 0.05`.
 
-Technical/covariate, mixed-conflict, and unresolved modules are not promoted to
-automatic biological priorities.
+Technical/covariate and unresolved modules are not promoted to automatic
+biological priorities. Auxiliary marker-rule scores and conflicts do not
+determine the current canonical module decision.
 
 ## Interpretation boundaries
 

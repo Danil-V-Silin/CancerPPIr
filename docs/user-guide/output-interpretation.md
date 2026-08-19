@@ -169,9 +169,12 @@ are preserved for audit and are not all used in the analytical interpretation.
 - `Validation`
 
 The module and node annotation sheets are the canonical biological-evidence
-source. `Significant terms` contains filtered statistically significant
-support used by the engine. `Validation` must contain no failed checks in
-a successful run.
+source. `Significant terms` contains the filtered statistically significant,
+non-generic STRING terms that determine canonical module interpretation.
+`Rule evidence` contains auxiliary marker-rule evaluations only; their
+heuristic scores and eligibility fields do not determine canonical module or
+protein priority. `Validation` must contain no failed checks in a successful
+run.
 
 ### Runtime audit
 
@@ -185,8 +188,10 @@ The GraphML schema is version `1.0.0`. It contains:
 - topology metrics and ranks;
 - the candidate score and five score components;
 - `entity_class`, `candidate_eligibility`, and priority status;
-- canonical module compartment, lineage, state, process, interpretation,
-  confidence, conflict, warnings, and evidence rationale;
+- canonical module interpretation, confidence, supporting term evidence,
+  warnings, and rationale;
+- compartment, lineage, state, process, and conflict fields retained for
+  schema compatibility rather than independently resolved classifications;
 - Cytoscape convenience labels.
 
 Zero or extremely small positive `pvalue` values may be floored only for safe GraphML numeric

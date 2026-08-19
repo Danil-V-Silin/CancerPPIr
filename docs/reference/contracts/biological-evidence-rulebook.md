@@ -12,9 +12,11 @@ those rules.
 The active rulebook currently contains 35 rules. BE-2 curation removed the
 `perivascular_contractile` process rule whose positive and supportive marker
 sets exactly duplicated those of the retained lineage rule, and began source-level
-curation of the highest-risk cross-axis redundancies. Rules not yet reviewed remain
-`legacy_unverified`; reviewed rules may be marked `provisional` until seven-case
-regression qualification is complete.
+curation of the highest-risk cross-axis redundancies. Rules not yet reviewed
+remain `legacy_unverified`; reviewed rules remain `provisional` until their
+source evidence, marker selection, thresholds, and intended use are formally
+approved. Successful seven-case execution alone does not verify a biological
+rule or calibrate its weights.
 
 This status means that a rule remains available for regression compatibility,
 but its marker selection, thresholds, term patterns and heuristic weights must
@@ -41,6 +43,11 @@ rules.
 It does not claim that the legacy marker sets, thresholds, term patterns or
 scoring weights have been scientifically validated. Source-level scientific
 curation is performed separately in BE-2.
+
+The auxiliary `evidence_score` combines heuristic marker, term, coverage, and
+exclusion components. Its weights are not clinically calibrated or validated
+against an independent reference standard, and its auxiliary eligibility flags
+must not be interpreted as canonical module or protein priorities.
 
 ## Canonical decision role
 

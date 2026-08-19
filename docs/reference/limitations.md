@@ -47,9 +47,11 @@ important.
 
 ## Candidate score
 
-The candidate score combines normalized degree, betweenness, log-transformed
-stress centrality, absolute logFC, and transformed statistical evidence. It is a
-relative ranking inside one reconstructed network.
+The candidate score combines five normalized base components across three
+equally weighted evidence domains. Degree, betweenness, and log-transformed
+stress centrality form the topology domain; absolute logFC and transformed
+statistical evidence form the other two domains. It is a relative ranking
+inside one reconstructed network.
 
 It is not:
 
@@ -65,13 +67,19 @@ separate study design; within-case ranks are the primary intended use.
 
 ## Module annotation
 
-Canonical module interpretations are computational inferences from curated
-marker evidence and statistically significant local STRING terms. Confidence,
-conflict, warnings, and evidence rationale must accompany the interpretation.
+Canonical module interpretations are computational inferences from
+statistically significant, non-generic local STRING terms. The primary
+interpretation is the qualifying term with the lowest FDR; technical or
+covariate signatures override biological priority. Curated marker-rule
+evaluations remain auxiliary audit information and do not determine canonical
+interpretation or automatic priority.
 
-Technical/covariate, mixed-conflict, and unresolved modules remain visible but
-are not automatically promoted. An unresolved module is not a pipeline error and
-does not imply absence of biological function.
+Supported biological modules currently receive `moderate` confidence. Marker,
+lineage, state, process, and conflict fields retained for schema compatibility
+must not be mistaken for independently resolved or validated classifications.
+Technical/covariate and unresolved modules remain visible but are not
+automatically promoted. An unresolved module is not a pipeline error and does
+not imply absence of biological function.
 
 ## Enrichment
 

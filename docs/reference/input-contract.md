@@ -9,9 +9,12 @@ upstream from one internally consistent statistical contrast.
 
 | Variable | Required scientific meaning |
 |---|---|
-| `gene` | HGNC gene symbol |
+| `gene` | Approved HGNC gene symbol or an alias eligible for HGNC normalization |
 | `logFC` | Base-2 log fold change for **tumor specimen / reference condition** |
 | `pvalue` | Raw differential-expression p-value for the same model and contrast |
+
+The canonical `pvalue` must be a raw differential-expression p-value from the
+same upstream statistical model and contrast as `logFC`.
 
 Positive `logFC` therefore means higher expression in the tumor specimen than
 in the reference condition. Input generated with the opposite contrast must be
@@ -65,20 +68,32 @@ may emit zero after floating-point underflow. For the candidate score,
 CancerPPIr floors zero to `.Machine$double.xmin` before applying `-log10` and
 records the number of zero-valued rows in provenance.
 
-## Candidate-score completeness
+## Candidate-score definition and completeness
 
-The exploratory candidate score retains the qualified five equal-weight
-components:
+The exploratory candidate score uses five min-max-normalized base components:
 
 1. normalized degree;
 2. normalized betweenness;
 3. normalized `log1p(stress centrality)`;
 4. normalized absolute `logFC`;
-5. normalized `-log10(pvalue)`.
+5. normalized `-log10(pvalue)` after zero-valued inputs are floored to
+   `.Machine$double.xmin`.
 
-All five components must be finite for every network node. CancerPPIr no longer
-uses a variable-denominator mean when one component is missing; incomplete
-component rows stop the run with an explicit error.
+The first three components are averaged into one topology domain. The final
+`candidate_score` is the arithmetic mean of three equally weighted evidence
+domains: topology, absolute `logFC`, and transformed statistical evidence.
+The five base components therefore do not each receive the same final weight.
+
+If a base component is constant across the network, the existing min-max
+policy assigns the same normalized value of `1` to every finite node. This
+uniform contribution does not change within-network ordering, but absolute
+scores remain unsuitable for direct comparison across independently analyzed
+networks.
+
+All five components must be finite for every network node. Incomplete
+component rows stop the run with an explicit error. The score is an exploratory
+within-network ranking, not a probability, clinical recommendation, or proof of
+therapeutic actionability.
 
 ## Audit trail
 
@@ -97,26 +112,3 @@ method, reference cohort or condition, normalization, statistical model,
 contrast, filtering rules and multiple-testing procedure. The CancerPPIr input
 contract verifies the table presented to the workflow; it cannot reconstruct
 metadata that were never supplied by the upstream analysis.
-
-
-## Scientific input semantics and candidate-score definition
-
-The canonical input columns have the following scientific meanings:
-
-- `gene` is a gene-level identifier expected to represent an approved HGNC gene symbol or a recognized alias that can be normalized to an approved HGNC symbol.
-- `logFC` is the Base-2 log fold change obtained from the upstream differential-expression contrast. It is a signed effect-size estimate, not an expression-abundance value.
-- `pvalue` is the raw differential-expression p-value supplied by the upstream statistical analysis. It must be finite and satisfy `0 < pvalue <= 1`.
-
-Canonical column names are required, and positional column fallback is disabled. This prevents CancerPPIr from silently interpreting unrelated columns as `gene`, `logFC`, or `pvalue`.
-
-The complete `candidate_score` is derived from five min-max-normalized base components within the analyzed network:
-
-1. degree;
-2. betweenness centrality;
-3. `log1p(stress_centrality)`;
-4. `abs(logFC)`;
-5. `-log10(pvalue)`.
-
-The first three components are aggregated into one topology domain as their arithmetic mean. The final `candidate_score` is the arithmetic mean of three equally weighted evidence domains: topology, absolute `logFC`, and `-log10(pvalue)`.
-
-All five components must be finite before normalization and aggregation. The score therefore gives equal aggregate weight to network topology, differential-expression magnitude, and statistical evidence. It is an exploratory within-network ranking and is not a calibrated probability, clinical recommendation, or proof of therapeutic actionability.

@@ -11,15 +11,17 @@ archives; semantic output equivalence remains the release criterion.
 
 The qualified environment is:
 
-- R 4.5.x, with R 4.5.0 used by continuous integration;
+- R 4.5.0, recorded in `renv.lock` and used by continuous integration;
 - Bioconductor 3.21;
 - package versions and package sources recorded in `renv.lock`;
 - CRAN snapshot
   `https://packagemanager.posit.co/cran/2026-07-20`;
 - STRING v12.0 resources acquired when missing and reused from the user-supplied local cache.
 
-The R patch release may differ within the R 4.5.x series for local development.
-Continuous integration remains fixed to R 4.5.0.
+Other R 4.5.x patch releases may be compatible for local development but have
+not been independently qualified. Continuous integration and the locked
+environment remain fixed to R 4.5.0. R 4.6 has not been qualified and is not
+recommended for this release.
 
 ## Restoration
 
