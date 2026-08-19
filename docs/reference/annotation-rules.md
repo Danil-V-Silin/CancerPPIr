@@ -18,6 +18,20 @@ The default FDR threshold is `0.05`. Raw, non-significant, and generic terms
 remain available in the technical workbook but cannot establish canonical
 biological priority.
 
+## Enrichment coverage and statistical scope
+
+Local functional enrichment is computed only for the five largest Louvain
+modules containing at least five proteins. Other modules remain available in
+the network and audit outputs but can remain unresolved without having been
+tested for enrichment.
+
+Module terms are tested against the annotated case-network background using a
+hypergeometric test. A term requires at least two supporting proteins and
+between three and 500 annotated background proteins. Benjamini-Hochberg
+adjustment applies within each enrichment query, not across modules or analyses.
+The STRING-derived network and STRING-derived annotations are not independent
+sources of evidence.
+
 ## Module decision
 
 | Module evidence | `interpretation_class` | `confidence` | Automatic priority |

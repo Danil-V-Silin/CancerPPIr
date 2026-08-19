@@ -240,6 +240,77 @@ cancerppir_validate_documentation_contract <- function(
     "Documentation must describe the implemented database-primary states."
   )
 
+  limitation_text <- gsub(
+    "[[:space:]]+",
+    " ",
+    read_utf8("docs/reference/limitations.md")
+  )
+
+  required_methodological_limitations <- c(
+    "Raw differential-expression p-values are not adjusted within CancerPPIr",
+    "https://stringdb-downloads.org/download/",
+    "`combined_only`",
+    "`400/1000`",
+    "calculated without edge weights",
+    "not externally calibrated or benchmarked",
+    "five largest Louvain modules",
+    "at least five proteins",
+    "at least two supporting proteins",
+    "hypergeometric test",
+    "Benjamini-Hochberg",
+    "within each enrichment query, not across modules",
+    "not independent sources of evidence"
+  )
+
+  missing_methodological_limitations <-
+    required_methodological_limitations[
+      !vapply(
+        required_methodological_limitations,
+        grepl,
+        x = limitation_text,
+        fixed = TRUE,
+        FUN.VALUE = logical(1)
+      )
+    ]
+
+  normalized_annotation_rules <- gsub(
+    "[[:space:]]+",
+    " ",
+    annotation_rules_text
+  )
+
+  required_enrichment_boundaries <- c(
+    "five largest Louvain",
+    "at least five proteins",
+    "at least two supporting proteins",
+    "Benjamini-Hochberg",
+    "not across modules",
+    "not independent sources of evidence"
+  )
+
+  missing_enrichment_boundaries <- required_enrichment_boundaries[
+    !vapply(
+      required_enrichment_boundaries,
+      grepl,
+      x = normalized_annotation_rules,
+      fixed = TRUE,
+      FUN.VALUE = logical(1)
+    )
+  ]
+
+  add_check(
+    "scientific_methodological_limitations_are_explicit",
+    length(missing_methodological_limitations) == 0L &&
+      length(missing_enrichment_boundaries) == 0L,
+    paste(
+      c(
+        missing_methodological_limitations,
+        missing_enrichment_boundaries
+      ),
+      collapse = " | "
+    )
+  )
+
   expected_sheets <- c(
     "Executive summary",
     "Final priorities",
