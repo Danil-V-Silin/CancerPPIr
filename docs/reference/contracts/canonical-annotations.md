@@ -39,6 +39,13 @@ classifications in the current adapter. The `module_rule_evidence` table is an
 auxiliary audit layer and does not determine canonical interpretation or
 automatic module or protein priority.
 
+Every `module_rule_evidence` row exposes `curation_status`, `rule_version`,
+`rule_schema_version`, `evidence_basis`, `reference_count`, and `references`.
+The shipped rulebook currently contains only `legacy_unverified` and
+`provisional` rules; none is represented as validated biological evidence.
+These statuses remain auxiliary regardless of marker overlap or heuristic
+`evidence_score`.
+
 A canonical interpretation is not a cell-fraction estimate, deconvolution
 result, proof of tumor-cell origin, or therapeutic recommendation.
 

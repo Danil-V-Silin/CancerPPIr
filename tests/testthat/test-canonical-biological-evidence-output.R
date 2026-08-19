@@ -242,6 +242,46 @@ testthat::test_that(
 )
 
 testthat::test_that(
+  "canonical biological evidence requires rule provenance",
+  {
+    evidence <- list(
+      module_annotations =
+        test_canonical_module_annotations(),
+      module_rule_evidence = data.frame(),
+      significant_module_terms = data.frame(),
+      node_annotations = test_canonical_node_annotations(),
+      validation = data.frame(
+        check_id = "fixture_validation",
+        status = "PASS",
+        stringsAsFactors = FALSE
+      )
+    )
+
+    validation <- validate_canonical_biological_evidence(
+      evidence
+    )
+
+    provenance_check <- validation[
+      validation$check_id ==
+        "auxiliary_rule_evidence_provenance_present",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_identical(
+      provenance_check$status,
+      "FAIL"
+    )
+
+    testthat::expect_match(
+      provenance_check$details,
+      "curation_status",
+      fixed = TRUE
+    )
+  }
+)
+
+testthat::test_that(
   "canonical GraphML attributes exclude deprecated label fields",
   {
     nodes <- test_canonical_node_annotations()
@@ -356,7 +396,16 @@ testthat::test_that(
 
     evidence <- list(
       module_annotations = modules,
-      module_rule_evidence = data.frame(),
+      module_rule_evidence = data.frame(
+        rule_id = character(),
+        curation_status = character(),
+        rule_version = character(),
+        rule_schema_version = character(),
+        evidence_basis = character(),
+        reference_count = integer(),
+        references = character(),
+        stringsAsFactors = FALSE
+      ),
       significant_module_terms = data.frame(),
       node_annotations = nodes,
       validation = data.frame(

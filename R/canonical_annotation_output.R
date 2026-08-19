@@ -85,6 +85,18 @@ required_canonical_module_fields <- function() {
   )
 }
 
+required_auxiliary_rule_evidence_fields <- function() {
+  c(
+    "rule_id",
+    "curation_status",
+    "rule_version",
+    "rule_schema_version",
+    "evidence_basis",
+    "reference_count",
+    "references"
+  )
+}
+
 required_canonical_node_fields <- function() {
   c(
     "STRING_id",
@@ -205,6 +217,7 @@ validate_canonical_biological_evidence <- function(
   }
 
   module_schema_valid <- FALSE
+  rule_evidence_schema_valid <- FALSE
   node_schema_valid <- FALSE
   deprecated_node_fields <- character()
   deprecated_node_fields_absent <- FALSE
@@ -216,6 +229,13 @@ validate_canonical_biological_evidence <- function(
     module_schema_valid <- all(
       required_canonical_module_fields() %in%
         names(biological_evidence$module_annotations)
+    )
+
+    rule_evidence_schema_valid <- is.data.frame(
+      biological_evidence$module_rule_evidence
+    ) && all(
+      required_auxiliary_rule_evidence_fields() %in%
+        names(biological_evidence$module_rule_evidence)
     )
 
     node_schema_valid <- all(
@@ -264,6 +284,8 @@ validate_canonical_biological_evidence <- function(
     evidence_object_is_list = object_is_list,
     required_evidence_objects_present = length(missing_objects) == 0L,
     canonical_module_schema_present = module_schema_valid,
+    auxiliary_rule_evidence_provenance_present =
+      rule_evidence_schema_valid,
     canonical_node_schema_present = node_schema_valid,
     deprecated_node_annotation_fields_absent =
       deprecated_node_fields_absent,
@@ -293,6 +315,18 @@ validate_canonical_biological_evidence <- function(
           if (object_is_list && "module_annotations" %in%
             names(biological_evidence)) {
             names(biological_evidence$module_annotations)
+          } else {
+            character()
+          }
+        ),
+        collapse = "; "
+      ),
+      paste(
+        setdiff(
+          required_auxiliary_rule_evidence_fields(),
+          if (object_is_list && "module_rule_evidence" %in%
+            names(biological_evidence)) {
+            names(biological_evidence$module_rule_evidence)
           } else {
             character()
           }

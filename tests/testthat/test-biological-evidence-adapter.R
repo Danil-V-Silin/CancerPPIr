@@ -231,8 +231,52 @@ testthat::test_that(
       nrow(result$module_rule_evidence) > 0L
     )
 
+    provenance_fields <- c(
+      "curation_status",
+      "rule_version",
+      "rule_schema_version",
+      "evidence_basis",
+      "reference_count",
+      "references"
+    )
+
+    testthat::expect_true(
+      all(
+        provenance_fields %in%
+          names(result$module_rule_evidence)
+      )
+    )
+
+    testthat::expect_setequal(
+      unique(result$module_rule_evidence$curation_status),
+      c("legacy_unverified", "provisional")
+    )
+
+    provisional <- result$module_rule_evidence[
+      result$module_rule_evidence$curation_status ==
+        "provisional",
+      ,
+      drop = FALSE
+    ]
+
+    testthat::expect_true(
+      all(provisional$reference_count > 0L)
+    )
+
+    testthat::expect_true(
+      all(nzchar(provisional$references))
+    )
+
     testthat::expect_true(
       all(result$validation$status == "PASS")
+    )
+
+    testthat::expect_identical(
+      result$validation$status[
+        result$validation$check_id ==
+          "rule_evidence_has_explicit_provenance"
+      ],
+      "PASS"
     )
   }
 )

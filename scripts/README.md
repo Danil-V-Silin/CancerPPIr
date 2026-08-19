@@ -40,8 +40,6 @@ Individual commands remain available for focused diagnosis:
 
 - `run_release_qualification.R` — final seven-case release gate.
 - `validate_multicase_outputs.R` — multicase output validation.
-- `validate_multicase_annotation_adapter.R` — annotation-adapter validation.
-- `validate_multicase_biological_evidence.R` — biological-evidence validation.
 - `validate_multicase_technical_exports.R` — technical-export validation.
 - `validate_a01_technical_evidence_export.R` — focused A01 export validation.
 
