@@ -526,9 +526,6 @@ run_cancerppir <- function(
   node_metrics <- network_analysis$node_metrics
   top_n <- network_analysis$top_n
   top_candidates <- network_analysis$top_candidates
-  top_by_degree <- network_analysis$top_by_degree
-  top_by_betweenness <- network_analysis$top_by_betweenness
-  top_by_stress <- network_analysis$top_by_stress
   degree_distribution <- network_analysis$degree_distribution
   module_summary <- network_analysis$module_summary
   major_module_ids <- network_analysis$major_module_ids
@@ -652,12 +649,6 @@ run_cancerppir <- function(
       )
   }
 
-  # The standalone major modules table is intentionally limited to the five largest modules.
-  major_module_summary <- module_summary %>%
-    filter(community_louvain %in% major_module_ids) %>%
-    arrange(match(community_louvain, major_module_ids)) %>%
-    mutate(major_module_rank = row_number(), .before = 1)
-
   node_metrics <- node_metrics %>%
     left_join(
       module_summary %>%
@@ -669,64 +660,11 @@ run_cancerppir <- function(
       by = "community_louvain"
     )
 
-  # Rebuild ranked tables after module annotations have been attached.
-  top_candidates <- node_metrics %>%
-    arrange(desc(candidate_score), desc(degree), desc(betweenness)) %>%
-    slice_head(n = top_n)
-
-  top_by_degree <- node_metrics %>%
-    arrange(desc(degree), desc(candidate_score), desc(betweenness)) %>%
-    slice_head(n = top_n)
-
-  top_by_betweenness <- node_metrics %>%
-    arrange(desc(betweenness), desc(candidate_score), desc(degree)) %>%
-    slice_head(n = top_n)
-
-  top_by_stress <- node_metrics %>%
-    arrange(desc(stress_centrality), desc(candidate_score), desc(degree)) %>%
-    slice_head(n = top_n)
   msg("Constructing biological evidence tables.")
 
-  # -----------------------------------------------------------------------------
-  # Human-readable output layer
-  # -----------------------------------------------------------------------------
-  # The workflow writes a small number of consolidated files:
-  #   1) CancerPPIr_Analytical_Report.xlsx  - main human-readable analytical report
-  #   2) CancerPPIr_Technical_Report.xlsx   - raw/technical audit workbook
-  #   3) STRING_links.txt                  - current and version-pinned STRING links
-  #   4) Network_for_Cytoscape.graphml     - annotated network for Cytoscape/Gephi
-  #
-  # Design principle:
-  #   Biological directions are not invented by the export layer. They are reported as
-  #   putative module-level programs and must be traceable to two evidence sources:
-  #     a) curated marker-gene overlap defined in the workflow, and/or
-  #     b) statistically enriched local STRING terms derived from open annotation resources.
-  #   Generic enrichment terms are retained in the technical workbook but filtered out of
-  #   the main biological rationale so that the analytical report does not overinterpret
-  #   broad terms such as "Signaling" or "Cell communication".
-  # -----------------------------------------------------------------------------
-
-
-  # ---- Enrichment term filtering and evidence scoring --------------------------
-
-
-  # Categories below are useful for technical audit, but should not drive the main
-  # biological direction label in the human-readable report.
-
-
-  # ---- Rule-based module label assignment --------------------------------------
-  # Biological labels are assigned through an explicit evidence rulebook rather than
-  # by unconstrained free-text interpretation. Each label has admissible marker-set
-  # evidence, admissible STRING/database term evidence, and a conservative fallback
-  # label that is used when the evidence is real but not specific enough for the
-  # more precise biological label.
-
-
   # Canonical biological evidence layer -----------------------------------
-  # This calculation uses the production node table and reproducible local
-  # STRING module enrichment. Its result is retained in memory for validation
-  # for canonical analytical reporting, GraphML annotation and the public result object.
-  # Deprecated readable tables are retained only under an explicit compatibility boundary.
+  # Significant, non-generic local STRING terms drive canonical interpretation.
+  # Marker-rule assignments remain auxiliary technical evidence.
   msg("Running canonical biological evidence annotation.")
 
   biological_evidence <- bind_pipeline_evidence(
@@ -1044,196 +982,6 @@ run_cancerppir <- function(
       evidence_basis = truncate_text(evidence_basis, 800L),
       interpretation = truncate_text(interpretation, 1400L)
     )
-
-  # Analytical overview sheets ----------------------------------------------------
-
-  report_readme <- tibble(
-    section = c(
-      "Purpose",
-      "How to read this workbook",
-      "Candidate selection logic",
-      "Functional direction logic",
-      "Generic-term filtering",
-      "Enrichment mode",
-      "Important limitation",
-      "Recommended first sheets"
-    ),
-    description = c(
-      "This workbook is the main human-readable CancerPPIr analytical report. It summarizes the reconstructed patient-specific STRING-derived PPI subnetwork, candidate proteins, Louvain modules and putative biological programs.",
-      "Start with Executive summary, Final priorities, Major module priorities and Candidate rationale. Raw enrichment, mapping audit and all unfiltered database terms are kept in the technical workbook.",
-      "Candidate proteins are prioritized by a composite exploratory score integrating normalized degree, betweenness, log-transformed stress centrality, absolute logFC and -log10(p-value). Topology alone is not interpreted as therapeutic efficacy.",
-      "Biological directions are assigned as putative module labels using curated marker-gene overlap and statistically enriched local STRING/database terms. The label_source, label_confidence, marker_support and top_interpretable_terms columns show why a label was assigned.",
-      "Broad terms such as Signaling, Signal transduction and Cell communication are not used as primary biological evidence in the analytical report. They remain available in the technical workbook for audit.",
-      "CancerPPIr is running in offline-only reproducible mode. Functional annotation uses locally cached STRING enrichment terms and curated marker-gene overlap; online STRING/g:Profiler validation is not used in this version.",
-      "STRING-derived PPI subnetworks are not tumor-cell-specific physical interaction measurements. Bulk RNA-seq may include tumor cells, immune infiltrate, stroma and other microenvironmental components.",
-      "Executive summary; Final priorities; Major module priorities; Candidate rationale; Top candidates; Graph summary."
-    )
-  )
-
-  annotation_evidence_rules <- tibble(
-    rule = c(
-      "Module structure",
-      "Curated marker evidence",
-      "STRING/database evidence",
-      "Explicit label rulebook",
-      "Specific label versus fallback label",
-      "Label evidence score",
-      "Label warning",
-      "Supporting biological themes",
-      "Offline enrichment policy",
-      "Generic-term filter",
-      "High confidence label",
-      "Medium confidence label",
-      "Low confidence label",
-      "Protein-to-direction link"
-    ),
-    meaning = c(
-      "Proteins are first grouped by Louvain community detection on the STRING-derived PPI graph.",
-      "A module gains marker support when its genes overlap with curated marker sets defined in the workflow, such as antigen presentation, chemokine/cytokine, myeloid/macrophage, complement/C1q, T-cell cytotoxicity, ECM/stromal remodeling, cell-cycle or interferon response sets.",
-      "A module gains database support when its proteins are significantly enriched for local STRING annotation terms derived from open resources such as GO, Reactome, KEGG, WikiPathways, UniProt keywords and STRING local clusters.",
-      "Each functional label is assigned only if it matches an explicit rule containing allowed marker patterns, allowed STRING/database term patterns and required specific evidence patterns.",
-      "A precise label is used only when required specific evidence is present or marker support is strong. Otherwise CancerPPIr downgrades to a broader fallback label and records this in label_warning.",
-      "The score integrates marker support, specific term support, required specific evidence, FDR strength, module size and marker-term concordance. It is an interpretability score for the module label, not a clinical efficacy score.",
-      "Warnings flag cases such as STRING-only label assignment, marker-only assignment, weak score or fallback-label downgrading due to missing required specific evidence.",
-      "supporting_biological_themes is intentionally conservative: it always prioritizes the assigned label theme and adds only secondary themes with stronger marker/term evidence, reducing broad cross-label spillover.",
-      "Online enrichment is not used in this offline-only version. All reported functional annotations come from local STRING enrichment terms and curated marker-gene overlap.",
-      "Generic terms are excluded from the main rationale unless they contain specific biological context. Raw terms are preserved in the technical workbook.",
-      "Assigned when a sufficiently large module has strong marker overlap, significant specific STRING/database enrichment and high label evidence score.",
-      "Assigned when one evidence layer is strong, or when evidence is useful but not fully concordant.",
-      "Assigned when the module is small, unassigned, or lacks specific marker/enrichment support.",
-      "An individual protein inherits biological context through its Louvain module membership; this does not prove that the protein causally drives that program."
-    )
-  )
-
-  executive_summary <- tibble(
-    item = c(
-      "input_rows",
-      "final_mapped_genes",
-      "final_unmapped_genes",
-      "network_nodes",
-      "network_edges",
-      "annotation_mode",
-      "connected_components",
-      "largest_component_nodes",
-      "louvain_modules",
-      "STRING_score_threshold",
-      "top_10_candidate_proteins",
-      "major_putative_biological_programs"
-    ),
-    value = c(
-      as.character(nrow(input_tbl)),
-      as.character(after_mapped),
-      as.character(after_unmapped),
-      metric_value(graph_summary, "nodes"),
-      metric_value(graph_summary, "edges"),
-      "offline_only_local_STRING_plus_curated_marker_overlap",
-      metric_value(graph_summary, "components"),
-      metric_value(graph_summary, "largest_component_nodes"),
-      metric_value(graph_summary, "louvain_communities"),
-      as.character(score_threshold),
-      paste(head(top_candidates$gene, 10L), collapse = "; "),
-      paste(priority_directions$putative_biological_program, collapse = "; ")
-    ),
-    interpretation = c(
-      "Number of input rows in the RNA-seq-derived gene table.",
-      "Genes/proteins successfully mapped to STRING before final graph construction.",
-      "Input genes not represented in the final STRING-derived protein network.",
-      "Number of proteins in the reconstructed PPI subnetwork.",
-      "Number of STRING associations retained after thresholding and graph simplification.",
-      "CancerPPIr was run in offline-only mode using locally cached STRING enrichment terms and curated marker-gene overlap.",
-      "Number of disconnected graph components.",
-      "Size of the largest connected component; many topology metrics are most stable inside this component.",
-      "Number of Louvain communities/modules detected in the graph.",
-      "Minimum STRING confidence score used for network construction.",
-      "Highest-ranked proteins by the composite exploratory candidate score.",
-      "Major module-level functional directions supported by marker overlap and/or specific STRING/database enrichment."
-    )
-  )
-
-  network_overview <- graph_summary %>%
-    mutate(
-      explanation = case_when(
-        metric == "nodes" ~ "Proteins represented as graph nodes.",
-        metric == "edges" ~ "STRING associations represented as graph edges.",
-        metric == "components" ~ "Disconnected parts of the graph.",
-        metric == "largest_component_nodes" ~ "Number of nodes in the largest connected component.",
-        metric == "largest_component_fraction" ~ "Fraction of all nodes located in the largest connected component.",
-        metric == "density" ~ "Fraction of possible edges that are present.",
-        metric == "average_degree" ~ "Average number of interactions per protein.",
-        metric == "global_clustering" ~ "Overall tendency of neighboring proteins to form triangles.",
-        metric == "average_shortest_path_lcc" ~ "Mean shortest-path length inside the largest connected component.",
-        metric == "diameter_lcc" ~ "Longest shortest path inside the largest connected component.",
-        metric == "radius_lcc" ~ "Minimum eccentricity inside the largest connected component.",
-        metric == "louvain_communities" ~ "Number of modules detected by Louvain community detection.",
-        metric == "louvain_modularity" ~ "Modularity score of Louvain partition.",
-        metric == "string_score_threshold" ~ "STRING confidence threshold used to keep edges.",
-        TRUE ~ "Network-level summary metric."
-      )
-    )
-
-  glossary <- tibble(
-    term = c(
-      "candidate_score",
-      "degree",
-      "betweenness",
-      "stress_centrality",
-      "Louvain module",
-      "functional enrichment",
-      "FDR",
-      "marker_overlap",
-      "specific_interpretable_term",
-      "label_rulebook",
-      "specific_label_candidate",
-      "fallback_label",
-      "final_functional_label",
-      "supporting_biological_themes",
-      "label_source",
-      "label_evidence_score",
-      "label_confidence",
-      "label_warning",
-      "putative_biological_program"
-    ),
-    meaning = c(
-      "Exploratory composite score averaging normalized topology and expression/statistical evidence.",
-      "Number of network edges connected to a protein; high values indicate hub-like topology.",
-      "Fraction of shortest paths passing through a protein; high values indicate bridge-like topology.",
-      "Absolute number of shortest paths passing through a protein; log-transformed before scoring.",
-      "Community of densely connected proteins detected by Louvain modularity optimization.",
-      "Statistical test for biological terms over-represented in a gene/protein set compared with a background.",
-      "False discovery rate after multiple-testing correction.",
-      "Overlap between module genes and curated marker sets defined in the workflow.",
-      "A database/enrichment term that is sufficiently specific for human-readable biological interpretation; generic terms are retained only in the technical workbook.",
-      "Explicit rule set that constrains which labels may be assigned from marker and STRING/database evidence.",
-      "Most specific label suggested by the rulebook before fallback checks.",
-      "Broader label used when the evidence is real but insufficient for the more specific label.",
-      "Final conservative module label after rulebook scoring and fallback checks.",
-      "Additional biological themes detected from markers and STRING/database terms; these themes support interpretation but do not automatically become the final label.",
-      "Evidence source used to assign a module label: marker overlap, specific STRING enrichment, both, or none.",
-      "Rule-based score integrating marker support, specific terms, required evidence, FDR strength, module size and marker-term concordance for label assignment.",
-      "Qualitative confidence level derived from label_evidence_score and evidence type.",
-      "Audit flag for potentially weak, STRING-only, marker-only, or fallback-downgraded label assignments.",
-      "Human-readable computational label for the biological context of a module; not a direct experimental proof."
-    )
-  )
-
-  caveats <- tibble(
-    caveat = c(
-      "Exploratory prioritization",
-      "Bulk RNA-seq composition",
-      "STRING database bias",
-      "Module labels are putative",
-      "Generic enrichment terms",
-      "Therapeutic interpretation requires validation"
-    ),
-    explanation = c(
-      "Candidate ranking is designed to prioritize proteins for follow-up, not to prove clinical actionability.",
-      "Bulk tumor profiles can represent malignant cells, immune cells, stromal cells, endothelial cells and other components.",
-      "STRING integrates known and predicted associations and is affected by literature and database coverage biases.",
-      "Functional labels are assigned from marker overlap and enrichment terms and should be read as computational annotations.",
-      "Very broad database terms are not used as primary biological evidence in the analytical report; they are preserved in the technical workbook for audit.",
-      "Drug target selection requires independent biological, clinical and pharmacological validation."
-    )
-  )
 
   # Main analytical workbook ------------------------------------------------------
   # The concise six-sheet workbook is built only from the deterministic CancerPPIr

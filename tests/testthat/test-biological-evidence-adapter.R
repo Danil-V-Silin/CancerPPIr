@@ -16,7 +16,13 @@ testthat::test_that(
         1,
         0.1,
         length.out = 11L
-      )
+      ),
+      module_direction = "legacy module label",
+      clean_module_label = "legacy module label",
+      marker_based_direction = "legacy marker direction",
+      marker_clean_label = "legacy marker label",
+      marker_evidence_genes = "CD3D;CD3E",
+      enrichment_evidence_terms = "legacy enrichment term"
     )
 
     module_enrichment <- tibble::tibble(
@@ -62,6 +68,20 @@ testthat::test_that(
     testthat::expect_identical(
       result$node_annotations$gene,
       node_metrics$gene
+    )
+
+    testthat::expect_true(
+      any(
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
+          names(node_metrics)
+      )
+    )
+
+    testthat::expect_false(
+      any(
+        CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS %in%
+          names(result$node_annotations)
+      )
     )
 
     y_module <- result$module_annotations[

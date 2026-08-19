@@ -624,7 +624,15 @@ bind_pipeline_evidence <- function(
     ]
   }
 
-  node_annotations <- nodes
+  # Deprecated readable labels remain in raw compatibility tables only.
+  node_annotations <- nodes[
+    ,
+    setdiff(
+      names(nodes),
+      CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS
+    ),
+    drop = FALSE
+  ]
 
   node_annotations$entity_class <- vapply(
     node_annotations$gene,

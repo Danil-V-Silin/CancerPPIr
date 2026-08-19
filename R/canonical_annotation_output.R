@@ -206,6 +206,8 @@ validate_canonical_biological_evidence <- function(
 
   module_schema_valid <- FALSE
   node_schema_valid <- FALSE
+  deprecated_node_fields <- character()
+  deprecated_node_fields_absent <- FALSE
   validation_passes <- FALSE
   module_ids_unique <- FALSE
   node_ids_unique <- FALSE
@@ -220,6 +222,14 @@ validate_canonical_biological_evidence <- function(
       required_canonical_node_fields() %in%
         names(biological_evidence$node_annotations)
     )
+
+    deprecated_node_fields <- intersect(
+      CANCERPPIR_DEPRECATED_ANNOTATION_FIELDS,
+      names(biological_evidence$node_annotations)
+    )
+
+    deprecated_node_fields_absent <-
+      length(deprecated_node_fields) == 0L
 
     validation_passes <- is.data.frame(
       biological_evidence$validation
@@ -255,6 +265,8 @@ validate_canonical_biological_evidence <- function(
     required_evidence_objects_present = length(missing_objects) == 0L,
     canonical_module_schema_present = module_schema_valid,
     canonical_node_schema_present = node_schema_valid,
+    deprecated_node_annotation_fields_absent =
+      deprecated_node_fields_absent,
     upstream_evidence_validation_passes = validation_passes,
     module_ids_are_unique = module_ids_unique,
     node_STRING_ids_are_unique = node_ids_unique
@@ -299,6 +311,13 @@ validate_canonical_biological_evidence <- function(
         ),
         collapse = "; "
       ),
+      if (!node_schema_valid) {
+        "canonical node schema unavailable"
+      } else if (length(deprecated_node_fields) > 0L) {
+        paste(deprecated_node_fields, collapse = "; ")
+      } else {
+        "none"
+      },
       if (validation_passes) "no upstream FAIL rows" else "upstream validation unavailable or failed",
       if (module_ids_unique) "unique" else "missing or duplicated",
       if (node_ids_unique) "unique" else "missing or duplicated"
