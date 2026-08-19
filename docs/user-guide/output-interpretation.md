@@ -130,7 +130,7 @@ formal interpretation.
 
 ## Technical workbook
 
-The technical workbook schema is version `1.0.0`. It is the audit layer, not the
+The technical workbook schema is version `2.0.0`. It is the audit layer, not the
 recommended first view.
 
 ### Mapping and input audit

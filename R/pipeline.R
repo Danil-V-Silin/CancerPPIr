@@ -1129,12 +1129,8 @@ run_cancerppir <- function(
       string_links = "STRING_network_links",
       graphml = "canonical_annotated_network"
     ),
-    output_schema_versions = c(
-      analytical_report = CANCERPPIR_ANALYTICAL_SCHEMA_VERSION,
-      technical_report = CANCERPPIR_TECHNICAL_WORKBOOK_SCHEMA_VERSION,
-      string_links = "1.0.0",
-      graphml = CANCERPPIR_GRAPHML_SCHEMA_VERSION
-    ),
+    output_schema_versions =
+      cancerppir_output_file_schema_versions(),
     input_summary = list(
       case_id = if (
         identical(case_id_source, "explicit_case_id")

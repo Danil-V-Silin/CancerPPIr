@@ -1,6 +1,6 @@
 # Canonical biological annotation contract
 
-Biological-evidence schema version: `1.0.0`
+Biological-evidence schema version: `2.0.0`
 GraphML schema version: `1.0.0`
 Pipeline-result schema version: `1.0.0`
 

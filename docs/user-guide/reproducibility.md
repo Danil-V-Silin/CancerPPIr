@@ -73,9 +73,9 @@ and output paths are excluded.
 | Contract | Version |
 |---|---:|
 | Pipeline result | `1.0.0` |
-| Biological evidence | `1.0.0` |
+| Biological evidence | `2.0.0` |
 | Analytical workbook | `2.0.0` |
-| Technical workbook | `1.0.0` |
+| Technical workbook | `2.0.0` |
 | GraphML | `1.0.0` |
 | Output manifest | `2.1.0` |
 | Output checksums | `1.0.0` |

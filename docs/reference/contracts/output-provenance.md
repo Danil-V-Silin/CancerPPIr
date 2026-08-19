@@ -62,8 +62,8 @@ sheet names, columns, row counts, and values separately.
 ## Validation
 
 `cancerppir_validate_output_provenance()` verifies required files and sections,
-schema compatibility, all recorded hashes, checksum membership, path privacy,
-and schema-aware input-name privacy. Manifests `1.0.0` and `2.0.0` remain
-readable for validation of existing results; newly written manifests use
-`2.1.0`. A failed provenance check stops the pipeline before a successful
-result is returned.
+schema compatibility, each output file's registry-matched schema version, all
+recorded hashes, checksum membership, path privacy, and schema-aware input-name
+privacy. Manifests `1.0.0` and `2.0.0` remain readable for validation of
+existing results; newly written manifests use `2.1.0`. A failed provenance check
+stops the pipeline before a successful result is returned.

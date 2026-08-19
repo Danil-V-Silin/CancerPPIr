@@ -263,18 +263,35 @@ cancerppir_validate_documentation_contract <- function(
 
   expected_versions <- c(
     pipeline_result = "1.0.0",
-    biological_evidence = "1.0.0",
+    biological_evidence = "2.0.0",
     analytical_workbook = "2.0.0",
-    technical_workbook = "1.0.0",
+    technical_workbook = "2.0.0",
     graphml = "1.0.0",
     output_manifest = "2.1.0",
     output_checksums = "1.0.0"
   )
+
+  expected_schema_rows <- paste0(
+    "| ",
+    c(
+      "Pipeline result",
+      "Biological evidence",
+      "Analytical workbook",
+      "Technical workbook",
+      "GraphML",
+      "Output manifest",
+      "Output checksums"
+    ),
+    " | `",
+    unname(expected_versions),
+    "` |"
+  )
+
   reproducibility_text <- read_utf8("docs/user-guide/reproducibility.md")
   add_check(
     "schema_versions_are_documented",
     all(vapply(
-      unname(expected_versions),
+      expected_schema_rows,
       grepl,
       x = reproducibility_text,
       fixed = TRUE,
@@ -284,15 +301,6 @@ cancerppir_validate_documentation_contract <- function(
   )
 
   schema_documentation <- read_utf8("docs/reference/schema-versioning.md")
-  expected_schema_rows <- c(
-    "| Pipeline result | `1.0.0` |",
-    "| Biological evidence | `1.0.0` |",
-    "| Analytical workbook | `2.0.0` |",
-    "| Technical workbook | `1.0.0` |",
-    "| GraphML | `1.0.0` |",
-    "| Output manifest | `2.1.0` |",
-    "| Output checksums | `1.0.0` |"
-  )
   missing_schema_rows <- expected_schema_rows[
     !vapply(
       expected_schema_rows,

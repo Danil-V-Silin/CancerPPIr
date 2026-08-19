@@ -138,12 +138,22 @@ testthat::test_that(
       cancerppir_schema_versions(),
       list(
         pipeline_result = "1.0.0",
-        biological_evidence = "1.0.0",
+        biological_evidence = "2.0.0",
         analytical_workbook = "2.0.0",
-        technical_workbook = "1.0.0",
+        technical_workbook = "2.0.0",
         graphml = "1.0.0",
         output_manifest = "2.1.0",
         output_checksums = "1.0.0"
+      )
+    )
+
+    testthat::expect_identical(
+      cancerppir_output_file_schema_versions(),
+      c(
+        analytical_report = "2.0.0",
+        technical_report = "2.0.0",
+        string_links = "1.0.0",
+        graphml = "1.0.0"
       )
     )
   }

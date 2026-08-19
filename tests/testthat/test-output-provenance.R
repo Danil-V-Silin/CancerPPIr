@@ -5,9 +5,9 @@ testthat::test_that(
       cancerppir_schema_versions(),
       list(
         pipeline_result = "1.0.0",
-        biological_evidence = "1.0.0",
+        biological_evidence = "2.0.0",
         analytical_workbook = "2.0.0",
-        technical_workbook = "1.0.0",
+        technical_workbook = "2.0.0",
         graphml = "1.0.0",
         output_manifest = "2.1.0",
         output_checksums = "1.0.0"
@@ -85,12 +85,8 @@ testthat::test_that(
         string_links = "links",
         graphml = "network"
       ),
-      output_schema_versions = c(
-        analytical_report = "1.0.0",
-        technical_report = "1.0.0",
-        string_links = "1.0.0",
-        graphml = "1.0.0"
-      ),
+      output_schema_versions =
+        cancerppir_output_file_schema_versions(),
       input_summary = list(
         case_id = "A01",
         case_id_source = "explicit_case_id",
@@ -188,6 +184,17 @@ testthat::test_that(
       names(manifest$outputs),
       basename(output_files)
     )
+
+    for (file_key in names(output_files)) {
+      output_name <- basename(output_files[[file_key]])
+
+      testthat::expect_identical(
+        manifest$outputs[[output_name]]$schema_version,
+        unname(
+          cancerppir_output_file_schema_versions()[[file_key]]
+        )
+      )
+    }
 
     manifest_text <- paste(
       readLines(
@@ -338,6 +345,46 @@ testthat::test_that(
     testthat::expect_true(
       all(legacy_validation$status == "PASS")
     )
+
+    mismatched_manifest <- manifest
+    technical_output <- basename(
+      output_files[["technical_report"]]
+    )
+    mismatched_manifest$outputs[[technical_output]]$schema_version <-
+      "1.0.0"
+
+    jsonlite::write_json(
+      mismatched_manifest,
+      path = provenance$manifest_file,
+      pretty = TRUE,
+      auto_unbox = TRUE,
+      null = "null",
+      na = "null",
+      digits = NA
+    )
+
+    cancerppir_write_checksum_file(
+      files = c(
+        output_files,
+        output_manifest = provenance$manifest_file
+      ),
+      path = provenance$checksums_file
+    )
+
+    schema_validation <- cancerppir_validate_output_provenance(
+      manifest_file = provenance$manifest_file,
+      checksums_file = provenance$checksums_file,
+      output_dir = fixture_dir,
+      forbidden_paths = fixture_dir
+    )
+
+    testthat::expect_identical(
+      schema_validation$status[
+        schema_validation$check_id ==
+          "manifest_output_schema_versions_match_registry"
+      ],
+      "FAIL"
+    )
   }
 )
 
@@ -388,10 +435,8 @@ testthat::test_that(
         rep("fixture", length(output_files)),
         names(output_files)
       ),
-      output_schema_versions = stats::setNames(
-        rep("fixture", length(output_files)),
-        names(output_files)
-      ),
+      output_schema_versions =
+        cancerppir_output_file_schema_versions(),
       input_summary = list(input_rows = 1L),
       analysis_configuration = list(mode = "fixture"),
       run_summary = list(nodes = 1L),

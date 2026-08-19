@@ -663,6 +663,57 @@ cancerppir_validate_output_provenance <- function(
     paste(manifest_output_files, collapse = " | ")
   )
 
+  output_schema_versions_valid <- FALSE
+  output_schema_mismatches <- character()
+
+  if (output_entries_valid) {
+    expected_output_schemas <-
+      cancerppir_output_file_schema_versions()
+
+    observed_output_keys <- vapply(
+      manifest$outputs,
+      function(entry) as.character(entry$file_key),
+      character(1)
+    )
+
+    output_schema_mismatches <- manifest_output_files[
+      !vapply(
+        manifest$outputs,
+        function(entry) {
+          file_key <- as.character(entry$file_key)
+          observed_schema <- as.character(entry$schema_version)
+
+          length(file_key) == 1L &&
+            file_key %in% names(expected_output_schemas) &&
+            length(observed_schema) == 1L &&
+            identical(
+              observed_schema,
+              unname(expected_output_schemas[[file_key]])
+            )
+        },
+        logical(1)
+      )
+    ]
+
+    output_schema_versions_valid <-
+      !anyDuplicated(observed_output_keys) &&
+      setequal(
+        observed_output_keys,
+        names(expected_output_schemas)
+      ) &&
+      length(output_schema_mismatches) == 0L
+  }
+
+  add_check(
+    "manifest_output_schema_versions_match_registry",
+    output_schema_versions_valid,
+    if (output_entries_valid) {
+      paste(output_schema_mismatches, collapse = " | ")
+    } else {
+      "output entries unavailable"
+    }
+  )
+
   manifest_hashes_match <- FALSE
   missing_manifest_outputs <- character()
   mismatched_manifest_outputs <- character()

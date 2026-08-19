@@ -92,8 +92,9 @@ browser compatibility. GraphML remains the complete network representation.
 ## Provenance and compatibility
 
 Public schemas are versioned independently in `R/schema_registry.R`. The
-analytical workbook schema is `2.0.0`, the output-manifest schema is `2.1.0`,
-and the other current public schemas are `1.0.0`.
+biological-evidence, analytical-workbook, and technical-workbook schemas are
+`2.0.0`; the output-manifest schema is `2.1.0`; the pipeline-result, GraphML,
+and output-checksum schemas remain `1.0.0`.
 
 The manifest records run configuration, software and schema versions, input and
 output hashes, and a pseudonymous case ID when explicitly supplied. Original
