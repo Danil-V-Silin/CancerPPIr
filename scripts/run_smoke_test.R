@@ -1,259 +1,266 @@
 #!/usr/bin/env Rscript
 
-# Run one local end-to-end R01 smoke test and compare it with the
-# qualified reference baseline.
-#
-# Optional positional arguments:
-#   1 baseline_root
-#   2 input_file
-#   3 cache_dir
-#   4 results_root
-#
-# Default invocation from the repository root:
-#   Rscript scripts/run_smoke_test.R
+# Run one synthetic, non-clinical end-to-end analysis using an existing
+# STRING v12 cache and verify the current public output contracts.
 
-project_root <- normalizePath(
-  ".",
-  winslash = "/",
-  mustWork = TRUE
+arguments <- commandArgs(trailingOnly = TRUE)
+usage <- paste(
+  "CancerPPIr synthetic end-to-end smoke test",
+  "",
+  "Usage:",
+  "  Rscript scripts/run_smoke_test.R STRING_CACHE OUTPUT_ROOT",
+  "",
+  "Uses examples/minimal_input.csv and never runs clinical cases.",
+  "STRING_CACHE and OUTPUT_ROOT must be outside the repository.",
+  "All four pinned STRING v12 resources must already be cached.",
+  sep = "\n"
 )
 
-arguments <- commandArgs(
-  trailingOnly = TRUE
-)
-
-baseline_root <- if (length(arguments) >= 1L) {
-  arguments[[1L]]
-} else {
-  file.path("..", "results", "reference_baseline_v1")
+if (length(arguments) == 1L && arguments[[1L]] %in% c("--help", "-h")) {
+  cat(usage, "\n")
+  quit(save = "no", status = 0L)
 }
 
-input_file <- if (length(arguments) >= 2L) {
-  arguments[[2L]]
-} else {
-  file.path("..", "input", "Genes_R.csv")
+if (length(arguments) != 2L) {
+  stop(usage, call. = FALSE)
 }
 
-cache_dir <- if (length(arguments) >= 3L) {
-  arguments[[3L]]
-} else {
-  file.path("..", "string_cache")
+project_root <- normalizePath(".", winslash = "/", mustWork = TRUE)
+cache_dir <- normalizePath(arguments[[1L]], winslash = "/", mustWork = FALSE)
+results_root <- normalizePath(arguments[[2L]], winslash = "/", mustWork = FALSE)
+input_file <- file.path(project_root, "examples", "minimal_input.csv")
+
+if (!file.exists(input_file)) {
+  stop("Bundled synthetic example is missing: ", input_file, call. = FALSE)
 }
 
-results_root <- if (length(arguments) >= 4L) {
-  arguments[[4L]]
-} else {
-  file.path("..", "results", "r01_smoke_validation")
+if (!dir.exists(cache_dir)) {
+  stop("STRING cache directory does not exist: ", cache_dir, call. = FALSE)
 }
 
-required_paths <- c(
-  baseline_root,
-  input_file,
-  cache_dir
-)
+if (file.exists(results_root)) {
+  stop("Smoke-test output root already exists: ", results_root, call. = FALSE)
+}
 
-missing_paths <- required_paths[
-  !file.exists(required_paths)
+path_is_within_project <- function(path) {
+  root <- project_root
+
+  if (identical(.Platform$OS.type, "windows")) {
+    root <- tolower(root)
+    path <- tolower(path)
+  }
+
+  identical(path, root) || startsWith(path, paste0(root, "/"))
+}
+
+if (path_is_within_project(cache_dir) || path_is_within_project(results_root)) {
+  stop(
+    "STRING_CACHE and OUTPUT_ROOT must be outside the repository.",
+    call. = FALSE
+  )
+}
+
+required_packages <- c("openxlsx", "igraph", "jsonlite", "digest")
+missing_packages <- required_packages[
+  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
 ]
 
-if (length(missing_paths) > 0L) {
+if (length(missing_packages)) {
   stop(
-    paste0(
-      "Required smoke-test paths are missing:\n",
-      paste0("- ", missing_paths, collapse = "\n")
-    ),
+    "Smoke test requires package(s): ",
+    paste(missing_packages, collapse = ", "),
     call. = FALSE
   )
 }
 
-if (dir.exists(results_root)) {
+source(file.path(project_root, "R", "load_all.R"), local = .GlobalEnv)
+load_cancerppir_modules(project_root = project_root, envir = .GlobalEnv)
+
+example_input <- read_gene_table(input_file)
+resource_manifest <- cancerppir_string_v12_resource_manifest(cache_dir)
+invalid_resources <- resource_manifest$filename[!resource_manifest$valid]
+
+if (length(invalid_resources)) {
   stop(
-    paste0(
-      "Smoke-test output folder already exists: ",
-      results_root,
-      "\nRemove it or provide a different fourth argument."
-    ),
+    "Smoke test will not download missing or invalid STRING resources: ",
+    paste(invalid_resources, collapse = ", "),
     call. = FALSE
   )
 }
 
-dir.create(
-  file.path(results_root, "logs"),
-  recursive = TRUE,
-  showWarnings = FALSE
+logs_dir <- file.path(results_root, "logs")
+
+if (!dir.create(logs_dir, recursive = TRUE, showWarnings = FALSE)) {
+  stop("Could not create smoke-test output root: ", results_root, call. = FALSE)
+}
+
+case_id <- "SMOKE01"
+log_file <- file.path(logs_dir, paste0(case_id, ".log"))
+rscript <- file.path(
+  R.home("bin"),
+  if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript"
 )
 
-log_file <- file.path(
-  results_root,
-  "logs",
-  "R01.log"
-)
-
-rscript <- Sys.which(
-  "Rscript"
-)
+message("[CancerPPIr smoke] Running one bundled synthetic case.")
 
 pipeline_status <- system2(
   command = rscript,
   args = c(
-    shQuote(
-      file.path(project_root, "cancerppir.R")
-    ),
+    shQuote(file.path(project_root, "cancerppir.R")),
     shQuote(input_file),
     shQuote(results_root),
     shQuote(cache_dir),
     "400",
     "30",
-    "TRUE"
+    "TRUE",
+    "--case-id",
+    case_id
   ),
   stdout = log_file,
-  stderr = log_file
+  stderr = log_file,
+  wait = TRUE
 )
 
-if (!identical(as.integer(pipeline_status), 0L)) {
+if (is.null(pipeline_status) || is.na(pipeline_status) || pipeline_status != 0L) {
+  log_tail <- if (file.exists(log_file)) {
+    tail(readLines(log_file, warn = FALSE, encoding = "UTF-8"), 40L)
+  } else {
+    "Pipeline log was not created."
+  }
+
   stop(
-    paste0(
-      "R01 smoke pipeline failed with exit code ",
-      pipeline_status,
-      ". See: ",
-      log_file
-    ),
+    "Synthetic smoke pipeline failed with exit status ",
+    pipeline_status,
+    ".\n\nLog tail:\n",
+    paste(log_tail, collapse = "\n"),
     call. = FALSE
   )
 }
 
-log_lines <- readLines(
-  log_file,
-  warn = FALSE,
-  encoding = "UTF-8"
+case_dir <- file.path(results_root, case_id)
+output_names <- c(
+  "CancerPPIr_Analytical_Report.xlsx",
+  "CancerPPIr_Technical_Report.xlsx",
+  "Network_for_Cytoscape.graphml",
+  "STRING_links.txt",
+  "CancerPPIr_Output_Manifest.json",
+  "CancerPPIr_Output_Checksums.sha256"
 )
+output_paths <- file.path(case_dir, output_names)
+missing_outputs <- output_names[!file.exists(output_paths)]
 
-required_log_fragments <- c(
-  "[CancerPPIr] Done.",
-  "[CancerPPIr] Mapped genes: 359/399 (90%)",
-  "[CancerPPIr] Network: 358 nodes, 4507 edges, 42 components"
-)
-
-missing_log_fragments <- required_log_fragments[
-  !vapply(
-    required_log_fragments,
-    function(fragment) {
-      any(grepl(
-        fragment,
-        log_lines,
-        fixed = TRUE
-      ))
-    },
-    FUN.VALUE = logical(1)
+if (length(missing_outputs)) {
+  stop(
+    "Synthetic smoke case did not create required output(s): ",
+    paste(missing_outputs, collapse = ", "),
+    call. = FALSE
   )
+}
+
+analytical_file <- file.path(case_dir, output_names[[1L]])
+technical_file <- file.path(case_dir, output_names[[2L]])
+graph_file <- file.path(case_dir, output_names[[3L]])
+manifest_file <- file.path(case_dir, output_names[[5L]])
+checksum_file <- file.path(case_dir, output_names[[6L]])
+
+log_lines <- readLines(log_file, warn = FALSE, encoding = "UTF-8")
+graph <- igraph::read_graph(graph_file, format = "graphml")
+manifest <- jsonlite::read_json(manifest_file, simplifyVector = FALSE)
+technical_sheets <- openxlsx::getSheetNames(technical_file)
+technical_nodes <- openxlsx::read.xlsx(technical_file, sheet = "Node annotations")
+technical_mapping <- openxlsx::read.xlsx(technical_file, sheet = "Mapping summary")
+mapping_values <- stats::setNames(
+  as.character(technical_mapping$value),
+  as.character(technical_mapping$metric)
+)
+analytical_summary <- openxlsx::read.xlsx(analytical_file, sheet = "Executive summary")
+run_configuration <- analytical_summary$value[
+  analytical_summary$item == "run_configuration"
 ]
-
-if (length(missing_log_fragments) > 0L) {
-  stop(
-    paste0(
-      "Smoke log is missing required completion evidence:\n",
-      paste0("- ", missing_log_fragments, collapse = "\n")
-    ),
-    call. = FALSE
-  )
-}
-
-error_patterns <- c(
-  "Error",
-  "failed",
-  "Execution halted",
-  "Выполнение остановлено"
+provenance <- cancerppir_validate_output_provenance(
+  manifest_file = manifest_file,
+  checksums_file = checksum_file,
+  output_dir = case_dir,
+  forbidden_paths = c(project_root, cache_dir, results_root)
 )
 
-if (any(vapply(
-  error_patterns,
-  function(pattern) {
-    any(grepl(
-      pattern,
-      log_lines,
-      ignore.case = TRUE
-    ))
-  },
-  FUN.VALUE = logical(1)
-))) {
-  stop(
-    paste0(
-      "Smoke log contains an error marker. See: ",
-      log_file
+checks <- c(
+  current_completion_marker = cancerppir_log_has_completion_marker(log_lines),
+  expected_example_input_rows = nrow(example_input) == 20L,
+  analytical_sheet_order = identical(
+    openxlsx::getSheetNames(analytical_file),
+    CANCERPPIR_ANALYTICAL_SHEET_NAMES
+  ),
+  canonical_technical_sheets = all(
+    c(
+      "Module annotations",
+      "Rule evidence",
+      "Significant terms",
+      "Node annotations",
+      "Validation"
+    ) %in% technical_sheets
+  ),
+  graph_has_nodes_and_edges = igraph::vcount(graph) > 0L &&
+    igraph::ecount(graph) > 0L,
+  graph_node_count_matches_workbook =
+    igraph::vcount(graph) == nrow(technical_nodes),
+  canonical_graphml_attributes = all(
+    canonical_graphml_attribute_names() %in% igraph::vertex_attr_names(graph)
+  ),
+  manifest_product_version = identical(
+    as.character(manifest$software$version),
+    cancerppir_product_version(project_root)
+  ),
+  manifest_pseudonymous_case_id =
+    identical(as.character(manifest$input$case_id), case_id) &&
+    identical(as.character(manifest$input$case_id_source), "explicit_case_id"),
+  manifest_input_checksum = identical(
+    tolower(as.character(manifest$input$sha256)),
+    cancerppir_sha256_file(input_file)
+  ),
+  manifest_network_summary =
+    identical(
+      as.integer(manifest$summary$network_nodes),
+      as.integer(igraph::vcount(graph))
+    ) &&
+    identical(
+      as.integer(manifest$summary$network_edges),
+      as.integer(igraph::ecount(graph))
     ),
-    call. = FALSE
-  )
-}
-
-expected_files <- file.path(
-  results_root,
-  "Genes_R",
-  c(
-    "CancerPPIr_Analytical_Report.xlsx",
-    "CancerPPIr_Technical_Report.xlsx",
-    "Network_for_Cytoscape.graphml",
-    "STRING_links.txt"
-  )
+  collision_counts_match =
+    identical(
+      as.integer(mapping_values[["STRING_mapping_collision_proteins"]]),
+      as.integer(manifest$input$STRING_mapping_collision_proteins)
+    ) &&
+    identical(
+      as.integer(mapping_values[["STRING_mapping_collision_rows_dropped"]]),
+      as.integer(manifest$input$STRING_mapping_collision_rows_dropped)
+    ),
+  enrichment_mode_matches_manifest =
+    isTRUE(manifest$analysis$local_enrichment_enabled) &&
+    length(run_configuration) == 1L &&
+    grepl("offline_enrichment=TRUE", run_configuration, fixed = TRUE),
+  provenance_checks_pass = all(provenance$status == "PASS")
 )
 
-if (!all(file.exists(expected_files))) {
-  stop(
-    paste0(
-      "Smoke test did not produce all expected files:\n",
-      paste0(
-        "- ",
-        expected_files[!file.exists(expected_files)],
-        collapse = "\n"
-      )
-    ),
-    call. = FALSE
-  )
-}
-
-comparison_status <- system2(
-  command = rscript,
-  args = c(
-    shQuote(
-      file.path(
-        project_root,
-        "tools", "development", "reproducibility", "compare_reference_case.R"
-      )
-    ),
-    shQuote(baseline_root),
-    shQuote(results_root),
-    "R01",
-    "Genes_R",
-    "r01_smoke_validation"
-  )
-)
-
-if (!identical(as.integer(comparison_status), 0L)) {
-  stop(
-    paste0(
-      "R01 baseline comparison failed with exit code ",
-      comparison_status,
-      "."
-    ),
-    call. = FALSE
-  )
-}
-
-summary_file <- file.path(
-  results_root,
-  "comparison",
-  "r01_smoke_validation_summary.csv"
-)
-
-summary_table <- utils::read.csv(
-  summary_file,
+validation <- data.frame(
+  check_id = names(checks),
+  status = ifelse(checks, "PASS", "FAIL"),
   stringsAsFactors = FALSE
 )
 
-stopifnot(
-  nrow(summary_table) == 1L,
-  isTRUE(summary_table$strict_regression_core_match[[1L]]),
-  summary_table$strict_sheets_compared[[1L]] == 12L,
-  summary_table$strict_sheets_identical[[1L]] == 12L
-)
+print(validation, row.names = FALSE)
 
-cat("CANCERPPIR R01 SMOKE TEST PASSED: 12/12 STRICT SHEETS\n")
+if (!all(checks)) {
+  stop(
+    "Synthetic smoke validation failed: ",
+    paste(names(checks)[!checks], collapse = ", "),
+    call. = FALSE
+  )
+}
+
+cat(
+  "\nCANCERPPIR SYNTHETIC SMOKE TEST: PASSED\n",
+  "Output: ", normalizePath(case_dir, winslash = "/"), "\n",
+  sep = ""
+)

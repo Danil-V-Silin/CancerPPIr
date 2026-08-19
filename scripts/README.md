@@ -28,13 +28,24 @@ still does not run the seven-case production regression.
 Individual commands remain available for focused diagnosis:
 
 - `run_unit_tests.R` — complete unit and CLI test suite.
-- `run_smoke_test.R` — single-case smoke validation.
+- `run_smoke_test.R` — bundled synthetic end-to-end smoke validation.
 - `validate_documentation_contract.R` — documentation contract.
 - `validate_reproducibility_contract.R` — pinned software-environment contract.
 - `validate_release_contract.R` — static release contract.
 - `validate_publication_readiness.R` — publication metadata and public-contract
   audit.
 - `validate_repository_quality.R` — repository and CI hygiene gate.
+
+Run one complete non-clinical analysis against an existing STRING v12 cache:
+
+```bash
+Rscript scripts/run_smoke_test.R STRING_CACHE OUTPUT_ROOT
+```
+
+Both paths must be outside the repository, and all required STRING resources
+must already exist. The command validates all six outputs, workbook schemas,
+GraphML, versioned provenance, checksums, and mapping metadata without running
+any of the seven clinical release cases.
 
 ## Release qualification
 

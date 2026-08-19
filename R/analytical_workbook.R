@@ -1544,7 +1544,8 @@ build_executive_summary <- function(
   score_threshold,
   string_version,
   louvain_seed,
-  fdr_threshold
+  fdr_threshold,
+  run_enrichment = TRUE
 ) {
   module_class <- analytical_vector_text(
     module_annotations$interpretation_class,
@@ -1657,7 +1658,9 @@ build_executive_summary <- function(
       string_version,
       "; score_threshold=",
       score_threshold,
-      "; offline_enrichment=TRUE; FDR<=",
+      "; offline_enrichment=",
+      as.character(isTRUE(run_enrichment)),
+      "; FDR<=",
       fdr_threshold,
       "; Louvain_seed=",
       louvain_seed
@@ -2202,7 +2205,8 @@ build_analytical_workbook <- function(
   biological_evidence,
   string_version = "12.0",
   louvain_seed = CANCERPPIR_LOUVAIN_SEED,
-  fdr_threshold = 0.05
+  fdr_threshold = 0.05,
+  run_enrichment = TRUE
 ) {
   required_evidence_objects <- c(
     "module_annotations",
@@ -2273,7 +2277,8 @@ build_analytical_workbook <- function(
     score_threshold = score_threshold,
     string_version = string_version,
     louvain_seed = louvain_seed,
-    fdr_threshold = fdr_threshold
+    fdr_threshold = fdr_threshold,
+    run_enrichment = run_enrichment
   )
 
   network_overview <- build_network_overview(

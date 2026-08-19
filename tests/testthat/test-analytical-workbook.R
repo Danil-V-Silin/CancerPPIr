@@ -677,6 +677,39 @@ testthat::test_that(
 )
 
 testthat::test_that(
+  "executive summary records the actual enrichment mode",
+  {
+    fixture <- analytical_workbook_test_fixture()
+
+    for (enabled in c(TRUE, FALSE)) {
+      report <- build_analytical_workbook(
+        input_rows = 10L,
+        mapped_proteins = 6L,
+        unmapped_input_rows = 4L,
+        mapping_rate_percent = 60,
+        graph_summary = fixture$graph_summary,
+        score_threshold = 400L,
+        top_n = 6L,
+        degree_distribution = fixture$degree_distribution,
+        biological_evidence = fixture$biological_evidence,
+        run_enrichment = enabled
+      )
+
+      summary <- report$sheets[["Executive summary"]]
+      configuration <- summary$value[
+        summary$item == "run_configuration"
+      ]
+
+      testthat::expect_match(
+        configuration,
+        paste0("offline_enrichment=", as.character(enabled)),
+        fixed = TRUE
+      )
+    }
+  }
+)
+
+testthat::test_that(
   "candidate score components reconstruct the production score",
   {
     fixture <- analytical_workbook_test_fixture()
